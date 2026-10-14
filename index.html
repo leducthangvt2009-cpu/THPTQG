@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ôn tập THPT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --navy: #0b1f5c;
+    --navy-deep: #040d2e;
+    --sky: #8ecbff;
+    --sky-soft: #dcefff;
+    --white: #ffffff;
+
+    --bg: #ffffff;
+    --text: #0d1b3d;
+    --muted: #4a5a85;
+    --surface: #f2f7ff;
+    --surface-2: #e3edff;
+    --line: #0b1f5c;
+    --line-soft: #c3d4f3;
+    --accent: #0b1f5c;
+    --accent-ink: #ffffff;
+    --shadow: #0b1f5c;
+    --ok: #0b6b3a;
+    --ok-bg: #e2f5ea;
+    --bad: #a82018;
+    --bad-bg: #fde8e6;
+    --focus: #2f7bff;
+
+    --font-sans: "Be Vietnam Pro", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --font-pixel: "Press Start 2P", "Courier New", ui-monospace, monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+  a { color: inherit; }
+  button { font-family: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  /* ---------- Header ---------- */
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--navy);
+    color: var(--white);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+    padding: calc(env(safe-area-inset-top, 0px) + 1rem) clamp(1.25rem, 4vw, 3rem) 1rem;
+  }
+  .header-inner {
+    max-width: 1280px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+  }
+  .logo {
+    display: inline-flex; align-items: center; gap: 0.65rem;
+    font-weight: 800; font-size: 1.15rem; letter-spacing: 0.06em; text-transform: uppercase;
+    text-decoration: none; color: var(--white); white-space: nowrap;
+  }
+  .logo-icon { image-rendering: pixelated; shape-rendering: crispEdges; flex-shrink: 0; }
+  .nav { display: flex; gap: clamp(1.25rem, 3vw, 2.5rem); }
+  .nav a {
+    color: var(--white); font-weight: 500; font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase;
+    text-decoration: none; padding: 0.25rem 0; white-space: nowrap; transition: opacity .15s ease;
+  }
+  .nav a:hover { opacity: .8; }
+  .nav a[aria-current="page"] { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 7px; }
+
+  /* ---------- Hero ---------- */
+  .hero-wrap {
+    position: relative; isolation: isolate; overflow: hidden;
+    min-height: calc(100svh - var(--header-h, 64px));
+    display: flex; align-items: center;
+    color: var(--white);
+    background:
+      radial-gradient(700px 420px at 88% 65%, rgba(142,203,255,.20), transparent 70%),
+      radial-gradient(700px 480px at 0% 100%, rgba(30,80,190,.35), transparent 70%),
+      var(--navy);
+    padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 4vw, 3rem) clamp(3rem, 6vw, 5rem);
+  }
+  .diamonds { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .diamond { position: absolute; transform: rotate(45deg); background: rgba(255,255,255,.06); border: 1px solid rgba(190,225,255,.16); }
+  .diamond.glow { background: rgba(142,203,255,.10); filter: blur(1px); }
+  @media (prefers-reduced-motion: no-preference) {
+    .diamond { animation: drift 14s ease-in-out infinite alternate; }
+    @keyframes drift { from { transform: rotate(45deg) translate(0,0); } to { transform: rotate(45deg) translate(10px,-14px); } }
+  }
+  .hero-inner {
+    width: 100%; max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: center;
+  }
+  .tag {
+    display: inline-block; border: 1px solid var(--white); padding: .3rem .75rem;
+    font-size: .72rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    margin: 0 0 1.5rem; font-weight: 800; font-size: clamp(1.75rem, 8vw, 3.4rem);
+    line-height: 1.08; text-transform: uppercase;
+  }
+  .hero h1 span { display: block; }
+  .lead { margin: 0 0 2.25rem; max-width: 34rem; font-size: 1.05rem; line-height: 1.7; }
+  .cta {
+    display: inline-block; background: var(--white); color: var(--navy);
+    border: 3px solid var(--navy-deep); padding: .95rem 1.9rem; font-weight: 800; font-size: 1rem;
+    letter-spacing: .06em; text-transform: uppercase; text-decoration: none;
+    box-shadow: 5px 5px 0 var(--navy-deep); transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+  }
+  .cta:hover { background: var(--sky-soft); transform: translate(2px,2px); box-shadow: 3px 3px 0 var(--navy-deep); }
+  .cta:active { transform: translate(5px,5px); box-shadow: 0 0 0 var(--navy-deep); }
+
+  .card-wrap { display: flex; justify-content: center; }
+  .hcard { width: 100%; max-width: 520px; border: 2px solid var(--white); background: var(--navy); box-shadow: 12px 12px 0 var(--navy-deep); }
+  .hcard-art {
+    background: #03071c; aspect-ratio: 16/10; display: grid; place-items: center;
+    background-image: linear-gradient(rgba(142,203,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(142,203,255,.05) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .hcard-art svg { height: 82%; width: auto; image-rendering: pixelated; shape-rendering: crispEdges; }
+  .hcard-title {
+    background: var(--white); color: var(--navy); text-align: center; padding: .7rem 1rem;
+    font-weight: 700; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase;
+    border-top: 2px solid var(--white); border-bottom: 2px solid var(--white);
+  }
+  .hcard-stats { padding: .9rem; background: var(--navy); }
+  .stats { border: 2px solid var(--white); display: grid; grid-template-columns: repeat(3, 1fr); color: var(--white); }
+  .stat { text-align: center; padding: 1.1rem .5rem 1rem; }
+  .stat + .stat { border-left: 2px solid var(--white); }
+  .stat b { display: block; font-family: var(--font-pixel); font-weight: 400; font-size: clamp(1.1rem, 3.4vw, 1.7rem); line-height: 1; margin-bottom: .8rem; }
+  .stat span { display: block; font-size: .68rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+
+  /* ---------- Trang chung ---------- */
+  .page-head {
+    background: radial-gradient(600px 300px at 90% 100%, rgba(142,203,255,.18), transparent 70%), var(--navy);
+    color: var(--white);
+    padding: clamp(1.75rem, 4vw, 3rem) clamp(1.25rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem);
+  }
+  .page-head-in { max-width: 1280px; margin: 0 auto; }
+  .crumb { display: inline-block; font-size: .85rem; letter-spacing: .06em; text-decoration: none; opacity: .85; margin-bottom: 1rem; }
+  .crumb:hover { opacity: 1; text-decoration: underline; }
+  .page-head h1 { margin: 0 0 .6rem; font-weight: 800; font-size: clamp(2rem, 6vw, 3.6rem); line-height: 1.05; text-transform: uppercase; }
+  .page-head p { margin: 0; max-width: 40rem; font-size: 1.02rem; }
+
+  .page-body {
+    max-width: 1280px; margin: 0 auto;
+    padding: clamp(1.75rem, 4vw, 3rem) clamp(1.25rem, 4vw, 3rem) calc(clamp(3rem, 6vw, 5rem) + env(safe-area-inset-bottom, 0px));
+  }
+  .h2-rule {
+    margin: 0 0 1.75rem; padding-bottom: 1rem; border-bottom: 3px solid var(--line);
+    font-weight: 800; font-size: clamp(1.6rem, 4.5vw, 2.6rem); text-transform: uppercase; color: var(--text);
+  }
+  h2.sec { margin: 2.5rem 0 1rem; font-size: 1.15rem; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
+
+  .subjects { scroll-margin-top: var(--header-h, 64px); padding: clamp(3rem, 7vw, 5.5rem) clamp(1.25rem, 4vw, 3rem) calc(clamp(3rem, 7vw, 5.5rem) + env(safe-area-inset-bottom, 0px)); min-height: 60vh; }
+  .subjects-in { max-width: 1280px; margin: 0 auto; }
+  .subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.75rem; }
+  .scard {
+    display: flex; flex-direction: column; gap: .5rem; text-decoration: none; color: var(--text);
+    background: var(--surface); border: 3px solid var(--line); padding: 1.4rem 1.3rem 1.3rem;
+    box-shadow: 6px 6px 0 var(--shadow); transition: transform .12s ease, box-shadow .12s ease;
+  }
+  a.scard:hover { transform: translate(2px,2px); box-shadow: 4px 4px 0 var(--shadow); }
+  .scard h3 { margin: 0; font-size: 1.35rem; font-weight: 800; text-transform: uppercase; }
+  .scard p { margin: 0; color: var(--muted); font-size: .95rem; }
+  .scard .meta { margin-top: auto; padding-top: .8rem; font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .scard.soon { border-style: dashed; box-shadow: none; opacity: .72; }
+
+  /* ---------- Nút ---------- */
+  .btn {
+    display: inline-block; cursor: pointer; text-align: center; text-decoration: none;
+    background: var(--accent); color: var(--accent-ink); border: 3px solid var(--line);
+    padding: .8rem 1.4rem; font-weight: 800; font-size: .95rem; letter-spacing: .05em; text-transform: uppercase;
+    box-shadow: 4px 4px 0 var(--shadow); transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--shadow); }
+  .btn:active { transform: translate(4px,4px); box-shadow: 0 0 0 var(--shadow); }
+  .btn.ghost { background: transparent; color: var(--text); }
+  .btn.small { padding: .5rem .9rem; font-size: .8rem; border-width: 2px; box-shadow: 3px 3px 0 var(--shadow); }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 1rem; }
+
+  .panel { background: var(--surface); border: 3px solid var(--line); box-shadow: 6px 6px 0 var(--shadow); padding: clamp(1.25rem, 3vw, 2rem); }
+  .notice { border-left: 6px solid var(--line); background: var(--surface); padding: .9rem 1.1rem; margin: 0 0 2rem; font-size: .95rem; }
+  .notice b { font-weight: 700; }
+
+  /* ---------- Trang môn Tiếng Anh ---------- */
+  .test-card { display: grid; gap: 1.5rem; }
+  .test-card h3 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.1rem); font-weight: 800; text-transform: uppercase; line-height: 1.1; }
+  .test-card .sub { margin: .35rem 0 0; color: var(--muted); }
+  .kpis { display: flex; flex-wrap: wrap; gap: .75rem 2rem; font-size: .95rem; }
+  .kpis b { font-weight: 800; }
+  .modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+  .mode { background: var(--bg); border: 2px solid var(--line); padding: 1.1rem 1.1rem 1.2rem; display: flex; flex-direction: column; gap: .7rem; }
+  .mode h4 { margin: 0; font-size: 1.05rem; font-weight: 800; text-transform: uppercase; }
+  .mode p { margin: 0; color: var(--muted); font-size: .93rem; flex: 1; }
+  .resume { background: var(--bg); border: 2px dashed var(--line); padding: 1rem 1.1rem; display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; justify-content: space-between; }
+  .resume p { margin: 0; font-size: .95rem; }
+
+  .part-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; }
+  .part-item {
+    display: grid; grid-template-columns: 1fr auto; gap: .5rem 1rem; align-items: center;
+    border: 2px solid var(--line-soft); padding: .8rem 1rem; background: var(--bg);
+  }
+  .part-item .t { font-weight: 700; }
+  .part-item .r { color: var(--muted); font-size: .88rem; }
+
+  /* ---------- Làm bài ---------- */
+  .runbar { position: sticky; top: var(--header-h, 64px); z-index: 30; background: var(--bg); border-bottom: 2px solid var(--line); }
+  .runbar-in {
+    max-width: 1280px; margin: 0 auto; padding: .6rem clamp(1.25rem, 4vw, 3rem);
+    display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem;
+  }
+  .rb-title { font-weight: 800; text-transform: uppercase; font-size: .9rem; letter-spacing: .04em; margin-right: auto; }
+  .rb-title span { font-weight: 500; color: var(--muted); margin-left: .5rem; text-transform: none; letter-spacing: 0; }
+  .rb-stat { display: flex; gap: 1rem; font-variant-numeric: tabular-nums; font-size: .9rem; font-weight: 700; }
+  .rb-check { display: inline-flex; align-items: center; gap: .4rem; font-size: .85rem; font-weight: 500; cursor: pointer; }
+  .rb-check input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+
+  .palette {
+    position: absolute; left: 0; right: 0; top: 100%;
+    background: var(--bg); border-bottom: 3px solid var(--line); box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    max-height: 62svh; overflow: auto;
+  }
+  .palette-in { max-width: 1280px; margin: 0 auto; padding: 1rem clamp(1.25rem, 4vw, 3rem) 1.4rem; display: grid; gap: 1rem; }
+  .palette h4 { margin: 0 0 .5rem; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .pal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: .5rem; }
+  .pal {
+    position: relative; cursor: pointer; padding: .45rem 0; text-align: center; font-weight: 700; font-size: .9rem;
+    background: var(--bg); color: var(--text); border: 2px solid var(--line-soft);
+  }
+  .pal.done { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .pal.ok { background: var(--ok-bg); color: var(--ok); border-color: var(--ok); }
+  .pal.bad { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+  .pal.skip { border: 2px dashed var(--bad); color: var(--bad); }
+  .pal.flagged::after { content: "⚑"; position: absolute; top: -9px; right: -5px; font-size: .78rem; color: var(--text); }
+  .pal.current { outline: 3px solid var(--focus); outline-offset: 1px; }
+  .legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; font-size: .8rem; color: var(--muted); }
+
+  .run-main { max-width: 1280px; margin: 0 auto; padding: 1.5rem clamp(1.25rem, 4vw, 3rem) calc(3rem + env(safe-area-inset-bottom, 0px)); }
+  .part-kicker { margin: 0 0 .25rem; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .block-title { margin: 0 0 .5rem; font-size: clamp(1.3rem, 3.2vw, 1.9rem); font-weight: 800; }
+  .instruction { margin: 0 0 1.5rem; color: var(--muted); font-size: .95rem; max-width: 52rem; }
+
+  .block-body { display: grid; gap: 1.5rem; align-items: start; }
+  .passage {
+    background: var(--surface); border: 2px solid var(--line); padding: 1.25rem 1.4rem;
+    font-size: 1rem; line-height: 1.8; max-height: 50svh; overflow: auto;
+  }
+  .passage h3 { margin: 0 0 .75rem; font-size: 1.15rem; font-weight: 800; }
+  .passage h4 { margin: 1rem 0 .4rem; font-size: 1rem; font-weight: 800; }
+  .passage p { margin: 0 0 .9rem; position: relative; }
+  .passage p:last-child { margin-bottom: 0; }
+  .passage .pn {
+    display: inline-block; min-width: 1.35rem; height: 1.35rem; margin-right: .4rem; text-align: center; line-height: 1.35rem;
+    font-size: .75rem; font-weight: 800; background: var(--accent); color: var(--accent-ink); vertical-align: 1px;
+  }
+  .passage .src { font-size: .85rem; color: var(--muted); font-style: italic; }
+  @media (min-width: 960px) {
+    .block-body.has-passage { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; }
+    .passage { position: sticky; top: calc(var(--header-h, 64px) + var(--runbar-h, 56px) + 16px); max-height: calc(100svh - var(--header-h, 64px) - var(--runbar-h, 56px) - 40px); }
+  }
+  .blank {
+    font: inherit; font-weight: 800; cursor: pointer; color: var(--text); white-space: nowrap;
+    background: var(--surface-2); border: 0; border-bottom: 2px solid var(--line); padding: 0 .3em;
+  }
+  .blank:hover { background: var(--line-soft); }
+  .gap { display: inline-block; min-width: 3.6em; border-bottom: 2px solid currentColor; height: 1em; vertical-align: -2px; margin: 0 .15em; }
+
+  .questions { display: grid; gap: 1.25rem; min-width: 0; }
+  .q { margin: 0; padding: 1.1rem 1.1rem 1.2rem; min-width: 0; border: 2px solid var(--line-soft); background: var(--bg); scroll-margin-top: calc(var(--header-h, 64px) + var(--runbar-h, 56px) + 14px); }
+  .q legend { padding: 0 .5rem; font-weight: 800; font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; }
+  .q-stem { margin: .15rem 0 .9rem; font-size: 1.02rem; font-weight: 500; }
+  .opts { display: grid; gap: .55rem; }
+  .opt {
+    position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: .75rem; align-items: center;
+    border: 2px solid var(--line-soft); padding: .6rem .85rem; cursor: pointer; background: var(--bg);
+    transition: background .1s ease;
+  }
+  .opt:hover { background: var(--surface-2); }
+  .opt input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .opt:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .opt .letter { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; font-weight: 800; font-size: .85rem; border: 2px solid currentColor; }
+  .opt .otext { min-width: 0; overflow-wrap: anywhere; color: var(--text); }
+  .opt .mark { font-weight: 800; font-size: 1.1rem; }
+  .opt.chosen { border-color: var(--line); background: var(--surface-2); }
+  .opt.chosen .letter { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .opt.correct { border-color: var(--ok); background: var(--ok-bg); color: var(--ok); }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-bg); color: var(--bad); }
+  .opt.correct .letter { background: var(--ok); color: var(--ok-bg); border-color: var(--ok); }
+  .opt.wrong .letter { background: var(--bad); color: var(--bad-bg); border-color: var(--bad); }
+  .opt:has(input:disabled) { cursor: default; }
+  .opt:has(input:disabled):hover { background: inherit; }
+
+  .q-tools { margin-top: .8rem; display: flex; gap: .75rem; }
+  .flag { cursor: pointer; background: transparent; border: 2px solid var(--line-soft); color: var(--muted); padding: .3rem .7rem; font-size: .8rem; font-weight: 700; }
+  .flag.on { border-color: var(--line); color: var(--text); background: var(--surface-2); }
+  .exp { margin-top: .9rem; padding: .8rem 1rem; background: var(--surface); border-left: 5px solid var(--line); font-size: .95rem; }
+  .exp p { margin: 0; }
+  .exp .head { font-weight: 800; margin-bottom: .25rem; }
+
+  .block-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+  .empty { padding: 2rem; border: 2px dashed var(--line); text-align: center; }
+
+  /* ---------- Kết quả ---------- */
+  .score-card { display: grid; gap: 1.5rem; }
+  .big { font-family: var(--font-pixel); font-size: clamp(2rem, 9vw, 3.6rem); line-height: 1.1; margin: 0; }
+  .big small { font-size: .45em; opacity: .7; }
+  .score-meta { display: flex; flex-wrap: wrap; gap: .6rem 2rem; font-size: .95rem; }
+  .score-meta b { font-weight: 800; }
+  .bars { display: grid; gap: .9rem; }
+  .bar-row { display: grid; gap: .3rem; }
+  .bar-label { display: flex; justify-content: space-between; gap: 1rem; font-size: .9rem; font-weight: 600; }
+  .bar { height: 14px; border: 2px solid var(--line); background: var(--bg); }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+
+  /* ---------- Lịch sử ---------- */
+  .hist { list-style: none; margin: 0 0 1.5rem; padding: 0; display: grid; gap: .75rem; }
+  .hist li { display: grid; grid-template-columns: 1fr auto; gap: .25rem 1rem; border: 2px solid var(--line-soft); padding: .8rem 1rem; background: var(--surface); }
+  .hist .t { font-weight: 700; }
+  .hist .d { color: var(--muted); font-size: .88rem; }
+  .hist .s { font-family: var(--font-pixel); font-size: .9rem; align-self: center; grid-row: span 2; grid-column: 2; }
+
+  /* ---------- Hộp thoại ---------- */
+  dialog { border: 3px solid var(--line); background: var(--bg); color: var(--text); padding: 1.5rem; max-width: min(92vw, 28rem); box-shadow: 8px 8px 0 var(--shadow); }
+  dialog::backdrop { background: rgba(4, 13, 46, .6); }
+  dialog p { margin: 0 0 1.25rem; font-size: 1rem; }
+  .dlg-actions { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: flex-end; }
+
+  /* ---------- Responsive ---------- */
+  @media (min-width: 900px) { .hero h1 { font-size: clamp(2.5rem, 3.9vw, 4.2rem); } }
+  @media (max-width: 899px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .card-wrap { order: 2; }
+    .hcard { box-shadow: 8px 8px 0 var(--navy-deep); max-width: 480px; }
+  }
+  @media (max-width: 560px) {
+    .logo { font-size: 1rem; }
+    .nav { gap: 1rem; }
+    .nav a { font-size: .78rem; letter-spacing: .05em; }
+    .cta { width: 100%; }
+    .stat span { font-size: .6rem; letter-spacing: .06em; }
+    .rb-title span { display: block; margin-left: 0; }
+    .btn-row .btn { flex: 1 1 100%; }
+    .part-item { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <a class="logo" href="#/">
+      <svg class="logo-icon" viewBox="0 0 9 9" width="22" height="22" aria-hidden="true">
+        <path fill="#8ecbff" d="M2 0h2v1H2zm3 0h2v1H5zM1 1h7v1H1zM0 2h9v2H0zm1 2h7v1H1zm-1 1h9v2H0zm1 2h7v1H1zm1 1h2v1H2zm3 0h2v1H5z"/>
+        <rect x="3" y="3" width="3" height="3" fill="#ffe04d"/>
+        <rect x="4" y="3" width="1" height="3" fill="#b87800"/>
+        <rect x="3" y="4" width="3" height="1" fill="#b87800"/>
+      </svg>
+      <span>Ôn tập THPT</span>
+    </a>
+    <nav class="nav" aria-label="Menu chính">
+      <a href="#/tai-khoan" id="nav-account">Tài khoản</a>
+      <a href="#/mon-hoc" id="nav-subjects">Môn học</a>
+    </nav>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<dialog id="dlg">
+  <form method="dialog">
+    <p id="dlg-msg"></p>
+    <div class="dlg-actions">
+      <button class="btn small ghost" value="cancel" id="dlg-cancel"></button>
+      <button class="btn small" value="ok" id="dlg-ok"></button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  'use strict';
+
+  function Q(n, stem, opts, ans, exp) { return { n: n, stem: stem, opts: opts, ans: ans, exp: exp }; }
+  var GAPQ = null;
+
+  var TESTS = [{
+    id: 'anh-test-01',
+    subject: 'anh',
+    title: 'Test 01',
+    blocks: [
+      {
+        id: 'b1', short: 'Lexico-Grammar', part: 'Part 1 · Lexico-Grammar',
+        title: 'Từ vựng và ngữ pháp',
+        instruction: 'Mark the letter A, B, C, or D on your answer sheet to indicate the correct answer to each of the following questions.',
+        questions: [
+          Q(1, 'My father is getting old and forgetful ______ he is experienced and helpful.', ['regardless', 'consequently', 'lest', 'be that as it may'], 'D',
+            '“Be that as it may” = dù vậy / tuy nhiên, nối hai ý đối lập: ông già và hay quên, nhưng vẫn giàu kinh nghiệm. “Regardless” cần đi với “of”; “consequently” (do đó) và “lest” (e rằng) đều sai nghĩa.'),
+          Q(2, 'Last-minute withdrawal of the sponsor threw a ______ in the works to organize the cultural festivals.', ['caution', 'information', 'spanner', 'notice'], 'C',
+            'Thành ngữ “throw a spanner in the works” = phá hỏng, gây trở ngại cho kế hoạch.'),
+          Q(3, 'The first amusement park in our city was a ______ success for its owners. Everyone would go there to have a good time.', ['roaring', 'ringing', 'cracking', 'sparkling'], 'A',
+            'Kết hợp từ “a roaring success” = thành công vang dội.'),
+          Q(4, 'We walk through a park, ______ had been uprooted in the storm. It was a scene of utter desolation.', ['that the most trees', 'whose most trees', 'most trees of which', 'most of whose trees'], 'D',
+            'Cần mệnh đề quan hệ chỉ sở hữu của “park”: “most of whose trees” = phần lớn số cây của công viên đó. “Whose most trees” sai trật tự từ.'),
+          Q(5, '______ in Stevenson’s landscapes, the more vitality and character the painting seems to possess.', ['The loose brushwork is', 'The looser brushwork', 'The looser the brushwork is', 'The brushwork is loose'], 'C',
+            'So sánh kép: “The + so sánh hơn + S + V, the + so sánh hơn + S + V”. Vế đầu: “The looser the brushwork is…”.'),
+          Q(6, 'It was ______ that he was kept in hospital for nearly a month.', ['a such serious accident', 'such serious an accident', 'so a serious accident', 'so serious an accident'], 'D',
+            'Cấu trúc “so + adj + a/an + N + that…”: so serious an accident that…'),
+          Q(7, 'One of the most disappointing things in life is to be ______ by a friend when you truly need his or her support.', ['backed out', 'marked up', 'let down', 'stood for'], 'C',
+            '“Let sb down” = làm ai thất vọng, không giúp khi cần. Back out = rút lui; mark up = tăng giá; stand for = viết tắt cho / ủng hộ.'),
+          Q(8, 'In the Netherlands, a highly successful biking scheme has been ______, which helps to reduce the carbon footprint associated with transportation.', ['originated', 'implemented', 'controlled', 'diverged'], 'B',
+            '“Implement a scheme” = triển khai, thực hiện một chương trình.'),
+          Q(9, 'By using public transports, everyone can contribute to the reduction of greenhouse gas emissions, which does ______ for the environment.', ['wonders', 'dreams', 'horizons', 'pearls'], 'A',
+            'Thành ngữ “do wonders for” = mang lại lợi ích rất lớn cho.'),
+          Q(10, 'Due to ______, people can now enjoy foods and products from different cultures without leaving their home country.', ['globalism', 'globe', 'being globalized', 'globalization'], 'D',
+            'Sau “Due to” cần danh từ. “Globalization” (toàn cầu hóa) đúng nghĩa; “globalism” là chủ nghĩa toàn cầu, “globe” là địa cầu.')
+        ]
+      },
+      {
+        id: 'b2', short: 'Đọc điền từ: Quảng cáo', part: 'Part 2 · Reading',
+        title: 'Điền từ vào thông báo quảng cáo (Câu 11–13)',
+        instruction: 'Read the following advertisement/announcement and mark the letter A, B, C, or D to indicate the correct option that best fits each of the numbered blanks.',
+        passageTitle: 'Unleash Your Potential: The Road to Independence!',
+        paras: [
+          'Calling all young visionaries! Are you ready to dive into a world of (11) ______ and empowerment? Join us for the must-see show of the season: “Mastering Independence: A Youngster’s Guide to Living Bold”!',
+          'Date: Coming Soon! | Venue: The Grand Auditorium of Youth Empowerment | Time: Doors open at 6 PM',
+          'It is the one show that brings you a life-changing journey (12) ______ for the ambitious souls eager to carve their own paths. We’re bringing together life coaches, self-made entrepreneurs, and independence gurus to equip you (13) ______ the tools, knowledge, and confidence to take on the world. Tickets: Early bird specials available now!'
+        ],
+        questions: [
+          Q(11, GAPQ, ['self-abandonment', 'self-condemnation', 'self-absorption', 'self-reliance'], 'D',
+            '“Self-reliance” (tự lực) hợp với chủ đề independence và empowerment. Self-abandonment = tự bỏ rơi; self-condemnation = tự lên án; self-absorption = mải mê bản thân.'),
+          Q(12, GAPQ, ['tailoring', 'to tailor', 'tailor', 'tailored'], 'D',
+            'Rút gọn mệnh đề quan hệ bị động: “a journey (which is) tailored for…” = hành trình được thiết kế riêng cho…'),
+          Q(13, GAPQ, ['on', 'in', 'for', 'with'], 'D',
+            '“Equip sb with sth” = trang bị cho ai cái gì.')
+        ]
+      },
+      {
+        id: 'b3', short: 'Đọc điền từ: Trung tâm Anh ngữ', part: 'Part 2 · Reading',
+        title: 'Điền từ vào quảng cáo trung tâm Anh ngữ (Câu 14–16)',
+        instruction: 'Read the following advertisement/announcement and mark the letter A, B, C, or D to indicate the correct option that best fits each of the numbered blanks.',
+        passageTitle: 'Advertisements for New Star English Center',
+        paras: [
+          'In today’s interconnected world, proficiency in English is not just an asset; it’s a necessity. Our English Centers are committed to equipping you with the linguistic tools to navigate global conversations, enhance your career prospects, and foster meaningful connections across cultures.',
+          '## What Sets Us Apart?',
+          '✔ Innovative Learning Environment: Our (14) ______ facilities are designed to inspire creativity and collaboration, providing you with the ideal backdrop for your educational journey.',
+          '✔ Cutting-Edge Technology: Utilize the latest digital resources and interactive platforms that enhance your learning experience and keep you engaged.',
+          '✔ Networking Opportunities: Join a (15) ______ community of learners and professionals, expanding your network while you learn. Participate in events that connect you with industry leaders and fellow language enthusiasts.',
+          '✔ Comprehensive Assessment: Regular evaluations ensure that you are (16) ______ to meet your personal language goals, with constructive feedback to guide your progress.',
+          '✔ Lifelong Learning: Our commitment to your education doesn’t end with the completion of your course. Enjoy access to alumni resources, workshops, and continued learning opportunities that keep you connected and growing.'
+        ],
+        questions: [
+          Q(14, GAPQ, ['luxurious', 'exquisite', 'customized', 'state-of-the-art'], 'D',
+            '“State-of-the-art facilities” = cơ sở vật chất hiện đại nhất, hợp với đoạn nói về môi trường học đổi mới.'),
+          Q(15, GAPQ, ['vibrant', 'mercurial', 'enigmatic', 'assertive'], 'A',
+            '“Vibrant community” = cộng đồng sôi nổi. Mercurial = thất thường; enigmatic = bí ẩn; assertive = quyết đoán.'),
+          Q(16, GAPQ, ['on the horizon', 'in line', 'in the running', 'on track'], 'D',
+            '“On track to do sth” = đang đi đúng hướng để đạt được điều gì.')
+        ]
+      },
+      {
+        id: 'b4', short: 'Điền câu: Cân nặng và thói quen ăn', part: 'Part 2 · Reading',
+        title: 'Chọn cụm/câu điền vào đoạn văn (Câu 17–22)',
+        instruction: 'Mark the letter A, B, C, D in your answer sheet to indicate the correct option that fits each of the numbered blanks.',
+        passageTitle: 'Weight and eating habits',
+        paras: [
+          'It was once believed that being overweight was healthy, but nowadays few people subscribe to this viewpoint. (17) ______, studies are being conducted concerning the appetite and how it is controlled by both emotional and biochemical factors. Some of the conclusions of these studies may give insights into how to deal with weight problems. For example, when several hundred people were asked about (18) ______ in times of stress, 44 percent said they reacted to stressful situations by eating. Further investigations with both humans and animals indicated that it is not food which relieves tension but rather the act of chewing. A test in which subjects were blindfolded showed that obese people have a keener sense of taste and (19) ______. (20) ______, obese people are not satisfied and consequently eat more to fulfill this need. Blood samples taken from people after they were shown a picture of food revealed that (21) ______, a chemical associated with appetite. This did not happen to average-weight people. In another experiment, results showed that certain people have (22) ______. Eating carbohydrates raises the level of serotonin, a neurotransmitter in the brain. Enough serotonin produces a sense of satiation, and hunger for carbohydrates subsides.',
+          'Exercise has been recommended as an important part of a weight-loss program. However, it has been found that mild exercise, such as using the stairs instead of the elevator, is better in the long run than taking on a strenuous program, such as jogging, which many people find difficult to continue over long periods of time and which also increases appetite.'
+        ],
+        source: '(Adapted from Cambridge Preparation for the TOEFL Test by Jolene Gear)',
+        questions: [
+          Q(17, GAPQ, ['Even if many people are fighting the battle to reduce weight', 'Though many people are fighting the battle to reduce weight', 'In case many people are fighting the battle to reduce weight', 'While many people are fighting the battle to reduce weight'], 'D',
+            '“While” diễn tả hai việc diễn ra song song: trong khi nhiều người đang giảm cân thì các nghiên cứu cũng đang được tiến hành. “Even if” (dù cho), “In case” (phòng khi) không hợp logic.'),
+          Q(18, GAPQ, ['these eating habits', 'their eating habits', 'its eating habits', 'our eating habits'], 'B',
+            '“Their” thay cho “several hundred people” được hỏi: thói quen ăn uống của họ khi căng thẳng.'),
+          Q(19, GAPQ, ['craved more non-obese people than flavorful food', 'crave more flavorful food than non-obese people', 'craved more flavorful food than non-obese people', 'crave more non-obese people than flavorful food'], 'B',
+            'Song song với “have a keener sense of taste and ___”, dùng động từ chia hiện tại “crave”. Nghĩa: thèm đồ ăn đậm vị hơn người không béo phì. Các đáp án còn lại sai nghĩa (A, D) hoặc sai thì (C).'),
+          Q(20, GAPQ, ['Depriving of the variety of tastes and intensity', 'When deprived of the variety and intensity of tastes', 'Being deprived of the variety and intensity of tastes', 'After having deprived of the variety of tastes and intensity'], 'B',
+            '“When deprived of…” = mệnh đề rút gọn ở dạng bị động: khi bị thiếu sự đa dạng và cường độ của vị giác. A và D sai cấu trúc; C cũng có thể chấp nhận nhưng “When deprived” tự nhiên và chỉ thời điểm rõ hơn.'),
+          Q(21, GAPQ, ['insulin in blood that reacted overweight people increased', 'an increase in blood insulin reacted with overweight people', 'people reacted with an increase in blood insulin are overweight', 'overweight people reacted with an increase in blood insulin'], 'D',
+            'Sau “revealed that” cần một mệnh đề đầy đủ: “overweight people reacted with an increase in blood insulin”.'),
+          Q(22, GAPQ, ['a biological induced hunger for specific carbohydrates', 'a specific carbohydrates for biological induced hunger', 'a biologically specific induced hunger for carbohydrates', 'a specific, biologically induced hunger for carbohydrates'], 'D',
+            'Trạng từ “biologically” bổ nghĩa cho “induced”, và tính từ “specific” đứng trước: “a specific, biologically induced hunger for carbohydrates”.')
+        ]
+      },
+      {
+        id: 'b5', short: 'Điền từ: A Great Composer', part: 'Part 2 · Reading',
+        title: 'Điền từ vào bài “A Great Composer” (Câu 23–33)',
+        instruction: 'Read the following passage and mark the letter A, B, C, or D on your answer sheet to indicate the correct word or phrase that best fits each of the numbered blanks.',
+        passageTitle: 'A Great Composer',
+        paras: [
+          'The classical composer Ernst Hoffsberger, who passed away earlier this week, truly (23) ______ the world of contemporary classical music and was a great source of inspiration to a whole generation of (24) ______ young artists in various fields. In many ways his three symphonies completely (25) ______ the achievements of all other composers of the late twentieth century and by (26) ______ the classical genre with jazz, rock and latterly hip-hop, his work at times bore little (27) ______ to what is commonly considered to be classical.',
+          'Born in California just after the Second World War, Hoffsberger had a strict religious upbringing during which he was taught classical piano by his father. He first found work as a(n) (28) ______ journalist, playing and composing music in his free time. During the late sixties, he worked together in (29) ______ with a number of other amateur musicians before finally (30) ______ professional with the first public performance of his inspirational Tenor Sax Concerto in 1971. From then on, throughout the seventies and eighties, each new work seemed to (31) ______ the limits of the orchestral medium and also helped to bring classical music to a wider audience.',
+          'What many people consider Hoffsberger’s defining quality that kept his music fresh and original was that he never lost the human (32) ______ which gave him the ability to sit down and jam with musicians and artists from all (33) ______ of life.'
+        ],
+        questions: [
+          Q(23, GAPQ, ['renovated', 'revolutionised', 'refurbished', 'restored'], 'B',
+            '“Revolutionise” = tạo cuộc cách mạng. Renovate, refurbish, restore thường dùng cho việc sửa chữa, phục hồi công trình hoặc đồ vật.'),
+          Q(24, GAPQ, ['budding', 'branching', 'blooming', 'bursting'], 'A',
+            '“Budding” = mới chớm, đầy triển vọng: “budding young artists”.'),
+          Q(25, GAPQ, ['overshadowed', 'overturned', 'overwhelmed', 'overcame'], 'A',
+            '“Overshadow” = làm lu mờ: các bản giao hưởng của ông làm lu mờ thành tựu của những nhà soạn nhạc khác.'),
+          Q(26, GAPQ, ['attaching', 'fusing', 'adjoining', 'co-joining'], 'B',
+            '“Fuse A with B” = hòa trộn A với B (cổ điển với jazz, rock, hip-hop).'),
+          Q(27, GAPQ, ['identification', 'similarity', 'resemblance', 'familiarity'], 'C',
+            'Kết hợp từ “bear little resemblance to” = chẳng giống mấy với.'),
+          Q(28, GAPQ, ['odd-job', 'non-contract', 'freelance', 'off-the-books'], 'C',
+            '“Freelance journalist” = nhà báo tự do.'),
+          Q(29, GAPQ, ['attribution', 'collaboration', 'contribution', 'combination'], 'B',
+            '“In collaboration with” = hợp tác với.'),
+          Q(30, GAPQ, ['getting', 'taking', 'turning', 'making'], 'C',
+            '“Turn professional” = chuyển sang làm chuyên nghiệp.'),
+          Q(31, GAPQ, ['overpass', 'encompass', 'bypass', 'surpass'], 'D',
+            '“Surpass the limits” = vượt qua giới hạn. Encompass = bao gồm; bypass = đi vòng tránh.'),
+          Q(32, GAPQ, ['touch', 'feeling', 'contact', 'aspect'], 'A',
+            '“The human touch” = sự gần gũi, nét con người.'),
+          Q(33, GAPQ, ['walks', 'corners', 'paths', 'routes'], 'A',
+            'Thành ngữ “from all walks of life” = từ mọi tầng lớp trong xã hội.')
+        ]
+      },
+      {
+        id: 'b6', short: 'Đọc hiểu: Lãnh đạo', part: 'Part 2 · Reading',
+        title: 'Đọc hiểu: Lãnh đạo trong nhóm xã hội (Câu 34–41)',
+        instruction: 'Read the following passage and mark the letter A, B, C, or D on your answer sheet to indicate the correct answer to each of the questions.',
+        passageTitle: 'Leadership in social groups',
+        numbered: true,
+        paras: [
+          'According to sociologists, there are several different ways in which a person may become recognized as the leader of a social group in the United States. In the family, traditional cultural patterns confer leadership on one or both of the parents. In other cases, such as friendship groups, one or more persons may gradually emerge as leaders, although there is no formal process of selection. In larger groups, leaders are usually chosen formally through election or recruitment.',
+          'Although leaders are often thought to be people with unusual personal ability, decades of research have failed to produce consistent evidence that there is any category of “natural leaders”. It seems that there is no set of personal qualities that all leaders have in common; rather, virtually any person may be recognized as a leader if the person has qualities that meet the needs of that particular group.',
+          'Furthermore, although it is commonly supposed that social groups have a single leader, research suggests that there are typically two different leadership roles that are held by different individuals. Instrumental leadership emphasizes the completion of tasks by a social group. Group members look to instrumental leaders to get things done. Expressive leadership, on the other hand, emphasizes the collective well-being of a social group’s members. Expressive leaders are less concerned with the overall goals of the group than with providing emotional support to group members and attempting to minimize tension and conflict among them. Group members expect expressive leaders to maintain stable relationships within the group and provide support to individual members.',
+          'Instrumental leaders are likely to have a rather secondary relationship to other group members. They give orders and may discipline group members who inhibit attainment of the group’s goals. Expressive leaders cultivate a more personal or primary relationship to others in the group. They offer sympathy when someone experiences difficulties or is subjected to discipline, are quick to lighten a serious moment with humor, and try to resolve issues that threaten to divide the group. As the differences in these two roles suggest, expressive leaders generally receive more personal affection from group members; instrumental leaders, if they are successful in promoting group goals, may enjoy a more distant respect.'
+        ],
+        questions: [
+          Q(34, 'What does the passage mainly discuss?', ['The problems faced by leaders', 'The roles of leaders in social groups', 'The relationship between leaders of social groups', 'How social groups determine who will lead them'], 'B',
+            'Bài nêu cách một người trở thành lãnh đạo rồi tập trung vào hai vai trò lãnh đạo (instrumental và expressive). Vì vậy ý chính là vai trò của lãnh đạo trong nhóm. D chỉ khớp với đoạn 1.'),
+          Q(35, 'The passage mentions all of the following ways by which people can become leaders EXCEPT ______.', ['formal election process', 'traditional cultural patterns', 'specific leadership training', 'recruitment'], 'C',
+            'Đoạn 1 nhắc đến truyền thống văn hóa (cha mẹ), tự nổi lên, bầu cử và tuyển chọn. Không có “huấn luyện lãnh đạo”.'),
+          Q(36, 'In mentioning “natural leaders” in paragraph 2, the author is making the point that ______', ['there is no proof that “natural leaders” exist', '“natural leaders” share a similar set of characteristics', '“natural leaders” are easily accepted by the members of a social group', 'few people qualify as “natural leaders”'], 'A',
+            'Tác giả nói nhiều thập kỷ nghiên cứu vẫn không tìm được bằng chứng nhất quán về “natural leaders”.'),
+          Q(37, 'Which of the following statements about leadership can be inferred from paragraph 2?', ['Most people desire to be leaders but can produce little evidence of their qualifications.', 'A person can best learn how to be an effective leader by doing research on leadership.', 'Few people succeed in sharing a leadership role with another person.', 'A person who is an effective leader of a particular group may not be an effective leader in another group.'], 'D',
+            'Đoạn 2: bất kỳ ai cũng có thể là lãnh đạo nếu có phẩm chất đáp ứng nhu cầu của nhóm cụ thể đó. Suy ra, ở nhóm khác với nhu cầu khác, người đó có thể không còn hiệu quả.'),
+          Q(38, 'The word “them” in paragraph 3 refers to ______.', ['group members', 'expressive leaders', 'goals of the group', 'tension and conflict'], 'A',
+            '“…providing emotional support to group members and attempting to minimize tension and conflict among them” → “them” là group members.'),
+          Q(39, 'The word “stable” in paragraph 3 is opposite in meaning to ______.', ['versatile', 'settled', 'sturdy', 'cohesive'], 'A',
+            '“Stable” = ổn định, không đổi. Settled, sturdy, cohesive đều gần nghĩa với stable, còn “versatile” (hay thay đổi, biến hóa) là từ trái nghĩa gần nhất trong các lựa chọn.'),
+          Q(40, 'A “secondary relationship” mentioned in paragraph 4 between a leader and the members of a group could best be characterized as ______.', ['unimportant', 'distant', 'enthusiastic', 'unreliable'], 'B',
+            'Instrumental leaders có “secondary relationship” và chỉ nhận “a more distant respect”, tức mối quan hệ xa cách, không gần gũi cá nhân.'),
+          Q(41, 'The word “resolve” in paragraph 4 is closest in meaning to ______.', ['talk about', 'find a solution to', 'avoid thinking about', 'avert repeating'], 'B',
+            '“Resolve issues” = giải quyết vấn đề → find a solution to.')
+        ]
+      },
+      {
+        id: 'b7', short: 'Đọc hiểu: Tặng quà', part: 'Part 2 · Reading',
+        title: 'Đọc hiểu: Tặng quà (Câu 42–50)',
+        instruction: 'Read the following passage and mark the letter A, B, C, or D on your answer sheet to indicate the correct answer to each of the questions.',
+        passageTitle: 'Gift-giving',
+        numbered: true,
+        paras: [
+          'Every day, millions of shoppers hit the stores in full force - both online and on foot - searching excitedly for the perfect gifts. Last year, Americans spent over $30 billion at retail stores in the month of December alone. Aside from purchasing holiday gifts, most people regularly buy presents for other occasions throughout the year, including weddings, birthdays, anniversaries, graduations, and baby showers. This frequent experience of gift-giving can engender ambivalent feelings in gift-givers. Many relish the opportunity to buy presents because gift-giving offers a powerful means to build stronger bonds with one’s closest peers. At the same time, many dread the thought of buying gifts; they worry that their purchases will disappoint, rather than delight, the intended recipients.',
+          'Anthropologists describe gift-giving as a positive social process, serving various political, religious, and psychological functions. Economists, however, offer a less favorable view. According to Waldfogel (1993), gift-giving represents an objective waste of resources. People buy gifts that recipients would not choose to buy on their own, or at least not spend as much money to purchase (a phenomenon referred to as “the deadweight loss of Christmas”). This “deadweight loss” suggests that gift-givers are not very good at predicting what gifts others will appreciate. That in itself is not surprising to social psychologists. Research has found that people often struggle to take account of others’ perspectives, their insights are subject to egocentrism, social projection, and multiple attribution errors.',
+          'What is surprising is that gift-givers have considerable experience acting as both gift-givers and gift-recipients, but nevertheless, tend to overspend each time they set out to purchase a meaningful gift. In the present research, we propose a unique psychological explanation for this overspending problem, i.e. that gift-givers equate how much they spend with how much recipients will appreciate the gift (the more expensive the gift, the stronger the gift-recipient’s feelings of appreciation). Although a link between gift price and feelings of appreciation might seem intuitive to gift-givers, such an assumption may be unfounded. Indeed, we suggest that gift-recipients will be less likely to base their feelings of appreciation on the magnitude of a gift than givers assume.',
+          'Why do gift-givers assume that gift price is closely linked to gift-recipients’ feelings of appreciation? Perhaps givers believe that bigger (that is, more expensive) gifts convey stronger signals of thoughtfulness and consideration. According to Camerer (1988) and others, gift-giving represents a symbolic ritual, whereby gift-givers attempt to signal their positive attitudes toward the intended recipients and their willingness to invest resources in a future relationship. In this sense, gift-givers may be motivated to spend more money on a gift in order to send a “stronger signal” to their intended recipients. As for gift-recipients, they may not construe smaller or larger gifts as representing smaller or larger signals of thoughtfulness and consideration.'
+        ],
+        questions: [
+          Q(42, 'What is the main idea discussed in the passage?', ['Gift-giving may have certain drawbacks alongside its positive qualities.', 'Gift-giving, despite its uneconomical downsides, cultivates a positive social process.', 'Gift-recipients are widely acknowledged as considerably experienced in gift-giving.', 'Gifts can serve as implicit signals of thoughtfulness and consideration.'], 'A',
+            'Bài nêu cả mặt tích cực (gắn kết quan hệ) lẫn hạn chế (lãng phí nguồn lực, người tặng chi quá tay) của việc tặng quà. Các đáp án khác chỉ nói một chi tiết hoặc đổi trọng tâm.'),
+          Q(43, 'In paragraph 1, the word “ambivalent” most nearly means _____.', ['conflicted', 'unrealistic', 'apprehensive', 'supportive'], 'A',
+            'Câu sau đó nêu hai cảm xúc đối lập (thích thú và e ngại), nên “ambivalent” = mâu thuẫn, giằng xé = conflicted.'),
+          Q(44, 'The author indicates that people value gift-giving because they feel it _____.', ['functions as a form of self-expression', 'can serve to strengthen a relationship', 'requires the gift-recipients to share the same opinion', 'is an inexpensive way to show appreciation'], 'B',
+            'Đoạn 1: gift-giving là “a powerful means to build stronger bonds” = củng cố mối quan hệ.'),
+          Q(45, 'The author most likely uses the examples of gift-giving occasions in paragraph 1 to highlight the _____.', ['recent increase in the amount of money spent on gifts', 'number of special occasions involving gift-giving', 'anxiety gift-shopping causes for consumers', 'regularity with which people shop for gifts'], 'D',
+            'Các dịp (đám cưới, sinh nhật…) được liệt kê ngay sau “most people regularly buy presents… throughout the year”, nhấn mạnh việc mua quà diễn ra đều đặn. B gần nghĩa nhưng trọng tâm là tần suất, không phải số lượng dịp.'),
+          Q(46, 'The word “many” in line 6 paragraph 1 refers to _____.', ['presents', 'peers', 'gift-givers', 'gift-recipients'], 'C',
+            '“Many relish the opportunity to buy presents…” → “many” chỉ nhiều người tặng quà (gift-givers).'),
+          Q(47, 'In paragraph 3, the author indicates that the assumption made by gift-givers may be _____.', ['incorrect', 'insincere', 'fundamental', 'justified'], 'A',
+            '“Such an assumption may be unfounded” = không có cơ sở, tức có thể không đúng (incorrect).'),
+          Q(48, 'In paragraph 4, the word “construe” most probably means _____.', ['take', 'state', 'respond', 'understand'], 'D',
+            '“Construe” = diễn giải, hiểu theo một cách nào đó → understand.'),
+          Q(49, 'In paragraph 4, the word “ritual” cannot be replaced with_____.', ['tradition', 'trend', 'ceremony', 'etiquette'], 'B',
+            '“Ritual” (nghi thức, thông lệ mang tính biểu tượng) có thể thay bằng tradition, ceremony, etiquette. “Trend” (xu hướng nhất thời) thì không.'),
+          Q(50, 'The social psychologists mentioned in paragraph 2 would likely describe the “deadweight loss” phenomenon as ___.', ['disturbing', 'predictable', 'unprecedented', 'questionable'], 'B',
+            '“That in itself is not surprising to social psychologists” → họ thấy hiện tượng này dễ đoán (predictable).')
+        ]
+      }
+    ]
+  }];
+
+  var SUBJECTS = [
+    { id: 'anh', name: 'Tiếng Anh', desc: 'Đề luyện thi THPT: Lexico-Grammar và Reading, có giải thích từng câu.', href: '#/anh', ready: true },
+    { id: 'hoa', name: 'Hóa học', desc: 'Lý thuyết, mô phỏng và đề luyện thi.', ready: false },
+    { id: 'sinh', name: 'Sinh học', desc: 'Lý thuyết, mô phỏng và đề luyện thi.', ready: false },
+    { id: 'sat', name: 'Từ vựng SAT', desc: 'Học bằng thẻ ghi nhớ.', ready: false }
+  ];
+
+  var app = document.getElementById('app');
+  function $(s, r) { return (r || document).querySelector(s); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function fmt(s) {
+    var h = esc(s);
+    h = h.replace(/\((\d+)\)\s*_+/g, function (m, n) { return '<button type="button" class="blank" data-act="blank" data-n="' + n + '">(' + n + ') ______</button>'; });
+    h = h.replace(/_{3,}/g, '<span class="gap"></span>');
+    return h;
+  }
+  var store = {
+    get: function (k, f) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
+    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    del: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
+  };
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function mmss(s) { return pad(Math.floor(s / 60)) + ':' + pad(s % 60); }
+  function modeName(m) { return m === 'exam' ? 'Thi thử' : 'Luyện tập'; }
+  function ask(msg, ok, cancel) {
+    return new Promise(function (res) {
+      var d = $('#dlg');
+      if (typeof d.showModal !== 'function') { res(window.confirm(msg)); return; }
+      $('#dlg-msg').textContent = msg;
+      $('#dlg-ok').textContent = ok || 'Đồng ý';
+      $('#dlg-cancel').textContent = cancel || 'Hủy';
+      d.returnValue = '';
+      var onClose = function () { d.removeEventListener('close', onClose); res(d.returnValue === 'ok'); };
+      d.addEventListener('close', onClose);
+      d.showModal();
+    });
+  }
+  function getTest(id) { for (var i = 0; i < TESTS.length; i++) if (TESTS[i].id === id) return TESTS[i]; return null; }
+  function buildMap(test) {
+    var m = {};
+    test.blocks.forEach(function (b, bi) { b.questions.forEach(function (q) { m[q.n] = { q: q, bi: bi }; }); });
+    return m;
+  }
+  function allQids(test) { var r = []; test.blocks.forEach(function (b) { b.questions.forEach(function (q) { r.push(q.n); }); }); return r; }
+  function total(test) { return allQids(test).length; }
+  function progKey(id) { return 'ontap:progress:' + id; }
+  function histAll() { return store.get('ontap:history', []); }
+
+  var S = { test: null, qmap: null, mode: 'practice', label: '', qids: [], answers: {}, flags: {}, blockIdx: 0,
+            startMs: 0, secs: 0, submitted: false, review: false, onlyWrong: false, result: null, timer: null, paletteOpen: false };
+
+  function go(hash) { if (location.hash === hash) route(); else location.hash = hash; }
+
+  function startAttempt(test, mode, qids, label) {
+    S.test = test; S.qmap = buildMap(test); S.mode = mode; S.qids = qids.slice(); S.label = label || '';
+    S.answers = {}; S.flags = {}; S.blockIdx = 0; S.secs = 0; S.startMs = Date.now();
+    S.submitted = false; S.review = false; S.onlyWrong = false; S.result = null; S.paletteOpen = false;
+    saveProgress();
+    go('#/anh/lam-bai');
+  }
+  function resumeAttempt(test) {
+    var p = store.get(progKey(test.id), null);
+    if (!p) return;
+    S.test = test; S.qmap = buildMap(test); S.mode = p.mode; S.qids = p.qids || []; S.label = p.label || '';
+    S.answers = p.answers || {}; S.flags = p.flags || {}; S.blockIdx = p.blockIdx || 0; S.secs = p.secs || 0;
+    S.startMs = Date.now() - S.secs * 1000; S.submitted = false; S.review = false; S.onlyWrong = false; S.result = null; S.paletteOpen = false;
+    go('#/anh/lam-bai');
+  }
+  function saveProgress() {
+    if (!S.test || S.submitted) return;
+    store.set(progKey(S.test.id), { v: 1, mode: S.mode, label: S.label, qids: S.qids, answers: S.answers, flags: S.flags, blockIdx: S.blockIdx, secs: S.secs });
+  }
+  function startTimer() {
+    if (S.timer || S.submitted) return;
+    S.timer = setInterval(function () {
+      S.secs = Math.floor((Date.now() - S.startMs) / 1000);
+      var el = $('#rb-time'); if (el) el.textContent = mmss(S.secs);
+      if (S.secs % 5 === 0) saveProgress();
+    }, 1000);
+  }
+  function stopTimer() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
+
+  function reveal(n) { return S.submitted || (S.mode === 'practice' && !!S.answers[n]); }
+  function visibleQids() {
+    var ids = S.qids;
+    if (S.review && S.onlyWrong) ids = ids.filter(function (n) { return S.answers[n] !== S.qmap[n].q.ans; });
+    return ids;
+  }
+  function visibleBlocks() {
+    var set = {}; visibleQids().forEach(function (n) { set[n] = 1; });
+    return S.test.blocks.map(function (b, i) { return { b: b, i: i, qs: b.questions.filter(function (q) { return set[q.n]; }) }; })
+      .filter(function (x) { return x.qs.length; });
+  }
+  function answeredCount() { return S.qids.filter(function (n) { return !!S.answers[n]; }).length; }
+
+  function renderHome(scrollToSubjects) {
+    var cards = SUBJECTS.map(function (s) {
+      var count = '';
+      if (s.ready) {
+        var tests = TESTS.filter(function (t) { return t.subject === s.id; });
+        count = tests.length + ' đề · ' + tests.reduce(function (a, t) { return a + total(t); }, 0) + ' câu';
+      } else { count = 'Sắp có'; }
+      var inner = '<h3>' + esc(s.name) + '</h3><p>' + esc(s.desc) + '</p><div class="meta">' + esc(count) + '</div>';
+      return s.ready ? '<a class="scard" href="' + s.href + '">' + inner + '</a>' : '<div class="scard soon" aria-disabled="true">' + inner + '</div>';
+    }).join('');
+
+    app.innerHTML =
+      '<section class="hero-wrap hero">' +
+        '<div class="diamonds" id="diamonds" aria-hidden="true"></div>' +
+        '<div class="hero-inner">' +
+          '<div>' +
+            '<span class="tag">THPT 12</span>' +
+            '<h1><span>Ôn tập</span><span>Hóa, Sinh &amp; SAT</span></h1>' +
+            '<p class="lead">Chọn môn học để bắt đầu. Mỗi môn có phần lý thuyết kèm mô phỏng tương tác và đề luyện thi theo đúng cấu trúc THPT (18 trắc nghiệm - 4 đúng/sai - 6 trả lời ngắn), câu tính toán tự đổi số mỗi lần làm, và lời giải chi tiết ngay sau khi nộp bài. Thêm bộ từ vựng SAT học bằng thẻ ghi nhớ kiểu Quizlet.</p>' +
+            '<a class="cta" href="#/mon-hoc">Chọn môn học</a>' +
+          '</div>' +
+          '<div class="card-wrap"><article class="hcard">' +
+            '<div class="hcard-art"><svg id="flower" viewBox="0 0 24 24" role="img" aria-label="Bông hoa pixel với cánh xanh dương nhạt và nhụy vàng"></svg></div>' +
+            '<div class="hcard-title">2 môn + từ vựng SAT</div>' +
+            '<div class="hcard-stats"><div class="stats">' +
+              '<div class="stat"><b>3</b><span>Chuyên mục</span></div>' +
+              '<div class="stat"><b>16</b><span>Đề luyện</span></div>' +
+              '<div class="stat"><b>5.3K</b><span>Thẻ SAT</span></div>' +
+            '</div></div>' +
+          '</article></div>' +
+        '</div>' +
+      '</section>' +
+      '<section class="subjects" id="mon-hoc"><div class="subjects-in">' +
+        '<h2 class="h2-rule">Chọn môn học</h2>' +
+        '<div class="subject-grid">' + cards + '</div>' +
+      '</div></section>';
+    drawDiamonds(); drawFlower();
+    if (scrollToSubjects) requestAnimationFrame(function () { $('#mon-hoc').scrollIntoView(); });
+  }
+
+  function drawDiamonds() {
+    var spots = [[6,18,38,0],[14,72,18,0],[24,8,26,1],[31,52,14,0],[42,90,44,1],[49,30,20,0],[57,64,30,0],[66,12,52,1],[73,82,16,0],[81,44,24,0],[88,68,36,1],[92,22,14,0],[18,46,12,0],[62,40,10,0],[36,78,22,0],[78,6,20,0]];
+    var h = '';
+    spots.forEach(function (s, i) {
+      h += '<i class="diamond' + (s[3] ? ' glow' : '') + '" style="top:' + s[0] + '%;left:' + s[1] + '%;width:' + s[2] + 'px;height:' + s[2] + 'px;animation-delay:-' + (i * 1.7) + 's"></i>';
+    });
+    var host = $('#diamonds'); if (host) host.innerHTML = h;
+  }
+  function drawFlower() {
+    var N = 24, cx = 12, cy = 12, R = 6.6, pr = 3.5, petals = [];
+    for (var k = 0; k < 8; k++) { var a = k * Math.PI / 4; petals.push([cx + R * Math.cos(a), cy + R * Math.sin(a)]); }
+    var seeds = { '11,11': 1, '13,12': 1, '12,13': 1, '10,13': 1, '13,10': 1 };
+    var out = '';
+    function px(x, y, c) { out += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + c + '"/>'; }
+    for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) {
+      var mx = x + .5, my = y + .5, dc = Math.hypot(mx - cx, my - cy);
+      if (dc <= 3.1) { px(x, y, seeds[x + ',' + y] ? '#B87800' : (dc > 2.3 ? '#E0A800' : '#FFE04D')); continue; }
+      var best = 99;
+      for (var i = 0; i < petals.length; i++) { var r = Math.hypot(mx - petals[i][0], my - petals[i][1]) / pr; if (r < best) best = r; }
+      if (best <= 1) px(x, y, best < .42 ? '#F2F9FF' : (best < .8 ? '#8ECBFF' : '#3F8CE6'));
+    }
+    [[1,1],[22,2],[2,21],[21,21],[22,12],[1,11]].forEach(function (p) {
+      px(p[0], p[1], '#8ECBFF');
+      px(p[0]-1, p[1], 'rgba(142,203,255,.45)'); px(p[0]+1, p[1], 'rgba(142,203,255,.45)');
+      px(p[0], p[1]-1, 'rgba(142,203,255,.45)'); px(p[0], p[1]+1, 'rgba(142,203,255,.45)');
+    });
+    var f = $('#flower'); if (f) f.innerHTML = out;
+  }
+
+  function renderEnglish() {
+    var tests = TESTS.filter(function (t) { return t.subject === 'anh'; });
+    var cards = tests.map(function (t) {
+      var n = total(t);
+      var hist = histAll().filter(function (h) { return h.testId === t.id; });
+      var full = hist.filter(function (h) { return h.total === n; });
+      var best = full.reduce(function (m, h) { return Math.max(m, h.correct); }, -1);
+      var prog = store.get(progKey(t.id), null);
+      var last = hist[0];
+
+      var kpis = '<div class="kpis"><span><b>' + n + '</b> câu</span><span><b>' + t.blocks.length + '</b> phần</span>' +
+        '<span>Đã làm: <b>' + hist.length + '</b> lần</span>' +
+        (best >= 0 ? '<span>Cao nhất (cả đề): <b>' + best + '/' + n + '</b></span>' : '') + '</div>';
+
+      var resume = '';
+      if (prog && prog.qids && prog.qids.length) {
+        var done = prog.qids.filter(function (x) { return prog.answers && prog.answers[x]; }).length;
+        resume = '<div class="resume"><p><b>Bài đang làm dở</b> · ' + modeName(prog.mode) + (prog.label ? ' · ' + esc(prog.label) : '') + ' · ' + done + '/' + prog.qids.length + ' câu · ' + mmss(prog.secs || 0) + '</p>' +
+          '<button class="btn small" data-act="resume" data-test="' + t.id + '">Tiếp tục</button></div>';
+      }
+      var retry = (last && last.wrong && last.wrong.length)
+        ? '<button class="btn ghost" data-act="retry-last" data-test="' + t.id + '">Làm lại ' + last.wrong.length + ' câu sai gần nhất</button>' : '';
+
+      var parts = t.blocks.map(function (b) {
+        var ns = b.questions.map(function (q) { return q.n; });
+        return '<li class="part-item"><div><div class="t">' + esc(b.short) + '</div><div class="r">Câu ' + ns[0] + (ns.length > 1 ? '–' + ns[ns.length - 1] : '') + ' · ' + ns.length + ' câu</div></div>' +
+          '<button class="btn small ghost" data-act="part" data-test="' + t.id + '" data-block="' + b.id + '">Luyện phần này</button></li>';
+      }).join('');
+
+      return '<article class="panel test-card">' +
+        '<div><h3>' + esc(t.title) + '</h3><p class="sub">Lexico-Grammar và Reading · theo cấu trúc đề THPT</p></div>' +
+        kpis + resume +
+        '<div class="modes">' +
+          '<div class="mode"><h4>Luyện tập</h4><p>Chọn đáp án xong là thấy đúng/sai và lời giải ngay. Mỗi câu chỉ chọn một lần.</p><button class="btn" data-act="start" data-mode="practice" data-test="' + t.id + '">Bắt đầu luyện tập</button></div>' +
+          '<div class="mode"><h4>Thi thử</h4><p>Làm cả đề có bấm giờ, được đổi đáp án và đánh dấu câu cần xem lại. Chấm điểm và xem lời giải sau khi nộp bài.</p><button class="btn" data-act="start" data-mode="exam" data-test="' + t.id + '">Bắt đầu thi thử</button></div>' +
+        '</div>' +
+        (retry ? '<div class="btn-row">' + retry + '</div>' : '') +
+        '<div><h2 class="sec">Luyện theo từng phần</h2><ul class="part-list">' + parts + '</ul></div>' +
+      '</article>';
+    }).join('');
+
+    app.innerHTML =
+      '<section class="page-head"><div class="page-head-in">' +
+        '<a class="crumb" href="#/mon-hoc">← Môn học</a>' +
+        '<h1>Tiếng Anh</h1>' +
+        '<p>Làm đề, xem đáp án và lời giải từng câu, ôn lại các câu sai.</p>' +
+      '</div></section>' +
+      '<div class="page-body">' +
+        '<p class="notice"><b>Lưu ý về đáp án:</b> file đề gốc không có đáp án. Đáp án và lời giải trong mục này do AI tự giải, nên hãy đối chiếu với đáp án chính thức của thầy cô nếu có.</p>' +
+        cards +
+      '</div>';
+  }
+
+  function passageHTML(b) {
+    if (!b.paras) return '';
+    var h = '<article class="passage" tabindex="0" aria-label="Bài đọc">';
+    if (b.passageTitle) h += '<h3>' + esc(b.passageTitle) + '</h3>';
+    b.paras.forEach(function (p, i) {
+      if (p.indexOf('## ') === 0) h += '<h4>' + esc(p.slice(3)) + '</h4>';
+      else h += '<p>' + (b.numbered ? '<span class="pn" title="Đoạn ' + (i + 1) + '">' + (i + 1) + '</span>' : '') + fmt(p) + '</p>';
+    });
+    if (b.source) h += '<p class="src">' + esc(b.source) + '</p>';
+    return h + '</article>';
+  }
+
+  function qHTML(q) {
+    var a = S.answers[q.n], rv = reveal(q.n), L = ['A', 'B', 'C', 'D'];
+    var opts = q.opts.map(function (t, i) {
+      var l = L[i], cls = 'opt', mark = '', sr = '';
+      if (a === l) cls += ' chosen';
+      if (rv) {
+        if (l === q.ans) { cls += ' correct'; mark = '<span class="mark" aria-hidden="true">✓</span>'; sr = '<span class="sr"> (đáp án đúng)</span>'; }
+        else if (l === a) { cls += ' wrong'; mark = '<span class="mark" aria-hidden="true">✕</span>'; sr = '<span class="sr"> (bạn chọn, sai)</span>'; }
+      }
+      return '<label class="' + cls + '"><input type="radio" name="q' + q.n + '" value="' + l + '"' + (a === l ? ' checked' : '') + (rv ? ' disabled' : '') + '>' +
+        '<span class="letter">' + l + '</span><span class="otext">' + fmt(t) + sr + '</span>' + mark + '</label>';
+    }).join('');
+
+    var stem = q.stem ? '<p class="q-stem">' + fmt(q.stem) + '</p>' : '<p class="q-stem">Chọn đáp án đúng cho chỗ trống (' + q.n + ').</p>';
+    var tools = '';
+    if (S.mode === 'exam' && !S.submitted) {
+      var on = !!S.flags[q.n];
+      tools = '<div class="q-tools"><button type="button" class="flag' + (on ? ' on' : '') + '" data-act="flag" data-n="' + q.n + '" aria-pressed="' + on + '">⚑ ' + (on ? 'Bỏ đánh dấu' : 'Đánh dấu xem lại') + '</button></div>';
+    }
+    var exp = '';
+    if (rv) {
+      var verdict = a ? (a === q.ans ? 'Chính xác.' : 'Chưa đúng.') : 'Bạn chưa chọn đáp án.';
+      exp = '<div class="exp"><p class="head">' + verdict + ' Đáp án đúng: ' + q.ans + '</p><p>' + esc(q.exp) + '</p></div>';
+    }
+    return '<fieldset class="q" id="q-' + q.n + '"><legend>Câu ' + q.n + '</legend>' + stem + '<div class="opts">' + opts + '</div>' + tools + exp + '</fieldset>';
+  }
+
+  function palStatus(n) {
+    var a = S.answers[n], c = '';
+    if (S.submitted) c = a ? (a === S.qmap[n].q.ans ? 'ok' : 'bad') : 'skip';
+    else if (reveal(n)) c = (a === S.qmap[n].q.ans) ? 'ok' : 'bad';
+    else if (a) c = 'done';
+    if (S.flags[n] && !S.submitted) c += ' flagged';
+    return c;
+  }
+  function paletteHTML(vb) {
+    var cur = vb[S.blockIdx] ? vb[S.blockIdx].b.id : '';
+    var groups = vb.map(function (x) {
+      var btns = x.qs.map(function (q) {
+        var st = palStatus(q.n);
+        var label = 'Câu ' + q.n + (S.answers[q.n] ? ', đã trả lời' : ', chưa trả lời') + (S.flags[q.n] ? ', đã đánh dấu' : '');
+        return '<button type="button" class="pal ' + st + (x.b.id === cur ? ' current' : '') + '" data-act="goto" data-n="' + q.n + '" aria-label="' + label + '">' + q.n + '</button>';
+      }).join('');
+      return '<div><h4>' + esc(x.b.short) + '</h4><div class="pal-grid">' + btns + '</div></div>';
+    }).join('');
+    var legend = S.submitted
+      ? '<div class="legend"><span>Xanh: đúng</span><span>Đỏ: sai</span><span>Nét đứt: bỏ trống</span></div>'
+      : '<div class="legend"><span>Đậm: đã trả lời</span>' + (S.mode === 'exam' ? '<span>⚑: đã đánh dấu</span>' : '') + '<span>Viền xanh: phần đang xem</span></div>';
+    return '<div class="palette-in">' + legend + groups + '</div>';
+  }
+
+  function renderRunner() {
+    var vb = visibleBlocks();
+    var barTitle = '<div class="rb-title">' + esc(S.test.title) + '<span>' + (S.review ? 'Xem lại bài làm' : modeName(S.mode)) + (S.label ? ' · ' + esc(S.label) : '') + '</span></div>';
+
+    if (!vb.length) {
+      app.innerHTML =
+        '<div class="runbar"><div class="runbar-in">' + barTitle +
+          '<label class="rb-check"><input type="checkbox" id="only-wrong" checked> Chỉ hiện câu sai</label>' +
+          '<button class="btn small" data-act="results">Kết quả</button></div></div>' +
+        '<div class="run-main"><div class="empty"><p><b>Không có câu sai nào để hiển thị.</b></p><button class="btn small" data-act="show-all">Hiện tất cả câu</button></div></div>';
+      setVars(); return;
+    }
+    if (S.blockIdx >= vb.length) S.blockIdx = vb.length - 1;
+    if (S.blockIdx < 0) S.blockIdx = 0;
+    var cur = vb[S.blockIdx], b = cur.b;
+    var hasP = !!b.paras;
+
+    var right = S.review
+      ? '<label class="rb-check"><input type="checkbox" id="only-wrong"' + (S.onlyWrong ? ' checked' : '') + '> Chỉ hiện câu sai</label>' +
+        '<div class="rb-stat"><span>⏱ ' + mmss(S.secs) + '</span></div>' +
+        '<button class="btn small ghost" data-act="palette" aria-expanded="' + S.paletteOpen + '">Danh sách câu</button>' +
+        '<button class="btn small" data-act="results">Kết quả</button>'
+      : '<div class="rb-stat"><span>⏱ <span id="rb-time">' + mmss(S.secs) + '</span></span><span id="rb-prog">' + answeredCount() + '/' + S.qids.length + ' câu</span></div>' +
+        '<button class="btn small ghost" data-act="palette" aria-expanded="' + S.paletteOpen + '">Danh sách câu</button>' +
+        '<button class="btn small" data-act="finish">' + (S.mode === 'exam' ? 'Nộp bài' : 'Xem kết quả') + '</button>';
+
+    var isLast = S.blockIdx === vb.length - 1;
+    var nextBtn;
+    if (!isLast) nextBtn = '<button class="btn" data-act="next">Phần sau →</button>';
+    else if (S.review) nextBtn = '<button class="btn" data-act="results">Xem kết quả</button>';
+    else nextBtn = '<button class="btn" data-act="finish">' + (S.mode === 'exam' ? 'Nộp bài' : 'Xem kết quả') + '</button>';
+
+    app.innerHTML =
+      '<div class="runbar" id="runbar"><div class="runbar-in">' + barTitle + right + '</div>' +
+        '<div class="palette" id="palette"' + (S.paletteOpen ? '' : ' hidden') + '>' + paletteHTML(vb) + '</div></div>' +
+      '<div class="run-main">' +
+        '<p class="part-kicker">' + esc(b.part) + ' · Phần ' + (S.blockIdx + 1) + '/' + vb.length + '</p>' +
+        '<h2 class="block-title">' + esc(b.title) + '</h2>' +
+        '<p class="instruction">' + esc(b.instruction) + '</p>' +
+        '<div class="block-body' + (hasP ? ' has-passage' : '') + '">' +
+          passageHTML(b) +
+          '<div class="questions">' + cur.qs.map(qHTML).join('') + '</div>' +
+        '</div>' +
+        '<div class="block-nav">' +
+          (S.blockIdx > 0 ? '<button class="btn ghost" data-act="prev">← Phần trước</button>' : '<span></span>') + nextBtn +
+        '</div>' +
+      '</div>';
+    setVars();
+    if (!S.submitted) startTimer();
+  }
+
+  function refreshChrome() {
+    var vb = visibleBlocks();
+    var pal = $('#palette'); if (pal) pal.innerHTML = paletteHTML(vb);
+    var pr = $('#rb-prog'); if (pr) pr.textContent = answeredCount() + '/' + S.qids.length + ' câu';
+  }
+  function refreshQuestion(n) {
+    var el = document.getElementById('q-' + n); if (!el) return;
+    var tmp = document.createElement('div'); tmp.innerHTML = qHTML(S.qmap[n].q);
+    el.replaceWith(tmp.firstElementChild);
+    var c = document.getElementById('q-' + n).querySelector('input:checked');
+    if (c && !c.disabled) c.focus({ preventScroll: true });
+    refreshChrome();
+  }
+
+  function setBlock(i) { S.blockIdx = i; saveProgress(); renderRunner(); window.scrollTo(0, 0); }
+
+  function gotoQuestion(n) {
+    var vb = visibleBlocks();
+    for (var i = 0; i < vb.length; i++) {
+      if (vb[i].qs.some(function (q) { return q.n === n; })) {
+        S.paletteOpen = false;
+        if (i !== S.blockIdx) { S.blockIdx = i; saveProgress(); renderRunner(); }
+        else { var p = $('#palette'); if (p) p.hidden = true; var bt = $('[data-act="palette"]'); if (bt) bt.setAttribute('aria-expanded', 'false'); }
+        requestAnimationFrame(function () { var el = document.getElementById('q-' + n); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+        return;
+      }
+    }
+  }
+
+  function finish() {
+    var unanswered = S.qids.filter(function (n) { return !S.answers[n]; }).length;
+    var p;
+    if (unanswered > 0) {
+      p = ask('Còn ' + unanswered + ' câu chưa làm. Câu bỏ trống sẽ tính là sai. Bạn vẫn muốn ' + (S.mode === 'exam' ? 'nộp bài' : 'xem kết quả') + '?', S.mode === 'exam' ? 'Nộp bài' : 'Xem kết quả', 'Làm tiếp');
+    } else if (S.mode === 'exam') {
+      p = ask('Bạn đã trả lời hết các câu. Nộp bài ngay?', 'Nộp bài', 'Xem lại');
+    } else { p = Promise.resolve(true); }
+    p.then(function (ok) { if (ok) doFinish(); });
+  }
+  function doFinish() {
+    S.secs = Math.floor((Date.now() - S.startMs) / 1000);
+    var wrong = S.qids.filter(function (n) { return S.answers[n] !== S.qmap[n].q.ans; });
+    var skipped = S.qids.filter(function (n) { return !S.answers[n]; }).length;
+    var per = S.test.blocks.map(function (b) {
+      var ids = b.questions.map(function (q) { return q.n; }).filter(function (n) { return S.qids.indexOf(n) >= 0; });
+      if (!ids.length) return null;
+      return { title: b.short, total: ids.length, correct: ids.filter(function (n) { return S.answers[n] === S.qmap[n].q.ans; }).length };
+    }).filter(Boolean);
+    S.result = { correct: S.qids.length - wrong.length, total: S.qids.length, wrong: wrong, skipped: skipped, secs: S.secs, per: per };
+    S.submitted = true; stopTimer();
+    var h = histAll();
+    h.unshift({ ts: Date.now(), testId: S.test.id, title: S.test.title, mode: S.mode, label: S.label, correct: S.result.correct, total: S.result.total, secs: S.secs, wrong: wrong });
+    store.set('ontap:history', h.slice(0, 60));
+    store.del(progKey(S.test.id));
+    go('#/anh/ket-qua');
+  }
+
+  function renderResult() {
+    var r = S.result, pct = r.total ? r.correct / r.total : 0;
+    var ten = (pct * 10).toFixed(1).replace('.', ',');
+    var msg = pct >= .8 ? 'Kết quả tốt. Xem lại các câu sai để chắc hơn nữa.'
+      : pct >= .5 ? 'Bạn đã nắm được phần lớn. Các câu sai là chỗ cần ôn thêm.'
+      : 'Cần ôn thêm. Làm lại các câu sai ở chế độ luyện tập để đọc lời giải.';
+    var bars = r.per.map(function (p) {
+      var w = p.total ? Math.round(p.correct / p.total * 100) : 0;
+      return '<div class="bar-row"><div class="bar-label"><span>' + esc(p.title) + '</span><span>' + p.correct + '/' + p.total + '</span></div><div class="bar" role="img" aria-label="' + p.correct + ' trên ' + p.total + ' câu đúng"><i style="width:' + w + '%"></i></div></div>';
+    }).join('');
+
+    app.innerHTML =
+      '<section class="page-head"><div class="page-head-in">' +
+        '<a class="crumb" href="#/anh">← Tiếng Anh</a>' +
+        '<h1>Kết quả</h1>' +
+        '<p>' + esc(S.test.title) + ' · ' + modeName(S.mode) + (S.label ? ' · ' + esc(S.label) : '') + '</p>' +
+      '</div></section>' +
+      '<div class="page-body"><div class="panel score-card">' +
+        '<p class="big">' + r.correct + '<small>/' + r.total + '</small></p>' +
+        '<div class="score-meta"><span>Điểm quy đổi: <b>' + ten + '/10</b></span><span>Đúng: <b>' + r.correct + '</b></span><span>Sai: <b>' + (r.total - r.correct - r.skipped) + '</b></span><span>Bỏ trống: <b>' + r.skipped + '</b></span><span>Thời gian: <b>' + mmss(r.secs) + '</b></span></div>' +
+        '<p style="margin:0">' + msg + '</p>' +
+        '<div class="bars">' + bars + '</div>' +
+        '<div class="btn-row">' +
+          '<button class="btn" data-act="review">Xem lại bài làm</button>' +
+          (r.wrong.length ? '<button class="btn ghost" data-act="retry-wrong">Làm lại ' + r.wrong.length + ' câu sai</button>' : '') +
+          '<button class="btn ghost" data-act="again">Làm lại từ đầu</button>' +
+        '</div>' +
+      '</div></div>';
+  }
+
+  function renderAccount() {
+    var h = histAll();
+    var list = h.length
+      ? '<ul class="hist">' + h.map(function (x) {
+          return '<li><div class="t">' + esc(x.title) + ' · ' + modeName(x.mode) + (x.label ? ' · ' + esc(x.label) : '') + '</div><div class="d">' + new Date(x.ts).toLocaleString('vi-VN') + ' · ' + mmss(x.secs || 0) + '</div><div class="s">' + x.correct + '/' + x.total + '</div></li>';
+        }).join('') + '</ul><button class="btn small ghost" data-act="clear-history">Xóa lịch sử</button>'
+      : '<div class="empty"><p>Chưa có bài làm nào. Chọn một môn học để làm bài đầu tiên.</p><a class="btn small" href="#/mon-hoc">Chọn môn học</a></div>';
+    app.innerHTML =
+      '<section class="page-head"><div class="page-head-in"><h1>Tài khoản</h1><p>Lịch sử các bài đã làm.</p></div></section>' +
+      '<div class="page-body"><p class="notice"><b>Lưu ý:</b> chưa có đăng nhập. Lịch sử chỉ lưu trên trình duyệt của thiết bị này, đổi máy hoặc xóa dữ liệu trình duyệt sẽ mất.</p>' + list + '</div>';
+  }
+
+  function setVars() {
+    var hh = $('#site-header'); if (hh) document.documentElement.style.setProperty('--header-h', hh.offsetHeight + 'px');
+    var rb = $('#runbar .runbar-in'); document.documentElement.style.setProperty('--runbar-h', (rb ? rb.offsetHeight : 56) + 'px');
+  }
+  function route() {
+    stopTimer();
+    var parts = location.hash.replace(/^#\/?/, '').split('/');
+    var r = parts[0] || '', nav = 'account', scrollTop = true;
+    switch (r) {
+      case 'mon-hoc': renderHome(true); nav = 'subjects'; scrollTop = false; break;
+      case 'tai-khoan': renderAccount(); break;
+      case 'anh':
+        nav = 'subjects';
+        if (parts[1] === 'lam-bai') {
+          if (!S.test || !S.qids.length) {
+            var savedTest = TESTS[0];
+            var p = savedTest ? store.get(progKey(savedTest.id), null) : null;
+            if (p && p.qids && p.qids.length) {
+              resumeAttempt(savedTest);
+              return;
+            }
+            go('#/anh');
+            return;
+          }
+          renderRunner();
+        } else if (parts[1] === 'ket-qua') {
+          if (!S.result) { go('#/anh'); return; }
+          renderResult();
+        } else renderEnglish();
+        break;
+      default: renderHome(false);
+    }
+    var a = $('#nav-account'), s = $('#nav-subjects');
+    a.removeAttribute('aria-current'); s.removeAttribute('aria-current');
+    (nav === 'subjects' ? s : a).setAttribute('aria-current', 'page');
+    if (scrollTop) window.scrollTo(0, 0);
+    setVars();
+  }
+
+  app.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.matches('.q input[type=radio]')) {
+      var n = parseInt(t.name.slice(1), 10);
+      if (S.submitted || (S.mode === 'practice' && S.answers[n])) return;
+      S.answers[n] = t.value; saveProgress(); refreshQuestion(n);
+    } else if (t.id === 'only-wrong') {
+      S.onlyWrong = t.checked; S.blockIdx = 0; renderRunner(); window.scrollTo(0, 0);
+    }
+  });
+
+  app.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act]'); if (!el) return;
+    var act = el.getAttribute('data-act');
+    var test = el.getAttribute('data-test') ? getTest(el.getAttribute('data-test')) : null;
+    switch (act) {
+      case 'start': startAttempt(test, el.getAttribute('data-mode'), allQids(test), ''); break;
+      case 'resume': resumeAttempt(test); break;
+      case 'part': {
+        var bid = el.getAttribute('data-block');
+        var blk = test.blocks.filter(function (b) { return b.id === bid; })[0];
+        startAttempt(test, 'practice', blk.questions.map(function (q) { return q.n; }), blk.short);
+        break;
+      }
+      case 'retry-last': {
+        var last = histAll().filter(function (h) { return h.testId === test.id; })[0];
+        if (last && last.wrong.length) startAttempt(test, 'practice', last.wrong, 'Câu sai');
+        break;
+      }
+      case 'retry-wrong': startAttempt(S.test, 'practice', S.result.wrong, 'Câu sai'); break;
+      case 'again': startAttempt(S.test, S.mode, allQids(S.test), ''); break;
+      case 'review': S.review = true; S.onlyWrong = false; S.blockIdx = 0; S.paletteOpen = false; go('#/anh/lam-bai'); break;
+      case 'results': go('#/anh/ket-qua'); break;
+      case 'show-all': S.onlyWrong = false; S.blockIdx = 0; renderRunner(); break;
+      case 'prev': setBlock(S.blockIdx - 1); break;
+      case 'next': setBlock(S.blockIdx + 1); break;
+      case 'finish': finish(); break;
+      case 'palette': {
+        S.paletteOpen = !S.paletteOpen;
+        var p = $('#palette'); if (p) p.hidden = !S.paletteOpen;
+        el.setAttribute('aria-expanded', String(S.paletteOpen));
+        break;
+      }
+      case 'goto': gotoQuestion(parseInt(el.getAttribute('data-n'), 10)); break;
+      case 'flag': {
+        var n = parseInt(el.getAttribute('data-n'), 10);
+        if (S.flags[n]) delete S.flags[n]; else S.flags[n] = 1;
+        saveProgress(); refreshQuestion(n);
+        var nb = document.querySelector('#q-' + n + ' .flag'); if (nb) nb.focus({ preventScroll: true });
+        break;
+      }
+      case 'blank': {
+        var tn = el.getAttribute('data-n'), tq = document.getElementById('q-' + tn);
+        if (tq) tq.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        break;
+      }
+      case 'clear-history':
+        ask('Xóa toàn bộ lịch sử làm bài trên thiết bị này?', 'Xóa', 'Giữ lại').then(function (ok) { if (ok) { store.del('ontap:history'); renderAccount(); } });
+        break;
+    }
+  });
+
+  window.addEventListener('hashchange', route);
+  window.addEventListener('resize', setVars);
+  window.addEventListener('pagehide', function () { if (S.timer) { S.secs = Math.floor((Date.now() - S.startMs) / 1000); saveProgress(); } });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(setVars);
+  route();
+})();
+</script>
+</body>
+</html>
