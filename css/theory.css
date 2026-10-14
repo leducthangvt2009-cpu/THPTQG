@@ -1,0 +1,49 @@
+/* Style riêng cho các trang Lý thuyết & Mô phỏng (Hóa học, Sinh học) */
+.theory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+.deed-box {
+  background: var(--surface);
+  border: 3px solid var(--line);
+  box-shadow: 6px 6px 0 var(--line);
+  padding: 0.6rem;
+}
+.deed-box-header {
+  background: var(--band, var(--mono-board-dark));
+  color: var(--band-ink, #fff);
+  border: 2px solid var(--line);
+  padding: 0.6rem 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.85rem;
+}
+.deed-box-body {
+  padding: 0 0.65rem 0.65rem;
+}
+.formula-tag {
+  display: inline-block;
+  background: var(--mono-gold);
+  border: 2px solid var(--line);
+  padding: 0.15rem 0.5rem;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+  font-size: 0.92rem;
+}
+.sim-box {
+  background: var(--mono-board-light);
+  border: 3px solid var(--line);
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+  box-shadow: 6px 6px 0 var(--line);
+}
+.sim-output {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--white);
+  border: 2px solid var(--line);
+  font-weight: 600;
+}
