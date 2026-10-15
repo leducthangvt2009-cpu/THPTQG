@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Từ vựng Tiếng Anh · Ôn tập THPT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/vocab.css">
+</head>
+<body>
+
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <a class="logo" href="index.html">
+      <svg class="logo-icon" viewBox="0 0 9 9" width="20" height="20" aria-hidden="true">
+        <rect width="9" height="9" fill="#ffffff" stroke="#111613" stroke-width="1"/>
+        <rect x="2" y="2" width="1.5" height="1.5" fill="#111613"/>
+        <rect x="5.5" y="2" width="1.5" height="1.5" fill="#111613"/>
+        <rect x="3.75" y="3.75" width="1.5" height="1.5" fill="#d9232a"/>
+        <rect x="2" y="5.5" width="1.5" height="1.5" fill="#111613"/>
+        <rect x="5.5" y="5.5" width="1.5" height="1.5" fill="#111613"/>
+      </svg>
+      <span>Ôn tập THPT</span>
+    </a>
+    <nav class="nav" aria-label="Menu chính">
+      <a href="index.html">Bàn cờ</a>
+      <a href="anh.html">Tiếng Anh</a>
+      <a href="tu-vung.html" aria-current="page">Từ vựng</a>
+      <a href="hoa.html">Hóa học</a>
+      <a href="sinh.html">Sinh học</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-head">
+    <div class="page-head-in">
+      <a class="crumb" href="index.html">← Quay lại bàn cờ môn học</a>
+      <h1>Ô đất: Từ vựng Tiếng Anh</h1>
+      <p>Thẻ ghi nhớ (Flashcard) từ vựng, Collocations và Idioms trọng tâm trong đề thi THPT, tích hợp phát âm và câu hỏi trắc nghiệm phản xạ.</p>
+    </div>
+  </section>
+
+  <div class="page-body">
+    <div class="vocab-toolbar">
+      <div class="topic-pills" id="topic-pills" role="group" aria-label="Lọc theo chủ đề">
+        <button type="button" class="pill active" data-topic="all">Tất cả (20)</button>
+        <button type="button" class="pill" data-topic="idiom">Idioms &amp; Collocations</button>
+        <button type="button" class="pill" data-topic="phrasal">Phrasal Verbs &amp; Cố định</button>
+        <button type="button" class="pill" data-topic="reading">Từ vựng Đọc hiểu</button>
+      </div>
+      <div class="kpis">
+        <span>Đã thuộc: <b id="mastered-count">0</b>/20 từ</span>
+      </div>
+    </div>
+
+    <div class="fc-layout">
+      <!-- Cột trái: Thẻ lật Flashcard -->
+      <div class="fc-stage">
+        <div class="fc-card" id="fc-card" tabindex="0" role="button" aria-label="Thẻ từ vựng. Bấm hoặc nhấn phím cách để lật mặt sau">
+          <div class="fc-band" id="fc-band">
+            <span id="fc-index">THẺ 1 / 20</span>
+            <span id="fc-side-label">MẶT TRƯỚC · TỪ VỰNG</span>
+          </div>
+          <div class="fc-body" id="fc-body"></div>
+        </div>
+
+        <div class="fc-controls">
+          <div class="btn-row">
+            <button type="button" class="btn small ghost" id="btn-prev">← Trước</button>
+            <button type="button" class="btn small ghost" id="btn-flip">Lật thẻ (Space)</button>
+            <button type="button" class="btn small ghost" id="btn-next">Tiếp →</button>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn small ghost" id="btn-speak">🔊 Phát âm</button>
+            <button type="button" class="btn small" id="btn-master">✓ Đánh dấu đã thuộc</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cột phải: Trắc nghiệm nhanh -->
+      <aside class="quiz-box">
+        <h3>🎲 Thử thách phản xạ nhanh</h3>
+        <p style="margin:0;font-size:.9rem;color:var(--muted)">Chọn nghĩa tiếng Việt đúng cho từ/cụm từ sau:</p>
+        <div class="quiz-word" id="quiz-word">...</div>
+        <div class="quiz-opts" id="quiz-opts"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.25rem">
+          <span id="quiz-feedback" style="font-weight:700;font-size:.9rem"></span>
+          <button type="button" class="btn small ghost" id="btn-next-quiz">Câu khác →</button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Danh sách tra cứu toàn bộ từ -->
+    <div class="vocab-toolbar">
+      <h2 class="h2-rule" style="margin:0;border:0;padding:0">Danh sách bằng khoán từ vựng</h2>
+      <input type="search" class="vocab-search" id="vocab-search" placeholder="Tìm từ tiếng Anh hoặc nghĩa...">
+    </div>
+    <div class="vocab-grid" id="vocab-grid"></div>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var VOCAB = [
+    { id: 1, word: 'be that as it may', ipa: '/biː ðæt æz ɪt meɪ/', pos: 'Idiom', topic: 'idiom', meaning: 'Dù vậy, tuy nhiên (nối hai ý đối lập)', ex: 'My father is getting old and forgetful; be that as it may, he is experienced.' },
+    { id: 2, word: 'throw a spanner in the works', ipa: '/θrəʊ ə ˈspænər ɪn ðə wɜːks/', pos: 'Idiom', topic: 'idiom', meaning: 'Phá hỏng, gây trở ngại cho kế hoạch', ex: 'Last-minute withdrawal of the sponsor threw a spanner in the works.' },
+    { id: 3, word: 'a roaring success', ipa: '/ə ˈrɔːrɪŋ səkˈses/', pos: 'Collocation', topic: 'idiom', meaning: 'Một thành công vang dội', ex: 'The first amusement park in our city was a roaring success.' },
+    { id: 4, word: 'do wonders for', ipa: '/duː ˈwʌndəz fɔːr/', pos: 'Idiom', topic: 'idiom', meaning: 'Mang lại lợi ích rất lớn cho', ex: 'Reducing greenhouse gas emissions does wonders for the environment.' },
+    { id: 5, word: 'bear little resemblance to', ipa: '/beə ˈlɪtl rɪˈzembləns tuː/', pos: 'Collocation', topic: 'idiom', meaning: 'Chẳng giống mấy so với', ex: 'His work at times bore little resemblance to classical music.' },
+    { id: 6, word: 'from all walks of life', ipa: '/frɒm ɔːl wɔːks ɒv laɪf/', pos: 'Idiom', topic: 'idiom', meaning: 'Từ mọi tầng lớp trong xã hội', ex: 'He jammed with musicians and artists from all walks of life.' },
+    { id: 7, word: 'on track (to do sth)', ipa: '/ɒn træk/', pos: 'Idiom', topic: 'idiom', meaning: 'Đang đi đúng hướng để đạt mục tiêu', ex: 'Regular evaluations ensure that you are on track to meet your goals.' },
+    { id: 8, word: 'let sb down', ipa: '/let ˈsʌmbədi daʊn/', pos: 'Phrasal Verb', topic: 'phrasal', meaning: 'Làm ai đó thất vọng khi họ cần giúp đỡ', ex: 'It is disappointing to be let down by a friend when you need support.' },
+    { id: 9, word: 'equip sb with sth', ipa: '/ɪˈkwɪp ˈsʌmbədi wɪð/', pos: 'Phrase', topic: 'phrasal', meaning: 'Trang bị cho ai đó (kỹ năng, công cụ)', ex: 'The course equips you with the tools and confidence to succeed.' },
+    { id: 10, word: 'in collaboration with', ipa: '/ɪn kəˌlæbəˈreɪʃn wɪð/', pos: 'Phrase', topic: 'phrasal', meaning: 'Hợp tác, cộng tác cùng với', ex: 'He worked in collaboration with a number of other musicians.' },
+    { id: 11, word: 'implement', ipa: '/ˈɪmplɪment/', pos: 'Verb', topic: 'reading', meaning: 'Triển khai, thực thi (kế hoạch, chính sách)', ex: 'A highly successful biking scheme has been implemented in the Netherlands.' },
+    { id: 12, word: 'self-reliance', ipa: '/ˌself rɪˈlaɪəns/', pos: 'Noun', topic: 'reading', meaning: 'Sự tự lực, tự chủ', ex: 'Are you ready to dive into a world of self-reliance and empowerment?' },
+    { id: 13, word: 'state-of-the-art', ipa: '/ˌsteɪt əv ði ˈɑːt/', pos: 'Adjective', topic: 'reading', meaning: 'Hiện đại nhất, tân tiến nhất', ex: 'Our state-of-the-art facilities are designed to inspire creativity.' },
+    { id: 14, word: 'vibrant', ipa: '/ˈvaɪbrənt/', pos: 'Adjective', topic: 'reading', meaning: 'Sôi nổi, đầy sức sống, năng động', ex: 'Join a vibrant community of learners and professionals.' },
+    { id: 15, word: 'budding', ipa: '/ˈbʌdɪŋ/', pos: 'Adjective', topic: 'reading', meaning: 'Mới chớm nở, đầy triển vọng', ex: 'He was an inspiration to a generation of budding young artists.' },
+    { id: 16, word: 'overshadow', ipa: '/ˌəʊvəˈʃædəʊ/', pos: 'Verb', topic: 'reading', meaning: 'Làm lu mờ', ex: 'His three symphonies completely overshadowed the achievements of others.' },
+    { id: 17, word: 'surpass', ipa: '/səˈpɑːs/', pos: 'Verb', topic: 'reading', meaning: 'Vượt qua, vượt trội hơn', ex: 'Each new work seemed to surpass the limits of the orchestral medium.' },
+    { id: 18, word: 'ambivalent', ipa: '/æmˈbɪvələnt/', pos: 'Adjective', topic: 'reading', meaning: 'Mâu thuẫn, vừa thích vừa e ngại', ex: 'Frequent gift-giving can engender ambivalent feelings in gift-givers.' },
+    { id: 19, word: 'unfounded', ipa: '/ʌnˈfaʊndɪd/', pos: 'Adjective', topic: 'reading', meaning: 'Không có cơ sở, vô căn cứ', ex: 'Such an assumption about gift prices may be unfounded.' },
+    { id: 20, word: 'construe', ipa: '/kənˈstruː/', pos: 'Verb', topic: 'reading', meaning: 'Hiểu, diễn giải theo một cách nào đó', ex: 'Recipients may not construe larger gifts as signals of thoughtfulness.' }
+  ];
+
+  var storeKey = 'ontap:vocab:mastered';
+  function getMastered() {
+    try { return JSON.parse(localStorage.getItem(storeKey) || '{}'); } catch (e) { return {}; }
+  }
+  function saveMastered(obj) {
+    try { localStorage.setItem(storeKey, JSON.stringify(obj)); } catch (e) {}
+  }
+
+  var mastered = getMastered();
+  var currentTopic = 'all';
+  var filtered = VOCAB.slice();
+  var idx = 0;
+  var flipped = false;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function updateMasteredKPI() {
+    var count = VOCAB.filter(function (v) { return !!mastered[v.id]; }).length;
+    document.getElementById('mastered-count').textContent = count;
+  }
+
+  function renderFlashcard() {
+    if (!filtered.length) return;
+    if (idx >= filtered.length) idx = 0;
+    if (idx < 0) idx = filtered.length - 1;
+
+    var item = filtered[idx];
+    var isDone = !!mastered[item.id];
+    var band = document.getElementById('fc-band');
+    var body = document.getElementById('fc-body');
+    var btnMaster = document.getElementById('btn-master');
+
+    document.getElementById('fc-index').textContent = 'THẺ ' + (idx + 1) + ' / ' + filtered.length;
+    document.getElementById('fc-side-label').textContent = flipped ? 'MẶT SAU · NGHĨA & VÍ DỤ' : 'MẶT TRƯỚC · TỪ VỰNG';
+    band.className = flipped ? 'fc-band back' : 'fc-band';
+
+    if (!flipped) {
+      body.innerHTML =
+        (isDone ? '<span class="fc-status-badge">✓ Đã thuộc</span>' : '') +
+        '<span class="fc-pos">' + esc(item.pos) + '</span>' +
+        '<h2 class="fc-word">' + esc(item.word) + '</h2>' +
+        '<div class="fc-ipa">' + esc(item.ipa) + '</div>' +
+        '<div class="fc-hint">Bấm vào thẻ hoặc nhấn phím Space để xem nghĩa</div>';
+    } else {
+      body.innerHTML =
+        '<span class="fc-pos">' + esc(item.word) + '</span>' +
+        '<p class="fc-meaning">' + esc(item.meaning) + '</p>' +
+        '<p class="fc-example">“' + esc(item.ex) + '”</p>' +
+        '<div class="fc-hint">Bấm lại vào thẻ để quay về mặt trước</div>';
+    }
+
+    btnMaster.textContent = isDone ? '✓ Đã thuộc (Bấm để bỏ)' : '✓ Đánh dấu đã thuộc';
+    btnMaster.className = isDone ? 'btn small ghost' : 'btn small';
+    updateMasteredKPI();
+  }
+
+  function renderGrid() {
+    var q = (document.getElementById('vocab-search').value || '').trim().toLowerCase();
+    var list = filtered.filter(function (v) {
+      return !q || v.word.toLowerCase().indexOf(q) !== -1 || v.meaning.toLowerCase().indexOf(q) !== -1;
+    });
+
+    var grid = document.getElementById('vocab-grid');
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><p>Không tìm thấy từ vựng phù hợp.</p></div>';
+      return;
+    }
+    grid.innerHTML = list.map(function (v) {
+      var done = !!mastered[v.id];
+      return '<article class="vcard' + (done ? ' mastered' : '') + '">' +
+        '<div class="vcard-top"><b>' + esc(v.word) + '</b><span class="fc-pos">' + esc(v.pos) + '</span></div>' +
+        '<div style="font-size:.82rem;color:var(--muted)">' + esc(v.ipa) + (done ? ' · <b style="color:var(--ok)">Đã thuộc</b>' : '') + '</div>' +
+        '<div class="vcard-meaning">' + esc(v.meaning) + '</div>' +
+        '<div class="vcard-ex">“' + esc(v.ex) + '”</div>' +
+      '</article>';
+    }).join('');
+  }
+
+  function speakCurrent() {
+    if (!filtered.length || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(filtered[idx].word.replace(/\(.*?\)/g, ''));
+    u.lang = 'en-US';
+    u.rate = 0.92;
+    window.speechSynthesis.speak(u);
+  }
+
+  /* ---------- Mini Quiz ---------- */
+  function renderQuiz() {
+    var target = VOCAB[Math.floor(Math.random() * VOCAB.length)];
+    var others = VOCAB.filter(function (v) { return v.id !== target.id; });
+    others.sort(function () { return Math.random() - 0.5; });
+    var choices = [target, others[0], others[1], others[2]].sort(function () { return Math.random() - 0.5; });
+
+    document.getElementById('quiz-word').textContent = target.word + ' (' + target.pos + ')';
+    document.getElementById('quiz-feedback').textContent = '';
+
+    var optsEl = document.getElementById('quiz-opts');
+    optsEl.innerHTML = choices.map(function (c, i) {
+      var letter = ['A', 'B', 'C', 'D'][i];
+      return '<button type="button" class="quiz-btn" data-id="' + c.id + '">' + letter + '. ' + esc(c.meaning) + '</button>';
+    }).join('');
+
+    optsEl.querySelectorAll('.quiz-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var chosenId = parseInt(btn.getAttribute('data-id'), 10);
+        optsEl.querySelectorAll('.quiz-btn').forEach(function (b) {
+          b.disabled = true;
+          if (parseInt(b.getAttribute('data-id'), 10) === target.id) b.classList.add('correct');
+        });
+        var fb = document.getElementById('quiz-feedback');
+        if (chosenId === target.id) {
+          fb.textContent = '✓ Chính xác!';
+          fb.style.color = 'var(--ok)';
+        } else {
+          btn.classList.add('wrong');
+          fb.textContent = '✕ Chưa đúng!';
+          fb.style.color = 'var(--bad)';
+        }
+      });
+    });
+  }
+
+  /* ---------- Sự kiện ---------- */
+  document.getElementById('fc-card').addEventListener('click', function () {
+    flipped = !flipped;
+    renderFlashcard();
+  });
+  document.getElementById('btn-flip').addEventListener('click', function () {
+    flipped = !flipped;
+    renderFlashcard();
+  });
+  document.getElementById('btn-prev').addEventListener('click', function () {
+    idx--; flipped = false; renderFlashcard();
+  });
+  document.getElementById('btn-next').addEventListener('click', function () {
+    idx++; flipped = false; renderFlashcard();
+  });
+  document.getElementById('btn-speak').addEventListener('click', speakCurrent);
+  document.getElementById('btn-master').addEventListener('click', function () {
+    if (!filtered.length) return;
+    var id = filtered[idx].id;
+    if (mastered[id]) delete mastered[id]; else mastered[id] = 1;
+    saveMastered(mastered);
+    renderFlashcard();
+    renderGrid();
+  });
+
+  document.getElementById('topic-pills').addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-topic]');
+    if (!btn) return;
+    currentTopic = btn.getAttribute('data-topic');
+    document.querySelectorAll('#topic-pills .pill').forEach(function (p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    filtered = currentTopic === 'all' ? VOCAB.slice() : VOCAB.filter(function (v) { return v.topic === currentTopic; });
+    idx = 0; flipped = false;
+    renderFlashcard();
+    renderGrid();
+  });
+
+  document.getElementById('vocab-search').addEventListener('input', renderGrid);
+  document.getElementById('btn-next-quiz').addEventListener('click', renderQuiz);
+
+  window.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.code === 'Space') {
+      e.preventDefault();
+      flipped = !flipped;
+      renderFlashcard();
+    } else if (e.code === 'ArrowRight') {
+      idx++; flipped = false; renderFlashcard();
+    } else if (e.code === 'ArrowLeft') {
+      idx--; flipped = false; renderFlashcard();
+    }
+  });
+
+  renderFlashcard();
+  renderGrid();
+  renderQuiz();
+})();
+</script>
+</body>
+</html>
