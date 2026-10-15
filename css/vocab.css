@@ -1,0 +1,262 @@
+/* ---------- Thanh công cụ & Bộ lọc chủ đề ---------- */
+.vocab-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.topic-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.pill {
+  cursor: pointer;
+  background: var(--white);
+  color: var(--text);
+  border: 2px solid var(--line);
+  padding: 0.45rem 0.9rem;
+  font-weight: 800;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: 3px 3px 0 var(--line);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.pill:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--line);
+}
+.pill.active {
+  background: var(--mono-gold);
+  color: var(--line);
+}
+
+/* ---------- Khu vực Thẻ ghi nhớ (Monopoly Title Deed Flashcard) ---------- */
+.fc-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2rem;
+  align-items: start;
+  margin-bottom: 3rem;
+}
+@media (max-width: 900px) {
+  .fc-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fc-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.fc-card {
+  cursor: pointer;
+  user-select: none;
+  background: var(--white);
+  border: 4px solid var(--line);
+  box-shadow: 10px 10px 0 var(--line);
+  padding: 0.7rem;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.12s ease;
+}
+.fc-card:active {
+  transform: translate(2px, 2px);
+}
+.fc-band {
+  background: var(--mono-red);
+  color: var(--white);
+  border: 3px solid var(--line);
+  padding: 0.6rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.fc-band.back {
+  background: var(--mono-board-dark);
+}
+.fc-body {
+  flex: 1;
+  border: 3px solid var(--line);
+  border-top: 0;
+  background: var(--bg);
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 0.65rem;
+}
+.fc-word {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.35rem);
+  font-weight: 800;
+  color: var(--line);
+  line-height: 1.2;
+}
+.fc-ipa {
+  font-size: 1rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.fc-pos {
+  display: inline-block;
+  background: var(--mono-gold);
+  border: 2px solid var(--line);
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.fc-meaning {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--mono-red);
+  margin: 0.25rem 0;
+}
+.fc-example {
+  margin: 0.4rem 0 0;
+  font-size: 0.96rem;
+  color: var(--text);
+  background: var(--white);
+  border: 2px dashed var(--line-soft);
+  padding: 0.65rem 0.9rem;
+  max-width: 32rem;
+}
+.fc-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.fc-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: space-between;
+  align-items: center;
+}
+.fc-status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: var(--ok-bg);
+  color: var(--ok);
+  border: 2px solid var(--ok);
+  text-transform: uppercase;
+}
+
+/* ---------- Khung Trắc nghiệm nhanh từ vựng ---------- */
+.quiz-box {
+  background: var(--white);
+  border: 3px solid var(--line);
+  box-shadow: 7px 7px 0 var(--line);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.quiz-box h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-bottom: 3px solid var(--line);
+  padding-bottom: 0.5rem;
+}
+.quiz-word {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--mono-blue);
+}
+.quiz-opts {
+  display: grid;
+  gap: 0.55rem;
+}
+.quiz-btn {
+  text-align: left;
+  cursor: pointer;
+  background: var(--bg);
+  border: 2px solid var(--line);
+  padding: 0.65rem 0.85rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+  transition: background 0.1s ease;
+}
+.quiz-btn:hover:not(:disabled) {
+  background: var(--mono-board);
+}
+.quiz-btn.correct {
+  background: var(--ok-bg);
+  border-color: var(--ok);
+  color: var(--ok);
+  font-weight: 800;
+}
+.quiz-btn.wrong {
+  background: var(--bad-bg);
+  border-color: var(--bad);
+  color: var(--bad);
+}
+
+/* ---------- Bảng danh sách & Tìm kiếm ---------- */
+.vocab-search {
+  width: 100%;
+  max-width: 340px;
+  padding: 0.6rem 0.9rem;
+  border: 3px solid var(--line);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: var(--white);
+}
+.vocab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.1rem;
+}
+.vcard {
+  background: var(--white);
+  border: 2px solid var(--line);
+  box-shadow: 4px 4px 0 var(--line);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.vcard.mastered {
+  border-left: 6px solid var(--ok);
+}
+.vcard-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.vcard-top b {
+  font-size: 1.08rem;
+  color: var(--line);
+}
+.vcard-meaning {
+  font-weight: 700;
+  color: var(--mono-red);
+  font-size: 0.95rem;
+}
+.vcard-ex {
+  font-size: 0.86rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
