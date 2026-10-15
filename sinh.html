@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sinh học 12 · Ôn tập THPT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/ly-thuyet.css">
+</head>
+<body>
+
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <a class="logo" href="index.html">
+      <svg class="logo-icon" viewBox="0 0 9 9" width="20" height="20" aria-hidden="true">
+        <rect width="9" height="9" fill="#ffffff" stroke="#111613" stroke-width="1"/>
+        <rect x="2" y="2" width="1.5" height="1.5" fill="#111613"/>
+        <rect x="5.5" y="2" width="1.5" height="1.5" fill="#111613"/>
+        <rect x="3.75" y="3.75" width="1.5" height="1.5" fill="#d9232a"/>
+        <rect x="2" y="5.5" width="1.5" height="1.5" fill="#111613"/>
+        <rect x="5.5" y="5.5" width="1.5" height="1.5" fill="#111613"/>
+      </svg>
+      <span>Ôn tập THPT</span>
+    </a>
+    <nav class="nav" aria-label="Menu chính">
+      <a href="index.html">Bàn cờ</a>
+      <a href="anh.html">Tiếng Anh</a>
+      <a href="hoa.html">Hóa học</a>
+      <a href="sinh.html" aria-current="page">Sinh học</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-head">
+    <div class="page-head-in">
+      <a class="crumb" href="index.html">← Quay lại bàn cờ môn học</a>
+      <h1>Sinh học 12</h1>
+      <p>Cơ chế di truyền và biến dị ở cấp độ phân tử kèm mô phỏng tổng hợp mạch bổ sung.</p>
+    </div>
+  </section>
+
+  <div class="page-body">
+    <h2 class="h2-rule">Chuyên đề: Di truyền phân tử</h2>
+    <div class="theory-grid">
+      <article class="deed-box">
+        <div class="deed-box-header" style="--band:#f5b800;--band-ink:#111613">1. Cấu trúc &amp; Nhân đôi DNA</div>
+        <div class="deed-box-body">
+          <p>Nguyên tắc bổ sung trong DNA: <span class="formula-tag">A = T</span> (2 liên kết H), <span class="formula-tag">G ≡ C</span> (3 liên kết H).</p>
+          <p>Tổng số nucleotide: <span class="formula-tag">N = 2A + 2G</span>; Số liên kết Hydrogen: <span class="formula-tag">H = 2A + 3G</span>.</p>
+          <p>Mạch mới luôn được tổng hợp theo chiều <span class="formula-tag">5' → 3'</span>.</p>
+        </div>
+      </article>
+
+      <article class="deed-box">
+        <div class="deed-box-header" style="--band:#1f8a3b">2. Phiên mã &amp; Dịch mã</div>
+        <div class="deed-box-body">
+          <p><b>Phiên mã:</b> Tổng hợp mRNA từ mạch khuôn <span class="formula-tag">3' → 5'</span> của gene (<span class="formula-tag">A khuôn - U</span>, <span class="formula-tag">T khuôn - A</span>, <span class="formula-tag">G khuôn - C</span>, <span class="formula-tag">C khuôn - G</span>).</p>
+          <p><b>Dịch mã:</b> Bộ ba mở đầu là <span class="formula-tag">5'AUG3'</span>; 3 bộ ba kết thúc là <span class="formula-tag">5'UAA3'</span>, <span class="formula-tag">5'UAG3'</span>, <span class="formula-tag">5'UGA3'</span>.</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="sim-box">
+      <h3>Mô phỏng: Phiên mã từ mạch khuôn DNA sang mRNA</h3>
+      <div class="btn-row">
+        <button class="btn small" type="button" data-dna="3'- T A C - G G C - A A T - A C T -5'  ⇒  mRNA: 5'- A U G - C C G - U U A - U G A -3'">Mẫu 1: 3'-TAC-GGC-AAT-ACT-5'</button>
+        <button class="btn small" type="button" data-dna="3'- T A C - T T C - C G A - A T T -5'  ⇒  mRNA: 5'- A U G - A A G - G C U - U A A -3'">Mẫu 2: 3'-TAC-TTC-CGA-ATT-5'</button>
+      </div>
+      <div class="sim-output" id="dna-out">Bấm vào một mạch khuôn DNA ở trên để xem trình tự mRNA tương ứng.</div>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.querySelectorAll('[data-dna]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.getElementById('dna-out').textContent = btn.getAttribute('data-dna');
+    });
+  });
+</script>
+</body>
+</html>
