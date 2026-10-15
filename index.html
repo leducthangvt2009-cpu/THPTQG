@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<header class="site-header">
+<header class="site-header" id="site-header">
   <div class="header-inner">
     <a class="logo" href="index.html">
       <svg class="logo-icon" viewBox="0 0 9 9" width="20" height="20" aria-hidden="true">
@@ -40,8 +40,8 @@
       <div>
         <span class="tag">BÀN CỜ THPT · KHỐI 12</span>
         <h1><span>Ôn tập</span><span>Anh, Hóa &amp; Sinh</span></h1>
-        <p class="lead">Chọn ô môn học để bắt đầu hành trình chinh phục điểm số. Mỗi môn có phần lý thuyết kèm mô phỏng tương tác và đề luyện thi theo đúng cấu trúc THPT (18 trắc nghiệm · 4 đúng/sai · 6 trả lời ngắn) cùng lời giải chi tiết.</p>
-        <a class="cta" href="#mon-hoc">🎲 Chọn môn học</a>
+        <p class="lead">Chọn ô môn học để bắt đầu hành trình chinh phục điểm số. Mỗi môn có phần lý thuyết kèm mô phỏng tương tác và đề luyện thi theo cấu trúc THPT cùng lời giải chi tiết ngay sau khi nộp bài.</p>
+        <a class="cta" href="#mon-hoc">Chọn môn học</a>
       </div>
       <div class="card-wrap">
         <article class="hcard">
@@ -50,14 +50,14 @@
             <strong>ĐẠI TỶ PHÚ ÔN THI THPT</strong>
           </div>
           <div class="hcard-art">
-            <svg id="mono-art" viewBox="0 0 28 20" role="img" aria-label="Khách sạn Cờ Tỷ Phú"></svg>
+            <svg id="mono-art" viewBox="0 0 28 20" role="img" aria-label="Khách sạn đỏ, Nhà xanh và Xúc xắc Cờ Tỷ Phú"></svg>
           </div>
           <div class="hcard-title">3 MÔN TRỌNG ĐIỂM THPT QUỐC GIA</div>
           <div class="hcard-stats">
             <div class="stats">
               <div class="stat"><b>3</b><span>Môn học</span></div>
-              <div class="stat"><b>16</b><span>Đề luyện</span></div>
-              <div class="stat"><b>100%</b><span>Giải chi tiết</span></div>
+              <div class="stat"><b>50</b><span>Câu Tiếng Anh</span></div>
+              <div class="stat"><b>3</b><span>Chuyên đề Hóa·Sinh</span></div>
             </div>
           </div>
         </article>
@@ -75,8 +75,8 @@
             <h3>Tiếng Anh</h3>
           </div>
           <div class="scard-body">
-            <p>Đề luyện thi THPT: Lexico-Grammar và Reading, chấm điểm tự động và giải thích từng câu.</p>
-            <div class="meta"><span>BẰNG KHOÁN</span><span>Mở ngay →</span></div>
+            <p>Đề luyện thi THPT: Lexico-Grammar và Reading (7 phần · 50 câu), chấm điểm tự động và giải thích chi tiết từng câu.</p>
+            <div class="meta"><span>BẰNG KHOÁN</span><span>1 đề · 50 câu →</span></div>
           </div>
         </a>
 
@@ -86,7 +86,7 @@
             <h3>Hóa học</h3>
           </div>
           <div class="scard-body">
-            <p>Chuyên đề Ester - Lipid, Carbohydrate kèm mô phỏng tương tác và đề cấu trúc mới.</p>
+            <p>Chuyên đề Ester - Lipid và Carbohydrate kèm bảng tóm tắt công thức và mô phỏng phản ứng hóa học.</p>
             <div class="meta"><span>BẰNG KHOÁN</span><span>2 chuyên đề →</span></div>
           </div>
         </a>
@@ -97,17 +97,27 @@
             <h3>Sinh học</h3>
           </div>
           <div class="scard-body">
-            <p>Chuyên đề Di truyền phân tử, cơ chế nhân đôi DNA, phiên mã, dịch mã và bài tập.</p>
+            <p>Chuyên đề Di truyền phân tử: Cấu trúc DNA, nhân đôi, phiên mã, dịch mã và trình mô phỏng ghép mạch bổ sung.</p>
             <div class="meta"><span>BẰNG KHOÁN</span><span>1 chuyên đề →</span></div>
           </div>
         </a>
       </div>
 
-      <h2 class="h2-rule" style="margin-top: 3.5rem;">Lịch sử làm bài gần đây</h2>
+      <h2 class="h2-rule" style="margin-top: 3.5rem;">Lịch sử làm bài trên thiết bị</h2>
       <div id="history-box"></div>
     </div>
   </section>
 </main>
+
+<dialog id="dlg">
+  <form method="dialog">
+    <p id="dlg-msg"></p>
+    <div class="dlg-actions">
+      <button class="btn small ghost" value="cancel" id="dlg-cancel"></button>
+      <button class="btn small" value="ok" id="dlg-ok"></button>
+    </div>
+  </form>
+</dialog>
 
 <script src="js/app.js"></script>
 <script>
