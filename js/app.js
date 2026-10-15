@@ -581,4 +581,41 @@
     });
     route();
   };
+  /* =====================================================
+     TỰ ĐỘNG THU GỌN HEADER KHI LƯỚT XUỐNG
+     ===================================================== */
+  (function initSmartHeader() {
+    var header = document.querySelector('.site-header');
+    if (!header) return;
+    var lastY = window.scrollY || 0;
+    var ticking = false;
+
+    function onScroll() {
+      var curY = window.scrollY || 0;
+      var delta = curY - lastY;
+
+      if (curY <= 40) {
+        header.classList.remove('header-hidden');
+        document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+      } else if (delta > 8) {
+        // Người học lướt xuống -> Thu gọn thanh Header lên trên
+        header.classList.add('header-hidden');
+        document.documentElement.style.setProperty('--header-h', '0px');
+      } else if (delta < -8) {
+        // Người học lướt ngược lên -> Hiện lại thanh Header
+        header.classList.remove('header-hidden');
+        document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+      }
+
+      lastY = curY;
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+      if (!ticking) {
+        window.requestAnimationFrame(onScroll);
+        ticking = true;
+      }
+    }, { passive: true });
+  })();
 })();
