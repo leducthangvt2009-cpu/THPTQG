@@ -39,21 +39,26 @@
   <section class="page-head">
     <div class="page-head-in">
       <a class="crumb" href="index.html">← Quay lại bàn cờ môn học</a>
-      <h1>Ô đất: Từ vựng Tiếng Anh</h1>
-      <p>Thẻ ghi nhớ (Flashcard) từ vựng, Collocations và Idioms trọng tâm trong đề thi THPT, tích hợp phát âm và câu hỏi trắc nghiệm phản xạ.</p>
+      <h1>Ô đất: Từ vựng &amp; 302 Idioms</h1>
+      <p>Hệ thống thẻ ghi nhớ (Flashcard) trọn bộ 302 Idioms/Phrases trọng tâm và từ vựng đề thi THPT, tích hợp phát âm và câu hỏi trắc nghiệm phản xạ.</p>
     </div>
   </section>
 
   <div class="page-body">
     <div class="vocab-toolbar">
       <div class="topic-pills" id="topic-pills" role="group" aria-label="Lọc theo chủ đề">
-        <button type="button" class="pill active" data-topic="all">Tất cả (20)</button>
-        <button type="button" class="pill" data-topic="idiom">Idioms &amp; Collocations</button>
-        <button type="button" class="pill" data-topic="phrasal">Phrasal Verbs &amp; Cố định</button>
-        <button type="button" class="pill" data-topic="reading">Từ vựng Đọc hiểu</button>
+        <button type="button" class="pill active" data-topic="all">Tất cả (322)</button>
+        <button type="button" class="pill" data-topic="p1">Idioms 1–54</button>
+        <button type="button" class="pill" data-topic="p2">Idioms 55–109</button>
+        <button type="button" class="pill" data-topic="p3">Idioms 110–165</button>
+        <button type="button" class="pill" data-topic="p4">Idioms 166–216</button>
+        <button type="button" class="pill" data-topic="p5">Idioms 217–259</button>
+        <button type="button" class="pill" data-topic="p6">Idioms 260–302</button>
+        <button type="button" class="pill" data-topic="test">Từ vựng Đề thi (20)</button>
+        <button type="button" class="pill" data-topic="unmastered">Chưa thuộc</button>
       </div>
       <div class="kpis">
-        <span>Đã thuộc: <b id="mastered-count">0</b>/20 từ</span>
+        <span>Đã thuộc: <b id="mastered-count">0</b>/<span id="total-count">322</span></span>
       </div>
     </div>
 
@@ -62,7 +67,7 @@
       <div class="fc-stage">
         <div class="fc-card" id="fc-card" tabindex="0" role="button" aria-label="Thẻ từ vựng. Bấm hoặc nhấn phím cách để lật mặt sau">
           <div class="fc-band" id="fc-band">
-            <span id="fc-index">THẺ 1 / 20</span>
+            <span id="fc-index">THẺ 1 / 322</span>
             <span id="fc-side-label">MẶT TRƯỚC · TỪ VỰNG</span>
           </div>
           <div class="fc-body" id="fc-body"></div>
@@ -73,6 +78,7 @@
             <button type="button" class="btn small ghost" id="btn-prev">← Trước</button>
             <button type="button" class="btn small ghost" id="btn-flip">Lật thẻ (Space)</button>
             <button type="button" class="btn small ghost" id="btn-next">Tiếp →</button>
+            <button type="button" class="btn small ghost" id="btn-shuffle">🔀 Xáo trộn</button>
           </div>
           <div class="btn-row">
             <button type="button" class="btn small ghost" id="btn-speak">🔊 Phát âm</button>
@@ -84,7 +90,7 @@
       <!-- Cột phải: Trắc nghiệm nhanh -->
       <aside class="quiz-box">
         <h3>🎲 Thử thách phản xạ nhanh</h3>
-        <p style="margin:0;font-size:.9rem;color:var(--muted)">Chọn nghĩa tiếng Việt đúng cho từ/cụm từ sau:</p>
+        <p style="margin:0;font-size:.9rem;color:var(--muted)">Chọn nghĩa tiếng Việt đúng cho thành ngữ/từ vựng sau:</p>
         <div class="quiz-word" id="quiz-word">...</div>
         <div class="quiz-opts" id="quiz-opts"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.25rem">
@@ -96,39 +102,362 @@
 
     <!-- Danh sách tra cứu toàn bộ từ -->
     <div class="vocab-toolbar">
-      <h2 class="h2-rule" style="margin:0;border:0;padding:0">Danh sách bằng khoán từ vựng</h2>
-      <input type="search" class="vocab-search" id="vocab-search" placeholder="Tìm từ tiếng Anh hoặc nghĩa...">
+      <h2 class="h2-rule" style="margin:0;border:0;padding:0">Danh sách tra cứu nhanh (<span id="grid-count">322</span>)</h2>
+      <input type="search" class="vocab-search" id="vocab-search" placeholder="Tìm idiom, từ tiếng Anh hoặc nghĩa tiếng Việt...">
     </div>
     <div class="vocab-grid" id="vocab-grid"></div>
   </div>
 </main>
 
+<script src="js/app.js"></script>
 <script>
 (function () {
   'use strict';
 
-  var VOCAB = [
-    { id: 1, word: 'be that as it may', ipa: '/biː ðæt æz ɪt meɪ/', pos: 'Idiom', topic: 'idiom', meaning: 'Dù vậy, tuy nhiên (nối hai ý đối lập)', ex: 'My father is getting old and forgetful; be that as it may, he is experienced.' },
-    { id: 2, word: 'throw a spanner in the works', ipa: '/θrəʊ ə ˈspænər ɪn ðə wɜːks/', pos: 'Idiom', topic: 'idiom', meaning: 'Phá hỏng, gây trở ngại cho kế hoạch', ex: 'Last-minute withdrawal of the sponsor threw a spanner in the works.' },
-    { id: 3, word: 'a roaring success', ipa: '/ə ˈrɔːrɪŋ səkˈses/', pos: 'Collocation', topic: 'idiom', meaning: 'Một thành công vang dội', ex: 'The first amusement park in our city was a roaring success.' },
-    { id: 4, word: 'do wonders for', ipa: '/duː ˈwʌndəz fɔːr/', pos: 'Idiom', topic: 'idiom', meaning: 'Mang lại lợi ích rất lớn cho', ex: 'Reducing greenhouse gas emissions does wonders for the environment.' },
-    { id: 5, word: 'bear little resemblance to', ipa: '/beə ˈlɪtl rɪˈzembləns tuː/', pos: 'Collocation', topic: 'idiom', meaning: 'Chẳng giống mấy so với', ex: 'His work at times bore little resemblance to classical music.' },
-    { id: 6, word: 'from all walks of life', ipa: '/frɒm ɔːl wɔːks ɒv laɪf/', pos: 'Idiom', topic: 'idiom', meaning: 'Từ mọi tầng lớp trong xã hội', ex: 'He jammed with musicians and artists from all walks of life.' },
-    { id: 7, word: 'on track (to do sth)', ipa: '/ɒn træk/', pos: 'Idiom', topic: 'idiom', meaning: 'Đang đi đúng hướng để đạt mục tiêu', ex: 'Regular evaluations ensure that you are on track to meet your goals.' },
-    { id: 8, word: 'let sb down', ipa: '/let ˈsʌmbədi daʊn/', pos: 'Phrasal Verb', topic: 'phrasal', meaning: 'Làm ai đó thất vọng khi họ cần giúp đỡ', ex: 'It is disappointing to be let down by a friend when you need support.' },
-    { id: 9, word: 'equip sb with sth', ipa: '/ɪˈkwɪp ˈsʌmbədi wɪð/', pos: 'Phrase', topic: 'phrasal', meaning: 'Trang bị cho ai đó (kỹ năng, công cụ)', ex: 'The course equips you with the tools and confidence to succeed.' },
-    { id: 10, word: 'in collaboration with', ipa: '/ɪn kəˌlæbəˈreɪʃn wɪð/', pos: 'Phrase', topic: 'phrasal', meaning: 'Hợp tác, cộng tác cùng với', ex: 'He worked in collaboration with a number of other musicians.' },
-    { id: 11, word: 'implement', ipa: '/ˈɪmplɪment/', pos: 'Verb', topic: 'reading', meaning: 'Triển khai, thực thi (kế hoạch, chính sách)', ex: 'A highly successful biking scheme has been implemented in the Netherlands.' },
-    { id: 12, word: 'self-reliance', ipa: '/ˌself rɪˈlaɪəns/', pos: 'Noun', topic: 'reading', meaning: 'Sự tự lực, tự chủ', ex: 'Are you ready to dive into a world of self-reliance and empowerment?' },
-    { id: 13, word: 'state-of-the-art', ipa: '/ˌsteɪt əv ði ˈɑːt/', pos: 'Adjective', topic: 'reading', meaning: 'Hiện đại nhất, tân tiến nhất', ex: 'Our state-of-the-art facilities are designed to inspire creativity.' },
-    { id: 14, word: 'vibrant', ipa: '/ˈvaɪbrənt/', pos: 'Adjective', topic: 'reading', meaning: 'Sôi nổi, đầy sức sống, năng động', ex: 'Join a vibrant community of learners and professionals.' },
-    { id: 15, word: 'budding', ipa: '/ˈbʌdɪŋ/', pos: 'Adjective', topic: 'reading', meaning: 'Mới chớm nở, đầy triển vọng', ex: 'He was an inspiration to a generation of budding young artists.' },
-    { id: 16, word: 'overshadow', ipa: '/ˌəʊvəˈʃædəʊ/', pos: 'Verb', topic: 'reading', meaning: 'Làm lu mờ', ex: 'His three symphonies completely overshadowed the achievements of others.' },
-    { id: 17, word: 'surpass', ipa: '/səˈpɑːs/', pos: 'Verb', topic: 'reading', meaning: 'Vượt qua, vượt trội hơn', ex: 'Each new work seemed to surpass the limits of the orchestral medium.' },
-    { id: 18, word: 'ambivalent', ipa: '/æmˈbɪvələnt/', pos: 'Adjective', topic: 'reading', meaning: 'Mâu thuẫn, vừa thích vừa e ngại', ex: 'Frequent gift-giving can engender ambivalent feelings in gift-givers.' },
-    { id: 19, word: 'unfounded', ipa: '/ʌnˈfaʊndɪd/', pos: 'Adjective', topic: 'reading', meaning: 'Không có cơ sở, vô căn cứ', ex: 'Such an assumption about gift prices may be unfounded.' },
-    { id: 20, word: 'construe', ipa: '/kənˈstruː/', pos: 'Verb', topic: 'reading', meaning: 'Hiểu, diễn giải theo một cách nào đó', ex: 'Recipients may not construe larger gifts as signals of thoughtfulness.' }
+  /* 302 Idioms/Phrases từ bộ tài liệu Recap On Idioms/Phrases */
+  var RAW_IDIOMS = [
+    ["sore point", "chủ đề khiến ai đó cảm thấy tức giận hoặc không thoải mái"],
+    ["plumb the depths of something", "chìm sâu vào trong thứ gì đó rất tiêu cực"],
+    ["grasp/clutch at straws", "cố gắng trong vô vọng"],
+    ["spread yourself too thin", "làm nhiều việc cùng lúc"],
+    ["throw the book at somebody", "trừng phạt nặng"],
+    ["chance your arm", "mạo hiểm mặc dù có thể sẽ thất bại"],
+    ["be thrilled to bits", "rất vui"],
+    ["go places", "có thể thành công trong tương lai"],
+    ["drag your feet/heels", "chần chừ"],
+    ["leave somebody high and dry", "bỏ rơi ai"],
+    ["go from strength to strength", "ngày càng thành công"],
+    ["make somebody's hair stand on end", "làm ai dựng tóc gáy"],
+    ["do something till you are blue in the face", "phí công vô ích, cố gắng nhưng không đạt được kết quả mong muốn"],
+    ["get off to a flying start", "có một khởi đầu thuận lợi"],
+    ["lick somebody's boots", "nịnh nọt ai"],
+    ["go to great pains (to do something) / take (great) pains to do something", "cố gắng hết sức để làm gì"],
+    ["slip your mind", "quên làm gì, quên cái gì"],
+    ["on the cards", "có thể xảy ra"],
+    ["keep a low profile", "không thu hút sự chú ý"],
+    ["leave a mark (on somebody/something)", "ảnh hưởng đến ai/cái gì một cách tiêu cực"],
+    ["a blessing in disguise", "trong cái rủi có cái may"],
+    ["food for thought", "ý tưởng làm người nghe suy nghĩ nghiêm túc, cẩn thận"],
+    ["go/work like a dream", "diễn ra suôn sẻ, không có vấn đề gì"],
+    ["lose sight of somebody/something", "quên thứ gì, ngừng suy nghĩ về cái gì"],
+    ["have/throw a fit", "rất tức giận, buồn hoặc sốc"],
+    ["do the trick", "thành công mang lại kết quả mà bạn mong muốn"],
+    ["float/walk on air", "cảm thấy cực kỳ hạnh phúc"],
+    ["get the wrong end of the stick", "hiểu nhầm"],
+    ["have a familiar ring (to it)", "nghe quen quen"],
+    ["ruffle someone's feathers", "chọc giận hoặc làm ai buồn"],
+    ["hang by a thread", "(tính mạng của một người) gặp nguy hiểm lớn, tình thế ngàn cân treo sợi tóc"],
+    ["pull it/something out of the bag", "bất ngờ thành công khi làm gì"],
+    ["take the high road (in something)", "cư xử có đạo đức"],
+    ["pick up the pieces", "khắc phục những thiệt hại, trở về trạng thái bình thường"],
+    ["leave somebody to their own devices", "để ai tự lo liệu"],
+    ["carry the can (for something/somebody)", "nhận lỗi (lỗi không phải của bạn)"],
+    ["fall into place", "dễ hiểu, rõ ràng"],
+    ["be in the bag", "chắc chắn thắng/đạt được"],
+    ["make light work of something", "làm thứ gì một cách nhanh chóng"],
+    ["turn your hand to something", "có khả năng làm điều gì rất tốt"],
+    ["keep a/the lid on something", "kiểm soát thứ gì"],
+    ["sit on the fence", "chần chừ, trì hoãn hành động"],
+    ["put somebody/something on the map", "làm cho ai/cái gì trở nên nổi tiếng hoặc quan trọng"],
+    ["be out of your depth", "ngoài tầm kiểm soát; không thể hiểu/giải quyết điều gì"],
+    ["in deep water", "gặp rắc rối, khó khăn"],
+    ["get wind of something", "nghe được bí mật về cái gì"],
+    ["fall on stony ground", "thất bại, bị phớt lờ"],
+    ["take a walk/trip down memory lane", "trở về miền ký ức xưa"],
+    ["not turn a hair", "không bất ngờ"],
+    ["take a leaf out of somebody's book", "bắt chước hành động của ai (vì người đó thành công)"],
+    ["make heavy weather of something", "làm phức tạp việc gì lên"],
+    ["know the ropes", "thành thạo, quen thuộc việc gì"],
+    ["beside the point", "không quan trọng"],
+    ["quick/slow off the mark", "nhanh chóng/chậm chạp xử lý một tình huống"],
+    ["a means to an end", "một phương tiện để đạt được mục đích"],
+    ["set your sights on (doing) something", "đặt mục tiêu, cố gắng đạt được thứ gì"],
+    ["give somebody the benefit of the doubt", "tạm tin ai"],
+    ["a lump in your throat", "nghẹn ngào bởi vì xúc động"],
+    ["clutch at straws", "cố gắng trong vô vọng"],
+    ["be out of step with somebody", "(quan điểm) trái ngược với ai"],
+    ["turn a deaf ear", "làm ngơ"],
+    ["dig one's heels in", "nhất quyết từ chối thay đổi hành động hoặc ý kiến của mình"],
+    ["ring a bell", "nghe quen quen"],
+    ["have/get your foot in the door", "đặt chân được vào một tổ chức nào đó"],
+    ["clear the air", "xóa tan bầu không khí căng thẳng"],
+    ["bite the dust", "thất bại ê chề"],
+    ["keep in the dark about something", "mù mờ, không biết về chuyện gì"],
+    ["sail close to the wind", "liều lĩnh, mạo hiểm"],
+    ["show somebody the ropes", "chỉ việc cho ai"],
+    ["be at sea", "hoang mang, bối rối"],
+    ["put the brakes on something", "kìm hãm, làm chậm cái gì"],
+    ["be in the pipeline", "đang được thảo luận"],
+    ["music to one's ears", "tin vui đối với ai"],
+    ["strike a chord with somebody", "đánh đúng tâm lý của ai"],
+    ["put your finger on something", "biết chính xác chỗ sai"],
+    ["have/keep both feet on the ground", "thực tế, không viển vông"],
+    ["a bone of contention", "nguyên nhân gây tranh cãi"],
+    ["twist one's arm", "thuyết phục ai"],
+    ["change your tune", "đổi giọng điệu, thái độ"],
+    ["come to a head", "ngày càng tồi tệ, đến hồi gay go"],
+    ["draw the line at something", "đặt ra nguyên tắc cấm kỵ"],
+    ["go to great lengths", "làm mọi thứ để đạt được mục đích"],
+    ["keep somebody at arm's length", "giữ khoảng cách với ai"],
+    ["take a back seat", "lùi về sau"],
+    ["a weight off my mind", "gánh nặng được trút ra khỏi đầu"],
+    ["be on the tip of your tongue", "gần như nhớ ra"],
+    ["a pain in the neck", "sự phiền toái, khó chịu"],
+    ["a hard/tough nut to crack", "vấn đề khó giải quyết, người khó hiểu"],
+    ["prey on one's mind", "giày vò tâm trí ai"],
+    ["be riding high", "thành công, như diều gặp gió"],
+    ["bark up the wrong tree", "hiểu lầm, sai lầm"],
+    ["ring the changes", "thay đổi"],
+    ["take your eye off the ball", "lơ là, lơ đễnh, không tập trung"],
+    ["strain every nerve", "gắng sức"],
+    ["mend your fences", "làm hòa"],
+    ["a flash in the pan", "thành công chớp nhoáng, sớm nở chóng tàn"],
+    ["put your foot down", "nghiêm khắc ngăn chặn"],
+    ["be worth its weight in gold", "quý như vàng, hữu ích"],
+    ["a bolt from the blue", "bất thình lình"],
+    ["a new lease of life", "cơ may sống tốt hơn"],
+    ["on the edge of your seat", "cực kì háo hức, chăm chú"],
+    ["by the skin of your teeth", "trong gang tấc"],
+    ["a ball and chain", "thứ kìm hãm, trở ngại"],
+    ["fly by the seat of your pants", "làm việc theo bản năng mà không có sự chuẩn bị hay kỹ năng cần thiết, tùy cơ ứng biến, mò mẫm"],
+    ["a shot in the arm", "sự kích thích, thúc đẩy"],
+    ["be in someone's good book", "khiến ai đó hài lòng"],
+    ["give somebody a cold shoulder", "lạnh lùng, thờ ơ"],
+    ["in the same breath", "ngay sau đó lập tức nói điều ngược lại"],
+    ["up to scratch", "đạt tiêu chuẩn"],
+    ["a drop in the ocean", "quá ít, quá nhỏ so với tổng thể, muối bỏ bể"],
+    ["would give the shirt off someone's back", "sẵn sàng giúp đỡ ai đó"],
+    ["be wide of the mark", "sai lệch"],
+    ["chase your tail", "bận bịu làm nhiều việc nhưng không đạt được kết quả gì"],
+    ["get the bit between someone's teeth", "hào hứng thực hiện việc gì đó"],
+    ["step up to the plate", "đứng lên hành động"],
+    ["have a soft spot for someone", "có cảm tình với ai đó"],
+    ["keep your finger on the pulse", "bắt kịp được những thay đổi, cập nhật mới"],
+    ["put someone on the spot", "khiến ai đó khó chịu, xấu hổ"],
+    ["tread a fine line", "đứng trên lằn ranh"],
+    ["put your shoulder to the wheel", "gắng sức, chăm chỉ làm việc"],
+    ["stick to your guns", "kiên định với lập trường, quan điểm của mình"],
+    ["icing on the cake", "thứ khiến một tình huống trở nên còn tốt hơn nữa, gấp đôi niềm vui"],
+    ["keep something in check", "kiểm soát tình hình"],
+    ["be bright as a button", "sáng dạ, thông minh, nhanh nhạy"],
+    ["spill the beans", "để lộ tin tức"],
+    ["step into someone's shoes", "tiếp quản, đảm nhận trọng trách của ai đó"],
+    ["hard on the heels", "nối tiếp sau điều gì đó"],
+    ["waste your breath", "phí công sức làm gì đó mà không có kết quả"],
+    ["worth your salt", "giỏi làm việc, xứng đáng nhận được sự tôn trọng"],
+    ["having difficulty with something", "gặp khó khăn trong việc gì đó"],
+    ["can't hold a candle to someone/something", "không bằng được ai/cái gì"],
+    ["out of line with something", "khác với gì đó"],
+    ["miss the mark", "thất bại trong việc gì đó"],
+    ["labour the point", "lặp lại, giải thích lại điều đã hiểu"],
+    ["long shot", "ít có khả năng thành công"],
+    ["put something on ice", "tạm hoãn một kế hoạch"],
+    ["a bitter pill to swallow", "điều khó có thể chấp nhận, khó có thể nuốt trôi"],
+    ["stare someone in the face", "điều gì đó sắp xảy ra"],
+    ["burn your boats", "làm điều gì đó mà khiến không thể quay lại được nữa, qua sông đốt thuyền"],
+    ["at a single stroke", "ngay lập tức"],
+    ["out of the woods", "thoát khỏi tình trạng nguy kịch, nguy hiểm"],
+    ["keep a tight rein on somebody/something", "kiểm soát chặt chẽ ai đó/gì đó"],
+    ["chase your tail (idiom)", "bận bịu làm nhiều việc nhưng không đạt được kết quả gì"],
+    ["give somebody a rough ride", "gây khó dễ cho ai"],
+    ["luck of the draw", "ngẫu nhiên, may rủi"],
+    ["take a toll", "gây tổn hại"],
+    ["a walk in the park", "đơn giản, dễ như ăn kẹo"],
+    ["keep your head above water", "trụ vững trước một tình huống khó khăn"],
+    ["stand somebody in good stead", "hữu ích với ai đó về sau này"],
+    ["suit somebody down to the ground", "hoàn toàn phù hợp với ai đó"],
+    ["strike a note", "bày tỏ ý kiến về chuyện gì đó"],
+    ["bite the bullet", "cắn răng chịu đựng việc gì đó khó chịu"],
+    ["pour oil on troubled waters", "xoa dịu tình hình"],
+    ["beyond the call of duty", "vượt hơn ngoài mong đợi cho công việc, nhiệm vụ"],
+    ["reinvent the wheel", "tốn công tốn sức (làm điều mà người khác đã làm được rồi)"],
+    ["be at each other's throats", "cãi nhau"],
+    ["make a clean breast of", "thú nhận, nói ra sự thật"],
+    ["on edge", "lo lắng, bồn chồn"],
+    ["land on one's feet", "thành công, may mắn sau một thời gian khó khăn"],
+    ["tip the balance", "làm lệch cán cân, ảnh hưởng kết quả theo một cách khác"],
+    ["beyond belief", "vượt ngoài sức tưởng tượng"],
+    ["lick one's wounds", "dành thời gian để hồi phục sau thất bại"],
+    ["have/put my head on the block", "mạo hiểm làm điều gì đó có hại cho bạn"],
+    ["a shadow of one's former self", "phiên bản thấp kém của bản thân"],
+    ["be in dire straits", "trong hoàn cảnh khó khăn"],
+    ["turn/use something to good account", "sử dụng kỹ năng và khả năng để tạo ra kết quả tốt"],
+    ["at the push of a button", "một cách dễ dàng"],
+    ["a breath of fresh air", "một thứ mới mẻ, thú vị hơn (làn gió mới)"],
+    ["not lift a finger", "không ra tay giúp đỡ"],
+    ["be under a cloud", "mang tiếng, không còn được tin tưởng"],
+    ["have all your ducks in a row", "chuẩn bị sẵn sàng"],
+    ["ride (on) a wave of something", "được hưởng lợi từ một thời kỳ thành công hoặc nổi tiếng"],
+    ["take somebody to task", "chỉ trích, phê bình ai"],
+    ["work one's fingers to the bone", "làm việc rất chăm chỉ, cật lực"],
+    ["be worlds apart", "khác một trời một vực"],
+    ["bite your tongue", "ngăn bản thân nói điều gì đó có thể làm ai đó khó chịu hoặc gây ra tranh cãi, mặc dù bạn muốn nói"],
+    ["find/meet your match (in somebody)", "gặp ai đó bằng hoặc hơn bạn về sức mạnh, kỹ năng hoặc trí thông minh"],
+    ["live off the fat of the land", "sống sung túc"],
+    ["on the mend", "đang hồi phục"],
+    ["out of force of habit", "theo thói quen"],
+    ["a pain in the neck (idiom)", "một điều gì đó hay ai gây ra khó chịu, bực bội"],
+    ["blow something out of proportion", "thổi phồng, phóng đại (việc gì)"],
+    ["make light of something", "coi nhẹ"],
+    ["out of place", "lạc lõng, không phù hợp"],
+    ["a firm hand", "cứng rắn, nghiêm khắc"],
+    ["a light touch", "một cách nhẹ nhàng, êm dịu"],
+    ["on the rocks", "mối quan hệ hoặc việc làm ăn đang gặp nhiều khó khăn và có nguy cơ thất bại trong tương lai gần"],
+    ["fan the flames (of something)", "làm cho cuộc tranh luận, cãi vã, sự bức xúc trở nên tồi tệ hơn"],
+    ["take the edge off something", "làm bớt căng thẳng, khó chịu"],
+    ["bury/hide your head in the sand", "né tránh vấn đề, không muốn thừa nhận điều gì"],
+    ["a hard/tough act to follow", "một người hoặc một sự kiện quá tốt, quá thành công ở một điều gì đến nỗi khó có ai/sự kiện nào làm theo được"],
+    ["have the makings of something", "có đủ tố chất để trở thành thứ gì"],
+    ["pale into insignificance", "không thấm vào đâu so với"],
+    ["a close call/shave", "thoát được trong gang tấc"],
+    ["go through the motions (of doing something)", "làm việc đó nhưng không chú tâm tới"],
+    ["too close for comfort", "gần sát một cách nguy hiểm, khó chịu"],
+    ["a raw deal", "đối xử không công bằng"],
+    ["a sporting chance", "khả năng có thể thành công cao"],
+    ["a cut above somebody/something", "tốt hơn ai đó/cái gì"],
+    ["tick all the/somebody's boxes", "đáp ứng mọi yêu cầu"],
+    ["pour/throw cold water on something", "dội gáo nước lạnh vào một chuyện gì, gạt bỏ chuyện gì"],
+    ["carry weight", "có trọng lượng, có ảnh hưởng lớn"],
+    ["wear your heart on your sleeve", "để lộ cảm xúc của mình cho người khác thấy"],
+    ["have a card up one's sleeve", "có quân bài bí mật, lợi thế bí mật"],
+    ["oil the wheels", "bôi trơn, tạo thuận lợi"],
+    ["a tower of strength", "người an ủi, giúp đỡ trong lúc khó khăn"],
+    ["blow/take the lid off something", "phơi bày, vạch trần cái gì"],
+    ["throw caution to the wind/winds", "liều lĩnh"],
+    ["leave no stone unturned", "dùng mọi thủ đoạn, cách thức"],
+    ["be the spitting image of somebody", "giống hệt ai đó"],
+    ["hold out an olive branch", "giảng hòa"],
+    ["have a foot in both camps", "có liên quan tới cả 2 phe (đối lập nhau)"],
+    ["catch somebody off balance", "làm ai bối rối, lúng túng"],
+    ["stand/stick out a mile", "rõ ràng, dễ thấy, đáng chú ý"],
+    ["overstep the mark", "vượt ranh giới (nói điều không nên nói)"],
+    ["put all your eggs in one basket", "được ăn cả ngã về không"],
+    ["keep/put your eye on the ball", "tập trung vào việc đang làm"],
+    ["take stock of something", "xem xét, suy ngẫm điều gì"],
+    ["take the rough with the smooth", "chấp nhận những được mất của việc gì"],
+    ["run rings around/round somebody", "thắng thế, vượt mặt ai"],
+    ["sweep/brush something under the carpet", "giấu nhẹm cái gì (có thể gây ra rắc rối, bê bối)"],
+    ["put somebody/something to the test", "thách thức giới hạn của ai/cái gì"],
+    ["bend/lean over backwards", "cố gắng rất nhiều"],
+    ["keep a weather eye on somebody/something", "canh chừng ai/cái gì"],
+    ["be in bad, poor, the worst possible, etc. taste", "không thể chấp nhận, quá đáng"],
+    ["give someone a dose/taste of their own medicine", "cho ai nếm cảm giác gậy ông đập lưng ông"],
+    ["be driven/pushed from pillar to post", "bị buộc phải chuyển từ chỗ này sang chỗ kia, từ tình huống này sang tình huống kia"],
+    ["go the extra mile", "cố gắng hết sức, làm mọi cách"],
+    ["pick up the threads", "tiếp tục việc gì sau khoảng thời gian gián đoạn"],
+    ["on the scent of something", "gần khám phá ra gì đó"],
+    ["in the firing line", "bị công kích"],
+    ["prepare the ground for something", "đặt nền móng, chuẩn bị cho việc gì"],
+    ["be on a collision course with", "xảy ra xung đột với"],
+    ["have another string/more strings to your bow", "sở hữu nhiều kĩ năng, khả năng để dùng khi cần thiết"],
+    ["be (caught) in a cleft stick", "trong tình huống tiến thoái lưỡng nan"],
+    ["throw a spanner in the works", "cản trở, trì hoãn hoạt động nào"],
+    ["keep somebody on their toes", "giữ cho ai đó luôn trong trạng thái sẵn sàng, cảnh giác"],
+    ["find a needle in a haystack", "mò kim đáy bể"],
+    ["take the wind out of one's sails", "khiến ai đó bớt tự tin, làm nhụt chí ai"],
+    ["a (heavy) cross to bear", "trách nhiệm/gánh nặng phải tự xử lí, gánh vác"],
+    ["get blood out of/from a stone", "rất khó để có được thứ gì"],
+    ["upset the apple cart", "thay đổi thế trận, phá đám"],
+    ["a feather in one's cap", "niềm tự hào của ai"],
+    ["(hard/hot/close) on the heels of something", "xảy ra rất nhanh hoặc ngay lập tức sau cái gì"],
+    ["bring someone/something into line (with someone/something)", "buộc ai/cái gì tuân theo ai/cái gì"],
+    ["make no bones about something", "thành thật nói rõ cái gì"],
+    ["batten down the hatches", "sẵn sàng, chuẩn bị cho tình huống khó khăn"],
+    ["go by the board", "bị hủy bỏ"],
+    ["beat a path to someone's door", "háo hức mua thứ gì/sử dụng thứ gì từ ai đó"],
+    ["put/set the world to rights", "bàn chuyện thế giới"],
+    ["draw a line in the sand", "vạch ra, lập ra một ranh giới"],
+    ["once in a while", "đôi khi, họa hoằn"],
+    ["fall on deaf ears", "bị bỏ ngoài tai"],
+    ["knock/lick/get somebody/something into shape", "uốn nắn ai/cái gì"],
+    ["turn the corner", "bắt đầu tiến triển, thành công (sau quãng thời gian chật vật vì khó khăn)"],
+    ["on your guard", "đề phòng"],
+    ["have a good head on your shoulders", "thông minh, tài giỏi, khôn ngoan"],
+    ["hue and cry", "sự phản đối, chống đối"],
+    ["keep your cards close to your chest", "giữ kín ý định"],
+    ["a millstone around one's neck", "gánh nặng"],
+    ["hang fire", "trì hoãn"],
+    ["set great store by (someone or something)", "đánh giá cao, coi trọng ai/cái gì"],
+    ["out of tune with somebody/something", "không hòa hợp với, trái ngược với ai/cái gì"],
+    ["pour scorn on somebody", "dè bỉu, coi thường"],
+    ["the ebb and flow (of something)", "sự dao động, thăng trầm của cái gì"],
+    ["be out of one's element", "không thoải mái, không quen"],
+    ["pull the plug on somebody/something", "chấm dứt kế hoạch, dự án"],
+    ["pass muster", "được chấp nhận là đủ tiêu chuẩn"],
+    ["gain ground", "trở nên phổ biến, thành công"],
+    ["at somebody's beck and call", "lúc nào cũng sẵn sàng nghe theo mệnh lệnh của ai"],
+    ["have something on good authority", "có thể tin tưởng điều gì (mà ai đã kể)"],
+    ["come a cropper", "thất bại thảm hại"],
+    ["the best/pick of the bunch", "người/thứ tốt nhất trong một nhóm"],
+    ["break the mold (of something)", "phá bỏ đi những suy nghĩ thông thường"],
+    ["take something with a pinch of salt", "không hoàn toàn tin những gì được bảo"],
+    ["jump the gun", "làm điều đó quá sớm, cầm đèn chạy trước ô tô"],
+    ["steal one's thunder", "cướp đi sự chú ý, thành công từ ai đó"],
+    ["hit the nail on the head", "nói chính xác điều gì"],
+    ["move mountains", "nỗ lực làm gì"],
+    ["make a mountain out of a molehill", "chuyện bé xé ra to"],
+    ["cut somebody to the quick", "khiến ai buồn lòng vì nói/làm điều gì đó không hay"],
+    ["see someone's true colours", "thấy tính cách thật của ai"],
+    ["run rings around/round somebody (idiom)", "giỏi hơn ai"],
+    ["keep the wolf from the door", "chỉ đủ tiền ăn và sống"],
+    ["straw in the wind", "gợi ý điều gì có thể xảy ra"],
+    ["turn the tables", "xoay chuyển tình thế"],
+    ["run the gauntlet", "bị chỉ trích, tấn công"],
+    ["break the back of something", "hoàn thành phần lớn nhất, quan trọng nhất của một thứ gì đó"],
+    ["take the plunge", "quyết định làm điều gì khó khăn, quan trọng"],
+    ["add insult to injury", "khiến cho một mối quan hệ đã xấu còn trở nên tệ hơn, đổ thêm dầu vào lửa"],
+    ["fly in the face of something", "trái ngược với những thứ được coi là bình thường"],
+    ["shoot from the hip", "phản ứng nhanh mà không suy nghĩ cẩn thận"],
+    ["put the cart before the horse", "cầm đèn chạy trước ô tô"],
+    ["(on the) back of an envelope", "làm thứ gì đó vội vàng, không cẩn thận, không chi tiết"],
+    ["cut the ground from under someone's feet", "khiến ý tưởng của ai trở nên kém hấp dẫn hơn bằng việc làm trước điều gì hoặc làm gì đó hay hơn"],
+    ["let the genie out of the bottle", "cho phép điều gì xảy ra mà không thể dừng lại"],
+    ["a shot across the/somebody's bows", "cảnh báo điều gì sẽ xảy ra nếu không thay đổi"],
+    ["throw in the towel", "thừa nhận thất bại, ngừng cố gắng"],
+    ["take the bull by the horns", "chấp nhận và đối mặt với tình huống khó khăn nào đó"],
+    ["roll with the punches", "thích nghi với một tình huống khó khăn"],
+    ["(keep) a stiff upper lip", "bình tĩnh, che giấu cảm xúc khi đang đau đớn, khó khăn"],
+    ["in over your head", "làm điều gì đó quá khó để xử lý"]
   ];
+
+  var VOCAB = RAW_IDIOMS.map(function (item, i) {
+    var num = i + 1;
+    var group = num <= 54 ? 'p1' : num <= 109 ? 'p2' : num <= 165 ? 'p3' : num <= 216 ? 'p4' : num <= 259 ? 'p5' : 'p6';
+    return {
+      id: num,
+      word: item[0],
+      ipa: 'Idiom #' + num,
+      pos: 'Idiom #' + num,
+      topic: group,
+      meaning: item[1],
+      ex: 'Thành ngữ số ' + num + ' trong bảng Recap On Idioms/Phrases.'
+    };
+  });
+
+  var EXTRA_VOCAB = [
+    { id: 303, word: 'be that as it may', ipa: '/biː ðæt æz ɪt meɪ/', pos: 'Idiom', topic: 'test', meaning: 'Dù vậy, tuy nhiên (nối hai ý đối lập)', ex: 'My father is getting old and forgetful; be that as it may, he is experienced.' },
+    { id: 304, word: 'a roaring success', ipa: '/ə ˈrɔːrɪŋ səkˈses/', pos: 'Collocation', topic: 'test', meaning: 'Một thành công vang dội', ex: 'The first amusement park in our city was a roaring success.' },
+    { id: 305, word: 'do wonders for', ipa: '/duː ˈwʌndəz fɔːr/', pos: 'Idiom', topic: 'test', meaning: 'Mang lại lợi ích rất lớn cho', ex: 'Reducing greenhouse gas emissions does wonders for the environment.' },
+    { id: 306, word: 'bear little resemblance to', ipa: '/beə ˈlɪtl rɪˈzembləns tuː/', pos: 'Collocation', topic: 'test', meaning: 'Chẳng giống mấy so với', ex: 'His work at times bore little resemblance to classical music.' },
+    { id: 307, word: 'from all walks of life', ipa: '/frɒm ɔːl wɔːks ɒv laɪf/', pos: 'Idiom', topic: 'test', meaning: 'Từ mọi tầng lớp trong xã hội', ex: 'He jammed with musicians and artists from all walks of life.' },
+    { id: 308, word: 'on track (to do sth)', ipa: '/ɒn træk/', pos: 'Idiom', topic: 'test', meaning: 'Đang đi đúng hướng để đạt mục tiêu', ex: 'Regular evaluations ensure that you are on track to meet your goals.' },
+    { id: 309, word: 'let sb down', ipa: '/let ˈsʌmbədi daʊn/', pos: 'Phrasal Verb', topic: 'test', meaning: 'Làm ai đó thất vọng khi họ cần giúp đỡ', ex: 'It is disappointing to be let down by a friend when you need support.' },
+    { id: 310, word: 'equip sb with sth', ipa: '/ɪˈkwɪp ˈsʌmbədi wɪð/', pos: 'Phrase', topic: 'test', meaning: 'Trang bị cho ai đó (kỹ năng, công cụ)', ex: 'The course equips you with the tools and confidence to succeed.' },
+    { id: 311, word: 'in collaboration with', ipa: '/ɪn kəˌlæbəˈreɪʃn wɪð/', pos: 'Phrase', topic: 'test', meaning: 'Hợp tác, cộng tác cùng với', ex: 'He worked in collaboration with a number of other musicians.' },
+    { id: 312, word: 'implement', ipa: '/ˈɪmplɪment/', pos: 'Verb', topic: 'test', meaning: 'Triển khai, thực thi (kế hoạch, chính sách)', ex: 'A highly successful biking scheme has been implemented in the Netherlands.' },
+    { id: 313, word: 'self-reliance', ipa: '/ˌself rɪˈlaɪəns/', pos: 'Noun', topic: 'test', meaning: 'Sự tự lực, tự chủ', ex: 'Are you ready to dive into a world of self-reliance and empowerment?' },
+    { id: 314, word: 'state-of-the-art', ipa: '/ˌsteɪt əv ði ˈɑːt/', pos: 'Adjective', topic: 'test', meaning: 'Hiện đại nhất, tân tiến nhất', ex: 'Our state-of-the-art facilities are designed to inspire creativity.' },
+    { id: 315, word: 'vibrant', ipa: '/ˈvaɪbrənt/', pos: 'Adjective', topic: 'test', meaning: 'Sôi nổi, đầy sức sống, năng động', ex: 'Join a vibrant community of learners and professionals.' },
+    { id: 316, word: 'budding', ipa: '/ˈbʌdɪŋ/', pos: 'Adjective', topic: 'test', meaning: 'Mới chớm nở, đầy triển vọng', ex: 'He was an inspiration to a generation of budding young artists.' },
+    { id: 317, word: 'overshadow', ipa: '/ˌəʊvəˈʃædəʊ/', pos: 'Verb', topic: 'test', meaning: 'Làm lu mờ', ex: 'His three symphonies completely overshadowed the achievements of others.' },
+    { id: 318, word: 'surpass', ipa: '/səˈpɑːs/', pos: 'Verb', topic: 'test', meaning: 'Vượt qua, vượt trội hơn', ex: 'Each new work seemed to surpass the limits of the orchestral medium.' },
+    { id: 319, word: 'ambivalent', ipa: '/æmˈbɪvələnt/', pos: 'Adjective', topic: 'test', meaning: 'Mâu thuẫn, vừa thích vừa e ngại', ex: 'Frequent gift-giving can engender ambivalent feelings in gift-givers.' },
+    { id: 320, word: 'unfounded', ipa: '/ʌnˈfaʊndɪd/', pos: 'Adjective', topic: 'test', meaning: 'Không có cơ sở, vô căn cứ', ex: 'Such an assumption about gift prices may be unfounded.' },
+    { id: 321, word: 'construe', ipa: '/kənˈstruː/', pos: 'Verb', topic: 'test', meaning: 'Hiểu, diễn giải theo một cách nào đó', ex: 'Recipients may not construe larger gifts as signals of thoughtfulness.' },
+    { id: 322, word: 'globalization', ipa: '/ˌɡləʊbəlaɪˈzeɪʃn/', pos: 'Noun', topic: 'test', meaning: 'Sự toàn cầu hóa', ex: 'Due to globalization, people can enjoy products from different cultures.' }
+  ];
+
+  VOCAB = VOCAB.concat(EXTRA_VOCAB);
 
   var storeKey = 'ontap:vocab:mastered';
   function getMastered() {
@@ -150,24 +479,42 @@
     });
   }
 
+  function applyFilter() {
+    if (currentTopic === 'all') {
+      filtered = VOCAB.slice();
+    } else if (currentTopic === 'unmastered') {
+      filtered = VOCAB.filter(function (v) { return !mastered[v.id]; });
+    } else {
+      filtered = VOCAB.filter(function (v) { return v.topic === currentTopic; });
+    }
+  }
+
   function updateMasteredKPI() {
     var count = VOCAB.filter(function (v) { return !!mastered[v.id]; }).length;
     document.getElementById('mastered-count').textContent = count;
+    document.getElementById('total-count').textContent = VOCAB.length;
   }
 
   function renderFlashcard() {
-    if (!filtered.length) return;
+    updateMasteredKPI();
+    var band = document.getElementById('fc-band');
+    var body = document.getElementById('fc-body');
+    var btnMaster = document.getElementById('btn-master');
+
+    if (!filtered.length) {
+      document.getElementById('fc-index').textContent = '0 / 0';
+      body.innerHTML = '<p class="fc-meaning">Bạn đã thuộc hết các từ trong mục này!</p>';
+      return;
+    }
+
     if (idx >= filtered.length) idx = 0;
     if (idx < 0) idx = filtered.length - 1;
 
     var item = filtered[idx];
     var isDone = !!mastered[item.id];
-    var band = document.getElementById('fc-band');
-    var body = document.getElementById('fc-body');
-    var btnMaster = document.getElementById('btn-master');
 
     document.getElementById('fc-index').textContent = 'THẺ ' + (idx + 1) + ' / ' + filtered.length;
-    document.getElementById('fc-side-label').textContent = flipped ? 'MẶT SAU · NGHĨA & VÍ DỤ' : 'MẶT TRƯỚC · TỪ VỰNG';
+    document.getElementById('fc-side-label').textContent = flipped ? 'MẶT SAU · NGHĨA TIẾNG VIỆT' : 'MẶT TRƯỚC · THÀNH NGỮ / TỪ VỰNG';
     band.className = flipped ? 'fc-band back' : 'fc-band';
 
     if (!flipped) {
@@ -175,39 +522,38 @@
         (isDone ? '<span class="fc-status-badge">✓ Đã thuộc</span>' : '') +
         '<span class="fc-pos">' + esc(item.pos) + '</span>' +
         '<h2 class="fc-word">' + esc(item.word) + '</h2>' +
-        '<div class="fc-ipa">' + esc(item.ipa) + '</div>' +
-        '<div class="fc-hint">Bấm vào thẻ hoặc nhấn phím Space để xem nghĩa</div>';
+        (item.ipa !== item.pos ? '<div class="fc-ipa">' + esc(item.ipa) + '</div>' : '') +
+        '<div class="fc-hint">Bấm vào thẻ hoặc nhấn phím Space để lật xem nghĩa</div>';
     } else {
       body.innerHTML =
         '<span class="fc-pos">' + esc(item.word) + '</span>' +
         '<p class="fc-meaning">' + esc(item.meaning) + '</p>' +
-        '<p class="fc-example">“' + esc(item.ex) + '”</p>' +
+        '<p class="fc-example">' + esc(item.ex) + '</p>' +
         '<div class="fc-hint">Bấm lại vào thẻ để quay về mặt trước</div>';
     }
 
     btnMaster.textContent = isDone ? '✓ Đã thuộc (Bấm để bỏ)' : '✓ Đánh dấu đã thuộc';
     btnMaster.className = isDone ? 'btn small ghost' : 'btn small';
-    updateMasteredKPI();
   }
 
   function renderGrid() {
     var q = (document.getElementById('vocab-search').value || '').trim().toLowerCase();
     var list = filtered.filter(function (v) {
-      return !q || v.word.toLowerCase().indexOf(q) !== -1 || v.meaning.toLowerCase().indexOf(q) !== -1;
+      return !q || v.word.toLowerCase().indexOf(q) !== -1 || v.meaning.toLowerCase().indexOf(q) !== -1 || String(v.id) === q;
     });
 
+    document.getElementById('grid-count').textContent = list.length;
     var grid = document.getElementById('vocab-grid');
     if (!list.length) {
-      grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><p>Không tìm thấy từ vựng phù hợp.</p></div>';
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><p>Không tìm thấy thành ngữ hoặc từ vựng phù hợp.</p></div>';
       return;
     }
     grid.innerHTML = list.map(function (v) {
       var done = !!mastered[v.id];
       return '<article class="vcard' + (done ? ' mastered' : '') + '">' +
         '<div class="vcard-top"><b>' + esc(v.word) + '</b><span class="fc-pos">' + esc(v.pos) + '</span></div>' +
-        '<div style="font-size:.82rem;color:var(--muted)">' + esc(v.ipa) + (done ? ' · <b style="color:var(--ok)">Đã thuộc</b>' : '') + '</div>' +
+        (done ? '<div style="font-size:.78rem;color:var(--ok);font-weight:800">✓ Đã thuộc</div>' : '') +
         '<div class="vcard-meaning">' + esc(v.meaning) + '</div>' +
-        '<div class="vcard-ex">“' + esc(v.ex) + '”</div>' +
       '</article>';
     }).join('');
   }
@@ -215,15 +561,17 @@
   function speakCurrent() {
     if (!filtered.length || !('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(filtered[idx].word.replace(/\(.*?\)/g, ''));
+    var cleanText = filtered[idx].word.replace(/\(.*?\)/g, '').replace(/\//g, ' or ');
+    var u = new SpeechSynthesisUtterance(cleanText);
     u.lang = 'en-US';
-    u.rate = 0.92;
+    u.rate = 0.9;
     window.speechSynthesis.speak(u);
   }
 
-  /* ---------- Mini Quiz ---------- */
+  /* ---------- Mini Quiz (Lấy ngẫu nhiên từ bộ đang lọc) ---------- */
   function renderQuiz() {
-    var target = VOCAB[Math.floor(Math.random() * VOCAB.length)];
+    var pool = filtered.length >= 4 ? filtered : VOCAB;
+    var target = pool[Math.floor(Math.random() * pool.length)];
     var others = VOCAB.filter(function (v) { return v.id !== target.id; });
     others.sort(function () { return Math.random() - 0.5; });
     var choices = [target, others[0], others[1], others[2]].sort(function () { return Math.random() - 0.5; });
@@ -272,12 +620,19 @@
   document.getElementById('btn-next').addEventListener('click', function () {
     idx++; flipped = false; renderFlashcard();
   });
+  document.getElementById('btn-shuffle').addEventListener('click', function () {
+    filtered.sort(function () { return Math.random() - 0.5; });
+    idx = 0; flipped = false;
+    renderFlashcard();
+    renderGrid();
+  });
   document.getElementById('btn-speak').addEventListener('click', speakCurrent);
   document.getElementById('btn-master').addEventListener('click', function () {
     if (!filtered.length) return;
     var id = filtered[idx].id;
     if (mastered[id]) delete mastered[id]; else mastered[id] = 1;
     saveMastered(mastered);
+    if (currentTopic === 'unmastered') applyFilter();
     renderFlashcard();
     renderGrid();
   });
@@ -288,10 +643,11 @@
     currentTopic = btn.getAttribute('data-topic');
     document.querySelectorAll('#topic-pills .pill').forEach(function (p) { p.classList.remove('active'); });
     btn.classList.add('active');
-    filtered = currentTopic === 'all' ? VOCAB.slice() : VOCAB.filter(function (v) { return v.topic === currentTopic; });
+    applyFilter();
     idx = 0; flipped = false;
     renderFlashcard();
     renderGrid();
+    renderQuiz();
   });
 
   document.getElementById('vocab-search').addEventListener('input', renderGrid);
@@ -315,8 +671,5 @@
   renderQuiz();
 })();
 </script>
-  <script src="js/app.js"></script>
-</body>
-</html>
 </body>
 </html>
