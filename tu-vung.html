@@ -40,7 +40,7 @@
     <div class="page-head-in">
       <a class="crumb" href="index.html">← Quay lại bàn cờ môn học</a>
       <h1>Ô đất: Từ vựng &amp; 302 Idioms</h1>
-      <p>Hệ thống thẻ ghi nhớ (Flashcard) trọn bộ 302 Idioms/Phrases trọng tâm và từ vựng đề thi THPT, tích hợp phát âm và lặp lại ngắt quãng các từ chưa thuộc.</p>
+      <p>Hệ thống thẻ ghi nhớ (Flashcard) trọn bộ 302 Idioms/Phrases trọng tâm và từ vựng đề thi THPT, tích hợp phát âm và câu hỏi trắc nghiệm phản xạ.</p>
     </div>
   </section>
 
@@ -57,16 +57,15 @@
         <button type="button" class="pill" data-topic="test">Từ vựng Đề thi (20)</button>
         <button type="button" class="pill" data-topic="unmastered">Chưa thuộc</button>
       </div>
-      <div class="kpis" style="align-items:center">
+      <div class="kpis">
         <span>Đã thuộc: <b id="mastered-count">0</b>/<span id="total-count">322</span></span>
-        <button type="button" class="btn small ghost" id="btn-shuffle">🔀 Xáo trộn</button>
       </div>
     </div>
 
     <div class="fc-layout">
       <!-- Cột trái: Thẻ lật Flashcard -->
       <div class="fc-stage">
-        <div class="fc-card" id="fc-card" tabindex="0" role="button" aria-label="Thẻ từ vựng. Bấm vào thẻ hoặc nhấn phím cách để lật mặt sau">
+        <div class="fc-card" id="fc-card" tabindex="0" role="button" aria-label="Thẻ từ vựng. Bấm hoặc nhấn phím cách để lật mặt sau">
           <div class="fc-band" id="fc-band">
             <span id="fc-index">THẺ 1 / 322</span>
             <span id="fc-side-label">MẶT TRƯỚC · TỪ VỰNG</span>
@@ -74,18 +73,16 @@
           <div class="fc-body" id="fc-body"></div>
         </div>
 
-        <!-- Cụm nút điều khiển 2 hàng ngang theo thiết kế mới -->
         <div class="fc-controls">
-          <!-- Hàng 1: Lùi lại (Trái) - Phát âm (Giữa) - Tiến tới (Phải) -->
-          <div class="fc-nav-row">
+          <div class="btn-row">
             <button type="button" class="btn small ghost" id="btn-prev">← Trước</button>
-            <button type="button" class="btn small ghost" id="btn-speak">🔊 Phát âm</button>
+            <button type="button" class="btn small ghost" id="btn-flip">Lật thẻ (Space)</button>
             <button type="button" class="btn small ghost" id="btn-next">Tiếp →</button>
+            <button type="button" class="btn small ghost" id="btn-shuffle">🔀 Xáo trộn</button>
           </div>
-          <!-- Hàng 2: Chưa thuộc (Lặp lại nhiều lần) & Đã thuộc nằm ngang nhau -->
-          <div class="fc-status-row">
-            <button type="button" class="btn small btn-unmaster" id="btn-unmaster">✕ Chưa thuộc</button>
-            <button type="button" class="btn small btn-master" id="btn-master">✓ Đã thuộc</button>
+          <div class="btn-row">
+            <button type="button" class="btn small ghost" id="btn-speak">🔊 Phát âm</button>
+            <button type="button" class="btn small" id="btn-master">✓ Đánh dấu đã thuộc</button>
           </div>
         </div>
       </div>
@@ -117,6 +114,7 @@
 (function () {
   'use strict';
 
+  /* 302 Idioms/Phrases từ bộ tài liệu Recap On Idioms/Phrases */
   var RAW_IDIOMS = [
     ["sore point", "chủ đề khiến ai đó cảm thấy tức giận hoặc không thoải mái"],
     ["plumb the depths of something", "chìm sâu vào trong thứ gì đó rất tiêu cực"],
@@ -462,16 +460,14 @@
   VOCAB = VOCAB.concat(EXTRA_VOCAB);
 
   var storeKey = 'ontap:vocab:mastered';
-  var repeatKey = 'ontap:vocab:repeat';
-  function getStore(k) {
-    try { return JSON.parse(localStorage.getItem(k) || '{}'); } catch (e) { return {}; }
+  function getMastered() {
+    try { return JSON.parse(localStorage.getItem(storeKey) || '{}'); } catch (e) { return {}; }
   }
-  function setStore(k, obj) {
-    try { localStorage.setItem(k, JSON.stringify(obj)); } catch (e) {}
+  function saveMastered(obj) {
+    try { localStorage.setItem(storeKey, JSON.stringify(obj)); } catch (e) {}
   }
 
-  var mastered = getStore(storeKey);
-  var repeatMap = getStore(repeatKey); // Đếm số lần bấm "Chưa thuộc"
+  var mastered = getMastered();
   var currentTopic = 'all';
   var filtered = VOCAB.slice();
   var idx = 0;
@@ -503,6 +499,7 @@
     updateMasteredKPI();
     var band = document.getElementById('fc-band');
     var body = document.getElementById('fc-body');
+    var btnMaster = document.getElementById('btn-master');
 
     if (!filtered.length) {
       document.getElementById('fc-index').textContent = '0 / 0';
@@ -515,40 +512,33 @@
 
     var item = filtered[idx];
     var isDone = !!mastered[item.id];
-    var repCount = repeatMap[item.id] || 0;
 
     document.getElementById('fc-index').textContent = 'THẺ ' + (idx + 1) + ' / ' + filtered.length;
     document.getElementById('fc-side-label').textContent = flipped ? 'MẶT SAU · NGHĨA TIẾNG VIỆT' : 'MẶT TRƯỚC · THÀNH NGỮ / TỪ VỰNG';
     band.className = flipped ? 'fc-band back' : 'fc-band';
 
-    var statusBadge = '';
-    if (isDone) {
-      statusBadge = '<span class="fc-status-badge">✓ Đã thuộc</span>';
-    } else if (repCount > 0) {
-      statusBadge = '<span class="fc-repeat-badge">↻ Đang lặp lại để nhớ (Lần ' + repCount + ')</span>';
-    }
-
     if (!flipped) {
       body.innerHTML =
-        statusBadge +
+        (isDone ? '<span class="fc-status-badge">✓ Đã thuộc</span>' : '') +
         '<span class="fc-pos">' + esc(item.pos) + '</span>' +
         '<h2 class="fc-word">' + esc(item.word) + '</h2>' +
         (item.ipa !== item.pos ? '<div class="fc-ipa">' + esc(item.ipa) + '</div>' : '') +
         '<div class="fc-hint">Bấm vào thẻ hoặc nhấn phím Space để lật xem nghĩa</div>';
     } else {
       body.innerHTML =
-        statusBadge +
         '<span class="fc-pos">' + esc(item.word) + '</span>' +
         '<p class="fc-meaning">' + esc(item.meaning) + '</p>' +
         '<p class="fc-example">' + esc(item.ex) + '</p>' +
         '<div class="fc-hint">Bấm lại vào thẻ để quay về mặt trước</div>';
     }
+
+    btnMaster.textContent = isDone ? '✓ Đã thuộc (Bấm để bỏ)' : '✓ Đánh dấu đã thuộc';
+    btnMaster.className = isDone ? 'btn small ghost' : 'btn small';
   }
 
   function renderGrid() {
     var q = (document.getElementById('vocab-search').value || '').trim().toLowerCase();
-    var baseList = currentTopic === 'all' ? VOCAB : (currentTopic === 'unmastered' ? VOCAB.filter(function (v) { return !mastered[v.id]; }) : VOCAB.filter(function (v) { return v.topic === currentTopic; }));
-    var list = baseList.filter(function (v) {
+    var list = filtered.filter(function (v) {
       return !q || v.word.toLowerCase().indexOf(q) !== -1 || v.meaning.toLowerCase().indexOf(q) !== -1 || String(v.id) === q;
     });
 
@@ -560,10 +550,9 @@
     }
     grid.innerHTML = list.map(function (v) {
       var done = !!mastered[v.id];
-      var rep = repeatMap[v.id] || 0;
       return '<article class="vcard' + (done ? ' mastered' : '') + '">' +
         '<div class="vcard-top"><b>' + esc(v.word) + '</b><span class="fc-pos">' + esc(v.pos) + '</span></div>' +
-        (done ? '<div style="font-size:.78rem;color:var(--ok);font-weight:800">✓ Đã thuộc</div>' : (rep ? '<div style="font-size:.78rem;color:var(--bad);font-weight:800">↻ Cần ôn lại (' + rep + ')</div>' : '')) +
+        (done ? '<div style="font-size:.78rem;color:var(--ok);font-weight:800">✓ Đã thuộc</div>' : '') +
         '<div class="vcard-meaning">' + esc(v.meaning) + '</div>' +
       '</article>';
     }).join('');
@@ -579,6 +568,7 @@
     window.speechSynthesis.speak(u);
   }
 
+  /* ---------- Mini Quiz (Lấy ngẫu nhiên từ bộ đang lọc) ---------- */
   function renderQuiz() {
     var pool = filtered.length >= 4 ? filtered : VOCAB;
     var target = pool[Math.floor(Math.random() * pool.length)];
@@ -615,8 +605,12 @@
     });
   }
 
-  /* ---------- Sự kiện điều khiển ---------- */
+  /* ---------- Sự kiện ---------- */
   document.getElementById('fc-card').addEventListener('click', function () {
+    flipped = !flipped;
+    renderFlashcard();
+  });
+  document.getElementById('btn-flip').addEventListener('click', function () {
     flipped = !flipped;
     renderFlashcard();
   });
@@ -626,57 +620,21 @@
   document.getElementById('btn-next').addEventListener('click', function () {
     idx++; flipped = false; renderFlashcard();
   });
-  document.getElementById('btn-speak').addEventListener('click', speakCurrent);
-
-  /* Khi bấm "Chưa thuộc": Xóa trạng thái đã thuộc, tăng bộ đếm lặp lại,
-     chèn thẻ này xuất hiện lại sau 3 thẻ và 7 thẻ nữa để ghi nhớ, rồi chuyển qua thẻ kế tiếp */
-  document.getElementById('btn-unmaster').addEventListener('click', function () {
-    if (!filtered.length) return;
-    var item = filtered[idx];
-    delete mastered[item.id];
-    repeatMap[item.id] = (repeatMap[item.id] || 0) + 1;
-    setStore(storeKey, mastered);
-    setStore(repeatKey, repeatMap);
-
-    var pos1 = Math.min(idx + 3, filtered.length);
-    filtered.splice(pos1, 0, item);
-    var pos2 = Math.min(idx + 7, filtered.length);
-    filtered.splice(pos2, 0, item);
-
-    idx++;
-    flipped = false;
-    renderFlashcard();
-    renderGrid();
-  });
-
-  /* Khi bấm "Đã thuộc": Lưu đã thuộc, xóa các bản sao lặp lại phía sau của từ này và chuyển sang thẻ tiếp theo */
-  document.getElementById('btn-master').addEventListener('click', function () {
-    if (!filtered.length) return;
-    var item = filtered[idx];
-    mastered[item.id] = 1;
-    delete repeatMap[item.id];
-    setStore(storeKey, mastered);
-    setStore(repeatKey, repeatMap);
-
-    /* Xóa các thẻ lặp lại dư thừa của từ vừa thuộc ở phía sau hàng đợi */
-    for (var i = filtered.length - 1; i > idx; i--) {
-      if (filtered[i].id === item.id) filtered.splice(i, 1);
-    }
-
-    if (currentTopic === 'unmastered') {
-      applyFilter();
-    } else {
-      idx++;
-    }
-    flipped = false;
-    renderFlashcard();
-    renderGrid();
-  });
-
   document.getElementById('btn-shuffle').addEventListener('click', function () {
     filtered.sort(function () { return Math.random() - 0.5; });
     idx = 0; flipped = false;
     renderFlashcard();
+    renderGrid();
+  });
+  document.getElementById('btn-speak').addEventListener('click', speakCurrent);
+  document.getElementById('btn-master').addEventListener('click', function () {
+    if (!filtered.length) return;
+    var id = filtered[idx].id;
+    if (mastered[id]) delete mastered[id]; else mastered[id] = 1;
+    saveMastered(mastered);
+    if (currentTopic === 'unmastered') applyFilter();
+    renderFlashcard();
+    renderGrid();
   });
 
   document.getElementById('topic-pills').addEventListener('click', function (e) {
