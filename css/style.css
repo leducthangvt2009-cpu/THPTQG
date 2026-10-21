@@ -437,3 +437,230 @@ dialog p { margin: 0 0 1.25rem; font-size: 1rem; }
     flex-shrink: 0;
   }
 }
+/* ---------- 2 Ô Điều hướng mới trên Header (Bàn cờ & Tài khoản) ---------- */
+.header-inner {
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+.nav {
+  width: auto !important;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem !important;
+  overflow: visible !important;
+}
+.nav a.nav-box,
+.nav button.nav-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  background: var(--mono-board-light);
+  color: var(--line);
+  border: 2px solid var(--line);
+  box-shadow: 3px 3px 0 #000;
+  padding: 0.35rem 0.75rem;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+.nav a.nav-box:hover,
+.nav button.nav-box:hover {
+  background: var(--mono-gold);
+  color: var(--line);
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #000;
+}
+.nav button.nav-box.logged-in {
+  background: var(--mono-gold);
+  color: var(--line);
+}
+.nav button.nav-box.is-admin {
+  background: var(--mono-red);
+  color: var(--white);
+  border-color: var(--white);
+}
+
+@media (max-width: 560px) {
+  .nav a.nav-box,
+  .nav button.nav-box {
+    font-size: 0.74rem;
+    padding: 0.28rem 0.55rem;
+  }
+}
+
+/* ---------- Hộp thoại Đăng nhập / Đăng ký / Hồ sơ ---------- */
+.auth-dlg {
+  width: 100%;
+  max-width: min(94vw, 27rem);
+  padding: 0;
+  border: 4px solid var(--line);
+  box-shadow: 10px 10px 0 var(--line);
+  background: var(--surface);
+}
+.auth-head {
+  background: var(--mono-emerald);
+  color: var(--white);
+  padding: 0.85rem 1.15rem;
+  border-bottom: 3px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.auth-head strong {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.auth-close {
+  background: var(--mono-red);
+  color: var(--white);
+  border: 2px solid var(--white);
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0.15rem 0.5rem;
+}
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 3px solid var(--line);
+  background: var(--mono-board-light);
+}
+.auth-tab {
+  cursor: pointer;
+  padding: 0.65rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+.auth-tab.active {
+  background: var(--mono-gold);
+  color: var(--line);
+  box-shadow: inset 0 -3px 0 var(--line);
+}
+.auth-body {
+  padding: 1.25rem;
+  display: grid;
+  gap: 0.9rem;
+}
+.auth-field {
+  display: grid;
+  gap: 0.3rem;
+}
+.auth-field label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.auth-field input {
+  padding: 0.6rem 0.75rem;
+  border: 2px solid var(--line);
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: var(--bg);
+}
+.auth-msg {
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  border: 2px solid var(--line);
+}
+.auth-msg.err {
+  background: var(--bad-bg);
+  color: var(--bad);
+  border-color: var(--bad);
+}
+.auth-msg.ok {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border-color: var(--ok);
+}
+
+/* ---------- Bảng Quản lý người dùng (Chỉ Admin mới thấy) ---------- */
+.admin-section {
+  margin-top: 3rem;
+  background: var(--white);
+  border: 4px solid var(--line);
+  box-shadow: 8px 8px 0 var(--line);
+  padding: 0.75rem;
+}
+.admin-banner {
+  background: var(--mono-red);
+  color: var(--white);
+  border: 3px solid var(--line);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.admin-banner h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.admin-table-wrap {
+  overflow-x: auto;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+.admin-table th,
+.admin-table td {
+  border: 2px solid var(--line);
+  padding: 0.65rem 0.8rem;
+  text-align: left;
+}
+.admin-table th {
+  background: var(--mono-gold);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+}
+.admin-table tr:nth-child(even) {
+  background: var(--bg);
+}
+.badge-role {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  border: 1.5px solid var(--line);
+}
+.badge-role.admin {
+  background: var(--mono-red);
+  color: var(--white);
+}
+.badge-role.user {
+  background: var(--mono-board);
+  color: var(--line);
+}
+.btn-del-user {
+  cursor: pointer;
+  background: var(--bad-bg);
+  color: var(--bad);
+  border: 2px solid var(--bad);
+  padding: 0.3rem 0.65rem;
+  font-weight: 800;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+.btn-del-user:hover {
+  background: var(--bad);
+  color: var(--white);
+}
