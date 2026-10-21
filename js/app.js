@@ -10,7 +10,12 @@
     return h;
   }
 
-  /* Wrapper localStorage an toàn khi duyệt web riêng tư */
+  /* =====================================================
+     CẤU HÌNH ADMIN & LƯU TRỮ
+     ===================================================== */
+  var ADMIN_EMAILS = ['admin@gmail.com', 'leducthangvt2009@gmail.com'];
+  var DEFAULT_ADMIN_PASS = 'admin123';
+
   var store = {
     get: function (k, f) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
     set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
@@ -41,6 +46,297 @@
   }
   window.addEventListener('resize', setVars);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(setVars);
+
+  /* =====================================================
+     HỆ THỐNG ĐĂNG NHẬP / ĐĂNG KÝ & QUẢN LÝ NGƯỜI DÙNG (ADMIN)
+     ===================================================== */
+  var USERS_KEY = 'ontap:users';
+  var SESSION_KEY = 'ontap:current_user';
+
+  function encodePass(p) {
+    try { return btoa(unescape(encodeURIComponent('mono_salt_' + p))); } catch (e) { return p; }
+  }
+
+  function isAdminEmail(email) {
+    return ADMIN_EMAILS.indexOf(String(email || '').toLowerCase().trim()) !== -1;
+  }
+
+  function getUsers() {
+    var list = store.get(USERS_KEY, []);
+    if (!Array.isArray(list)) list = [];
+    /* Khởi tạo tài khoản Admin mặc định nếu chưa có */
+    var hasAdmin = list.some(function (u) { return u.email === 'admin@gmail.com'; });
+    if (!hasAdmin) {
+      list.unshift({
+        email: 'admin@gmail.com',
+        nickname: 'Admin Tỷ Phú',
+        passHash: encodePass(DEFAULT_ADMIN_PASS),
+        role: 'admin',
+        createdAt: Date.now()
+      });
+      store.set(USERS_KEY, list);
+    }
+    return list;
+  }
+
+  function saveUsers(list) {
+    store.set(USERS_KEY, list);
+  }
+
+  function getCurrentUser() {
+    var email = store.get(SESSION_KEY, null);
+    if (!email) return null;
+    var users = getUsers();
+    var found = users.filter(function (u) { return u.email === email; })[0];
+    if (!found) {
+      store.del(SESSION_KEY);
+      return null;
+    }
+    return found;
+  }
+
+  function updateNavbarAuth() {
+    var nav = $('.site-header .nav');
+    if (!nav) return;
+    var user = getCurrentUser();
+    var btnClass = 'nav-box';
+    var btnLabel = '👤 Đăng nhập / Đăng ký';
+
+    if (user) {
+      var isAdm = user.role === 'admin' || isAdminEmail(user.email);
+      btnClass += isAdm ? ' is-admin' : ' logged-in';
+      btnLabel = (isAdm ? '👑 ' : '👤 ') + esc(user.nickname);
+    }
+
+    nav.innerHTML =
+      '<a href="index.html" class="nav-box">🎲 Bàn cờ</a>' +
+      '<button type="button" class="' + btnClass + '" id="nav-auth-btn">' + btnLabel + '</button>';
+
+    var btn = $('#nav-auth-btn');
+    if (btn) btn.addEventListener('click', openAuthModal);
+  }
+
+  function renderAdminSection() {
+    var user = getCurrentUser();
+    var isAdm = user && (user.role === 'admin' || isAdminEmail(user.email));
+    var existing = $('#admin-user-manager');
+
+    if (!isAdm) {
+      if (existing) existing.remove();
+      return;
+    }
+
+    var host = $('.subjects-in') || $('.page-body');
+    if (!host) return;
+
+    if (!existing) {
+      existing = document.createElement('div');
+      existing.id = 'admin-user-manager';
+      existing.className = 'admin-section';
+      host.appendChild(existing);
+    }
+
+    var users = getUsers();
+    var rows = users.map(function (u, idx) {
+      var uIsAdm = u.role === 'admin' || isAdminEmail(u.email);
+      var dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString('vi-VN') : 'Mặc định';
+      var actionBtn = uIsAdm
+        ? '<span style="font-size:.78rem;color:var(--muted);font-weight:700">Bảo vệ</span>'
+        : '<button type="button" class="btn-del-user" data-del-email="' + esc(u.email) + '">🗑️ Xóa tài khoản</button>';
+
+      return '<tr>' +
+        '<td><b>' + (idx + 1) + '</b></td>' +
+        '<td><b>' + esc(u.nickname) + '</b></td>' +
+        '<td>' + esc(u.email) + '</td>' +
+        '<td><span style="letter-spacing:2px;color:var(--muted)">••••••••</span></td>' +
+        '<td><span class="badge-role ' + (uIsAdm ? 'admin' : 'user') + '">' + (uIsAdm ? 'Admin' : 'Thành viên') + '</span> · <small>' + dateStr + '</small></td>' +
+        '<td>' + actionBtn + '</td>' +
+      '</tr>';
+    }).join('');
+
+    existing.innerHTML =
+      '<div class="admin-banner">' +
+        '<h3>👑 Quản lý người dùng (Chỉ Admin hiển thị)</h3>' +
+        '<span>Tổng số: <b>' + users.length + ' tài khoản</b></span>' +
+      '</div>' +
+      '<div class="admin-table-wrap">' +
+        '<table class="admin-table">' +
+          '<thead><tr><th>STT</th><th>Biệt danh</th><th>Tài khoản Gmail</th><th>Mật khẩu</th><th>Vai trò</th><th>Thao tác</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+      '</div>';
+
+    existing.querySelectorAll('[data-del-email]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var targetEmail = b.getAttribute('data-del-email');
+        if (window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản "' + targetEmail + '" khỏi hệ thống?')) {
+          var updated = getUsers().filter(function (item) { return item.email !== targetEmail; });
+          saveUsers(updated);
+          renderAdminSection();
+        }
+      });
+    });
+  }
+
+  function ensureAuthDialog() {
+    var d = $('#auth-dlg');
+    if (d) return d;
+    d = document.createElement('dialog');
+    d.id = 'auth-dlg';
+    d.className = 'auth-dlg';
+    document.body.appendChild(d);
+    return d;
+  }
+
+  function openAuthModal() {
+    var d = ensureAuthDialog();
+    var user = getCurrentUser();
+
+    if (user) {
+      var isAdm = user.role === 'admin' || isAdminEmail(user.email);
+      d.innerHTML =
+        '<div class="auth-head">' +
+          '<strong>' + (isAdm ? '👑 Hồ sơ Admin' : '👤 Hồ sơ người học') + '</strong>' +
+          '<button type="button" class="auth-close" id="auth-close-btn">✕</button>' +
+        '</div>' +
+        '<div class="auth-body">' +
+          '<div class="auth-field"><label>Tài khoản Gmail</label><input type="text" value="' + esc(user.email) + '" disabled></div>' +
+          '<div class="auth-field"><label>Biệt danh hiển thị</label><input type="text" id="prof-nickname" value="' + esc(user.nickname) + '" maxlength="28"></div>' +
+          '<p class="auth-msg ok" id="prof-msg" hidden></p>' +
+          '<div class="btn-row" style="justify-content:space-between;margin-top:.25rem">' +
+            '<button type="button" class="btn small" id="btn-save-nick">Lưu biệt danh</button>' +
+            '<button type="button" class="btn small ghost" id="btn-logout">Đăng xuất</button>' +
+          '</div>' +
+        '</div>';
+
+      $('#auth-close-btn', d).onclick = function () { d.close(); };
+      $('#btn-save-nick', d).onclick = function () {
+        var newNick = ($('#prof-nickname', d).value || '').trim();
+        var msg = $('#prof-msg', d);
+        if (newNick.length < 2) {
+          msg.textContent = 'Biệt danh cần ít nhất 2 ký tự.';
+          msg.className = 'auth-msg err';
+          msg.hidden = false;
+          return;
+        }
+        var users = getUsers();
+        users.forEach(function (u) { if (u.email === user.email) u.nickname = newNick; });
+        saveUsers(users);
+        msg.textContent = '✓ Đã cập nhật biệt danh thành công!';
+        msg.className = 'auth-msg ok';
+        msg.hidden = false;
+        updateNavbarAuth();
+        renderAdminSection();
+      };
+      $('#btn-logout', d).onclick = function () {
+        store.del(SESSION_KEY);
+        d.close();
+        updateNavbarAuth();
+        renderAdminSection();
+      };
+
+      if (typeof d.showModal === 'function') d.showModal();
+      return;
+    }
+
+    renderAuthForms(d, 'login');
+    if (typeof d.showModal === 'function') d.showModal();
+  }
+
+  function renderAuthForms(d, tab) {
+    var isLogin = tab === 'login';
+    d.innerHTML =
+      '<div class="auth-head">' +
+        '<strong>' + (isLogin ? 'Đăng nhập tài khoản' : 'Đăng ký tài khoản mới') + '</strong>' +
+        '<button type="button" class="auth-close" id="auth-close-btn">✕</button>' +
+      '</div>' +
+      '<div class="auth-tabs">' +
+        '<button type="button" class="auth-tab ' + (isLogin ? 'active' : '') + '" data-tab="login">Đăng nhập</button>' +
+        '<button type="button" class="auth-tab ' + (!isLogin ? 'active' : '') + '" data-tab="register">Đăng ký</button>' +
+      '</div>' +
+      '<form class="auth-body" id="auth-form">' +
+        (!isLogin ? '<div class="auth-field"><label>Biệt danh của bạn</label><input type="text" id="auth-nick" placeholder="VD: Tỷ Phú Hóa Học" required maxlength="28"></div>' : '') +
+        '<div class="auth-field"><label>Tài khoản Gmail</label><input type="email" id="auth-email" placeholder="tenban@gmail.com" required></div>' +
+        '<div class="auth-field"><label>Mật khẩu</label><input type="password" id="auth-pass" placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)" required></div>' +
+        '<p class="auth-msg err" id="auth-err" hidden></p>' +
+        '<button type="submit" class="btn" style="width:100%">' + (isLogin ? '🎲 Vào bàn cờ ngay' : '✓ Tạo tài khoản') + '</button>' +
+      '</form>';
+
+    $('#auth-close-btn', d).onclick = function () { d.close(); };
+    d.querySelectorAll('[data-tab]').forEach(function (btn) {
+      btn.onclick = function () { renderAuthForms(d, btn.getAttribute('data-tab')); };
+    });
+
+    $('#auth-form', d).onsubmit = function (e) {
+      e.preventDefault();
+      var email = ($('#auth-email', d).value || '').trim().toLowerCase();
+      var pass = $('#auth-pass', d).value || '';
+      var errEl = $('#auth-err', d);
+
+      function showErr(txt) {
+        errEl.textContent = txt;
+        errEl.hidden = false;
+      }
+
+      if (!/^[a-z0-9._%+-]+@gmail\.com$/i.test(email)) {
+        showErr('Vui lòng sử dụng đúng địa chỉ @gmail.com hợp lệ.');
+        return;
+      }
+      if (pass.length < 6) {
+        showErr('Mật khẩu cần có ít nhất 6 ký tự.');
+        return;
+      }
+
+      var users = getUsers();
+      var existing = users.filter(function (u) { return u.email === email; })[0];
+
+      if (isLogin) {
+        if (!existing || existing.passHash !== encodePass(pass)) {
+          showErr('Tài khoản Gmail hoặc mật khẩu không chính xác.');
+          return;
+        }
+        store.set(SESSION_KEY, existing.email);
+        d.close();
+        updateNavbarAuth();
+        renderAdminSection();
+      } else {
+        var nick = ($('#auth-nick', d).value || '').trim();
+        if (nick.length < 2) {
+          showErr('Biệt danh cần có ít nhất 2 ký tự.');
+          return;
+        }
+        if (existing) {
+          showErr('Tài khoản Gmail này đã được đăng ký. Vui lòng chuyển sang Đăng nhập.');
+          return;
+        }
+        var role = isAdminEmail(email) ? 'admin' : 'user';
+        users.push({
+          email: email,
+          nickname: nick,
+          passHash: encodePass(pass),
+          role: role,
+          createdAt: Date.now()
+        });
+        saveUsers(users);
+        store.set(SESSION_KEY, email);
+        d.close();
+        updateNavbarAuth();
+        renderAdminSection();
+      }
+    };
+  }
+
+  /* Khởi chạy thanh công cụ 2 ô & kiểm tra quyền Admin ngay khi tải trang */
+  function initAuthSystem() {
+    getUsers();
+    updateNavbarAuth();
+    renderAdminSection();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthSystem);
+  } else {
+    initAuthSystem();
+  }
 
   /* =====================================================
      TRANG CHỦ: VẼ BÀN CỜ & LỊCH SỬ
@@ -363,7 +659,6 @@
       if (c && !c.disabled) {
         c.focus({ preventScroll: true });
       } else {
-        /* Giữ focus tại fieldset câu hỏi khi radio bị khóa ở chế độ Luyện tập */
         nextEl.setAttribute('tabindex', '-1');
         nextEl.focus({ preventScroll: true });
       }
@@ -466,7 +761,6 @@
       var hash = location.hash.replace(/^#\/?/, '');
       if (hash === 'lam-bai') {
         if (!S.test || !S.qids.length) {
-          /* Tự động đọc lại tiến độ đã lưu nếu người dùng F5 tải lại trang */
           if (TESTS[0] && resumeAttempt(TESTS[0])) return;
           go('#');
           return;
@@ -482,9 +776,6 @@
       setVars();
     }
 
-    /* Sửa lỗi bàn phím ở chế độ Luyện tập:
-       Phím mũi tên chỉ di chuyển focus giữa A, B, C, D mà không tự khóa đáp án.
-       Bấm Space hoặc Enter để chốt chọn đáp án. */
     app.addEventListener('keydown', function (e) {
       var t = e.target;
       if (!t.matches('.q input[type=radio]')) return;
@@ -581,6 +872,7 @@
     });
     route();
   };
+
   /* =====================================================
      TỰ ĐỘNG THU GỌN HEADER KHI LƯỚT XUỐNG
      ===================================================== */
@@ -598,11 +890,9 @@
         header.classList.remove('header-hidden');
         document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
       } else if (delta > 8) {
-        // Người học lướt xuống -> Thu gọn thanh Header lên trên
         header.classList.add('header-hidden');
         document.documentElement.style.setProperty('--header-h', '0px');
       } else if (delta < -8) {
-        // Người học lướt ngược lên -> Hiện lại thanh Header
         header.classList.remove('header-hidden');
         document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
       }
