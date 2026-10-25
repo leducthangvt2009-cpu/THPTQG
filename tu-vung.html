@@ -9,49 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/vocab.css">
-  <style>
-    /* CSS tinh chỉnh riêng cho cụm nút mới giữ nguyên chuẩn giao diện gốc */
-    .fc-controls-new {
-      display: grid;
-      gap: 0.65rem;
-    }
-    .fc-nav-row {
-      display: grid;
-      grid-template-columns: 1fr 1.15fr 1fr;
-      gap: 0.55rem;
-    }
-    .fc-status-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.65rem;
-    }
-    .fc-nav-row .btn, .fc-status-row .btn {
-      width: 100%;
-      padding: 0.75rem 0.5rem;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.35rem;
-    }
-    .btn.btn-unmaster {
-      background: var(--bad-bg);
-      color: var(--bad);
-      border-color: var(--line);
-      box-shadow: 4px 4px 0 var(--line);
-    }
-    .btn.btn-unmaster:hover { background: #fbd0cd; transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--line); }
-    .fc-repeat-badge {
-      display: inline-block;
-      padding: 0.2rem 0.55rem;
-      font-size: 0.7rem;
-      font-weight: 800;
-      background: var(--bad-bg);
-      color: var(--bad);
-      border: 2px solid var(--bad);
-      text-transform: uppercase;
-    }
-  </style>
 </head>
 <body>
 
@@ -102,26 +59,41 @@
       </div>
       <div class="kpis">
         <span>Đã thuộc: <b id="mastered-count">0</b>/<span id="total-count">322</span></span>
-        <button type="button" class="btn small ghost" id="btn-shuffle">🔀 Xáo trộn</button>
+        <button type="button" class="btn small ghost" id="btn-shuffle">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          Xáo trộn
+        </button>
       </div>
     </div>
 
     <div class="fc-layout">
-      <!-- Cột trái: Thẻ lật Flashcard -->
+      <!-- Cột trái: Thẻ lật Flashcard 3D -->
       <div class="fc-stage">
         <div class="fc-card" id="fc-card" tabindex="0" role="button" aria-label="Thẻ từ vựng. Bấm vào thẻ hoặc nhấn phím cách để lật mặt sau">
-          <div class="fc-band" id="fc-band">
-            <span id="fc-index">THẺ 1 / 322</span>
-            <span id="fc-side-label">MẶT TRƯỚC · TỪ VỰNG</span>
+          <div class="fc-face fc-face-front">
+            <div class="fc-band">
+              <span id="fc-index-front">THẺ 1 / 322</span>
+              <span>MẶT TRƯỚC · THÀNH NGỮ / TỪ VỰNG</span>
+            </div>
+            <div class="fc-body" id="fc-body-front"></div>
           </div>
-          <div class="fc-body" id="fc-body"></div>
+          <div class="fc-face fc-face-back">
+            <div class="fc-band back">
+              <span id="fc-index-back">THẺ 1 / 322</span>
+              <span>MẶT SAU · NGHĨA TIẾNG VIỆT</span>
+            </div>
+            <div class="fc-body" id="fc-body-back"></div>
+          </div>
         </div>
 
-        <!-- Cụm nút điều khiển mới theo đúng ý bạn -->
+        <!-- Cụm nút điều khiển 44px kèm SVG Icon -->
         <div class="fc-controls-new">
           <div class="fc-nav-row">
             <button type="button" class="btn small ghost" id="btn-prev">← Trước</button>
-            <button type="button" class="btn small ghost" id="btn-speak">🔊 Phát âm</button>
+            <button type="button" class="btn small ghost" id="btn-speak">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+              Phát âm
+            </button>
             <button type="button" class="btn small ghost" id="btn-next">Tiếp →</button>
           </div>
           <div class="fc-status-row">
@@ -133,7 +105,7 @@
 
       <!-- Cột phải: Trắc nghiệm nhanh -->
       <aside class="quiz-box">
-        <h3>🎲 Thử thách phản xạ nhanh</h3>
+        <h3>Thử thách phản xạ nhanh</h3>
         <p style="margin:0;font-size:.9rem;color:var(--muted)">Chọn nghĩa tiếng Việt đúng cho thành ngữ/từ vựng sau:</p>
         <div class="quiz-word" id="quiz-word">...</div>
         <div class="quiz-opts" id="quiz-opts"></div>
@@ -229,7 +201,7 @@
     ["sail close to the wind", "liều lĩnh, mạo hiểm"],
     ["show somebody the ropes", "chỉ việc cho ai"],
     ["be at sea", "hoang mang, bối rối"],
-    ["put the brakes on something", "kìm hãm, làm chậm cái gì"],
+    ["put the brakes on something", "kìm hảmm, làm chậm cái gì"],
     ["be in the pipeline", "đang được thảo luận"],
     ["music to one's ears", "tin vui đối với ai"],
     ["strike a chord with somebody", "đánh đúng tâm lý của ai"],
@@ -542,13 +514,18 @@
 
   function renderFlashcard() {
     updateMasteredKPI();
-    var band = document.getElementById('fc-band');
-    var body = document.getElementById('fc-body');
+    var card = document.getElementById('fc-card');
+    var frontBody = document.getElementById('fc-body-front');
+    var backBody = document.getElementById('fc-body-back');
     var btnMaster = document.getElementById('btn-master');
 
+    card.classList.toggle('is-flipped', flipped);
+
     if (!filtered.length) {
-      document.getElementById('fc-index').textContent = '0 / 0';
-      body.innerHTML = '<p class="fc-meaning">Bạn đã thuộc hết các từ trong mục này!</p>';
+      document.getElementById('fc-index-front').textContent = '0 / 0';
+      document.getElementById('fc-index-back').textContent = '0 / 0';
+      frontBody.innerHTML = '<p class="fc-meaning">Bạn đã thuộc hết các từ trong mục này!</p>';
+      backBody.innerHTML = '<p class="fc-meaning">Bạn đã thuộc hết các từ trong mục này!</p>';
       return;
     }
 
@@ -558,10 +535,10 @@
     var item = filtered[idx];
     var isDone = !!mastered[item.id];
     var repCount = repeatMap[item.id] || 0;
+    var indexText = 'THẺ ' + (idx + 1) + ' / ' + filtered.length;
 
-    document.getElementById('fc-index').textContent = 'THẺ ' + (idx + 1) + ' / ' + filtered.length;
-    document.getElementById('fc-side-label').textContent = flipped ? 'MẶT SAU · NGHĨA TIẾNG VIỆT' : 'MẶT TRƯỚC · THÀNH NGỮ / TỪ VỰNG';
-    band.className = flipped ? 'fc-band back' : 'fc-band';
+    document.getElementById('fc-index-front').textContent = indexText;
+    document.getElementById('fc-index-back').textContent = indexText;
 
     var statusBadge = '';
     if (isDone) {
@@ -570,21 +547,19 @@
       statusBadge = '<span class="fc-repeat-badge">↻ Đang lặp lại để nhớ (Lần ' + repCount + ')</span>';
     }
 
-    if (!flipped) {
-      body.innerHTML =
-        statusBadge +
-        '<span class="fc-pos">' + esc(item.pos) + '</span>' +
-        '<h2 class="fc-word">' + esc(item.word) + '</h2>' +
-        (item.ipa !== item.pos ? '<div class="fc-ipa">' + esc(item.ipa) + '</div>' : '') +
-        '<div class="fc-hint">Bấm vào thẻ hoặc nhấn phím Space để lật xem nghĩa</div>';
-    } else {
-      body.innerHTML =
-        statusBadge +
-        '<span class="fc-pos">' + esc(item.word) + '</span>' +
-        '<p class="fc-meaning">' + esc(item.meaning) + '</p>' +
-        '<p class="fc-example">' + esc(item.ex) + '</p>' +
-        '<div class="fc-hint">Bấm lại vào thẻ để quay về mặt trước</div>';
-    }
+    frontBody.innerHTML =
+      statusBadge +
+      '<span class="fc-pos">' + esc(item.pos) + '</span>' +
+      '<h2 class="fc-word">' + esc(item.word) + '</h2>' +
+      (item.ipa !== item.pos ? '<div class="fc-ipa">' + esc(item.ipa) + '</div>' : '') +
+      '<div class="fc-hint">Bấm vào thẻ hoặc nhấn phím Space để lật xem nghĩa</div>';
+
+    backBody.innerHTML =
+      statusBadge +
+      '<span class="fc-pos">' + esc(item.word) + '</span>' +
+      '<p class="fc-meaning">' + esc(item.meaning) + '</p>' +
+      '<p class="fc-example">' + esc(item.ex) + '</p>' +
+      '<div class="fc-hint">Bấm lại vào thẻ để quay về mặt trước</div>';
 
     btnMaster.textContent = isDone ? '✓ Đã thuộc (Bấm để bỏ)' : '✓ Đánh dấu đã thuộc';
     btnMaster.className = isDone ? 'btn small ghost' : 'btn small';
