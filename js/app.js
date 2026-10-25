@@ -64,7 +64,6 @@
   function getUsers() {
     var list = store.get(USERS_KEY, []);
     if (!Array.isArray(list)) list = [];
-    /* Khởi tạo tài khoản Admin mặc định nếu chưa có */
     var hasAdmin = list.some(function (u) { return u.email === 'admin@gmail.com'; });
     if (!hasAdmin) {
       list.unshift({
@@ -100,17 +99,27 @@
     if (!nav) return;
     var user = getCurrentUser();
     var btnClass = 'nav-box';
-    var btnLabel = '👤 Đăng nhập / Đăng ký';
+    var btnLabel = 'Đăng nhập';
 
     if (user) {
       var isAdm = user.role === 'admin' || isAdminEmail(user.email);
       btnClass += isAdm ? ' is-admin' : ' logged-in';
-      btnLabel = (isAdm ? '👑 ' : '👤 ') + esc(user.nickname);
+      btnLabel = (isAdm ? '[Admin] ' : '') + esc(user.nickname);
     }
 
-    nav.innerHTML =
-      '<a href="index.html" class="nav-box">🎲 Bàn cờ</a>' +
-      '<button type="button" class="' + btnClass + '" id="nav-auth-btn">' + btnLabel + '</button>';
+    var path = location.pathname.split('/').pop() || 'index.html';
+    var links = [
+      ['index.html', 'Bàn cờ'],
+      ['anh.html', 'Tiếng Anh'],
+      ['tu-vung.html', 'Từ vựng'],
+      ['hoa.html', 'Hóa học'],
+      ['sinh.html', 'Sinh học']
+    ].map(function (item) {
+      var cur = path === item[0] ? ' aria-current="page"' : '';
+      return '<a href="' + item[0] + '"' + cur + '>' + item[1] + '</a>';
+    }).join('');
+
+    nav.innerHTML = links + '<button type="button" class="' + btnClass + '" id="nav-auth-btn">' + btnLabel + '</button>';
 
     var btn = $('#nav-auth-btn');
     if (btn) btn.addEventListener('click', openAuthModal);
@@ -142,7 +151,7 @@
       var dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString('vi-VN') : 'Mặc định';
       var actionBtn = uIsAdm
         ? '<span style="font-size:.78rem;color:var(--muted);font-weight:700">Bảo vệ</span>'
-        : '<button type="button" class="btn-del-user" data-del-email="' + esc(u.email) + '">🗑️ Xóa tài khoản</button>';
+        : '<button type="button" class="btn-del-user" data-del-email="' + esc(u.email) + '">Xóa tài khoản</button>';
 
       return '<tr>' +
         '<td><b>' + (idx + 1) + '</b></td>' +
@@ -156,7 +165,7 @@
 
     existing.innerHTML =
       '<div class="admin-banner">' +
-        '<h3>👑 Quản lý người dùng (Chỉ Admin hiển thị)</h3>' +
+        '<h3>Quản lý người dùng (Chỉ Admin hiển thị)</h3>' +
         '<span>Tổng số: <b>' + users.length + ' tài khoản</b></span>' +
       '</div>' +
       '<div class="admin-table-wrap">' +
@@ -196,7 +205,7 @@
       var isAdm = user.role === 'admin' || isAdminEmail(user.email);
       d.innerHTML =
         '<div class="auth-head">' +
-          '<strong>' + (isAdm ? '👑 Hồ sơ Admin' : '👤 Hồ sơ người học') + '</strong>' +
+          '<strong>' + (isAdm ? 'Hồ sơ Admin' : 'Hồ sơ người học') + '</strong>' +
           '<button type="button" class="auth-close" id="auth-close-btn">✕</button>' +
         '</div>' +
         '<div class="auth-body">' +
@@ -259,7 +268,7 @@
         '<div class="auth-field"><label>Tài khoản Gmail</label><input type="email" id="auth-email" placeholder="tenban@gmail.com" required></div>' +
         '<div class="auth-field"><label>Mật khẩu</label><input type="password" id="auth-pass" placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)" required></div>' +
         '<p class="auth-msg err" id="auth-err" hidden></p>' +
-        '<button type="submit" class="btn" style="width:100%">' + (isLogin ? '🎲 Vào bàn cờ ngay' : '✓ Tạo tài khoản') + '</button>' +
+        '<button type="submit" class="btn" style="width:100%">' + (isLogin ? 'Vào bàn cờ ngay' : '✓ Tạo tài khoản') + '</button>' +
       '</form>';
 
     $('#auth-close-btn', d).onclick = function () { d.close(); };
@@ -326,7 +335,6 @@
     };
   }
 
-  /* Khởi chạy thanh công cụ 2 ô & kiểm tra quyền Admin ngay khi tải trang */
   function initAuthSystem() {
     getUsers();
     updateNavbarAuth();
@@ -531,7 +539,11 @@
 
     function passageHTML(b) {
       if (!b.paras) return '';
-      var h = '<article class="passage" tabindex="0" aria-label="Bài đọc">';
+      var h = '<article class="passage" id="active-passage" tabindex="0" aria-label="Bài đọc">';
+      h += '<div class="passage-toggle-bar">' +
+             '<strong style="font-size:.82rem;text-transform:uppercase;color:var(--mono-board-dark)">Bài đọc (' + esc(b.short) + ')</strong>' +
+             '<button type="button" class="btn-toggle-passage" data-act="toggle-passage">Thu gọn ▲</button>' +
+           '</div>';
       if (b.passageTitle) h += '<h3>' + esc(b.passageTitle) + '</h3>';
       b.paras.forEach(function (p, i) {
         if (p.indexOf('## ') === 0) h += '<h4>' + esc(p.slice(3)) + '</h4>';
@@ -858,9 +870,20 @@
           if (nb) nb.focus({ preventScroll: true });
           break;
         }
+        case 'toggle-passage': {
+          var pas = document.getElementById('active-passage');
+          if (pas) {
+            var collapsed = pas.classList.toggle('is-collapsed');
+            el.textContent = collapsed ? 'Mở bài đọc ▼' : 'Thu gọn ▲';
+          }
+          break;
+        }
         case 'blank': {
           var tn = el.getAttribute('data-n'), tq = document.getElementById('q-' + tn);
-          if (tq) tq.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (tq) {
+            tq.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            tq.focus({ preventScroll: true });
+          }
           break;
         }
       }
