@@ -128,5 +128,27 @@
   initMonopolyHero();
   renderHistoryBox();
 </script>
+<script id="nav-auth-btn-force">
+(function(){
+  function run(){
+    try{
+      var nav = document.querySelector('.site-header .nav');
+      if(!nav) return setTimeout(run, 200);
+      if(document.getElementById('nav-auth-btn')) return;
+      var b = document.createElement('button');
+      b.type='button';
+      b.className='nav-box';
+      b.id='nav-auth-btn';
+      b.textContent='👤 Đăng nhập / Đăng ký';
+      b.onclick = function(){ if(typeof openAuthModal==='function') openAuthModal(); else alert('Đang tải...'); };
+      nav.appendChild(b);
+      if(typeof updateNavbarAuth==='function') updateNavbarAuth();
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+  setTimeout(run, 500);
+  setTimeout(run, 1000);
+})();
+</script>
 </body>
 </html>
