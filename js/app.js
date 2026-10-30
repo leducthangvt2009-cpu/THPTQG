@@ -48,16 +48,25 @@
         res(window.confirm(msg));
         return;
       }
-      $('#dlg-msg').textContent = msg;
-      $('#dlg-ok').textContent = ok || 'Đồng ý';
-      $('#dlg-cancel').textContent = cancel || 'Hủy';
+      var okBtn = $('#dlg-ok');
+      var cancelBtn = $('#dlg-cancel');
+      var settled = false;
+      function finish(val) {
+        if (settled) return;
+        settled = true;
+        try { d.close(); } catch (e) {}
+        res(val);
+      }
       d.returnValue = '';
-      var onClose = function () {
-        d.removeEventListener('close', onClose);
-        res(d.returnValue === 'ok');
-      };
-      d.addEventListener('close', onClose);
-      d.showModal();
+      $('#dlg-msg').textContent = msg;
+      okBtn.textContent = ok || 'Đồng ý';
+      cancelBtn.textContent = cancel || 'Hủy';
+      // Không dựa vào sự kiện "close" (một số bản Chromium không phát sự kiện này
+      // khi form method="dialog" đóng hộp thoại) — xử lý trực tiếp trên nút bấm.
+      okBtn.onclick = function (e) { e.preventDefault(); finish(true); };
+      cancelBtn.onclick = function (e) { e.preventDefault(); finish(false); };
+      d.oncancel = function (e) { e.preventDefault(); finish(false); };
+      try { d.showModal(); } catch (e) { finish(window.confirm(msg)); }
     });
   }
 
