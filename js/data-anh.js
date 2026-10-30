@@ -5,6 +5,200 @@ window.GAPQ = null;
 
 window.TESTS = [
   /* =====================================================================
+     ĐỀ 0: ĐỀ MINH HỌA GIỮA HỌC KỲ 1 (2026 - 2027) - THPT CHUYÊN LÊ QUÝ ĐÔN
+     Theo Ma trận: 40 câu (1.5đ Leaflet/Ad + 1.5đ Announcement + 1.25đ Sắp xếp
+     + 1.25đ Điền câu + 2.5đ Đọc hiểu + 1.5đ Use of English + 0.5đ Tự luận)
+     ===================================================================== */
+  {
+    id: 'anh-midterm-hk1-2627',
+    subject: 'anh',
+    title: 'Đề GK1 Lê Quý Đôn 26-27 (Mã đề 121)',
+    blocks: [
+      {
+        id: 'gk1-b1',
+        short: 'Thông báo: Green Movement (1–6)',
+        part: 'Part 1 · Leaflet / Advertisement Gap-Fill',
+        title: 'Join the Green Movement Today! (Câu 1–6)',
+        instruction: 'Read the following announcement and mark the letter A, B, C or D on your answer sheet to indicate the option that best fits each of the numbered blanks.',
+        passageTitle: 'Join the Green Movement Today!',
+        paras: [
+          'Let\'s protect our planet with simple eco-friendly habits.',
+          '• Why does it matter? Pollution and waste harm nature daily. Small actions make a big difference.',
+          '• What can you do?',
+          '- Bring reusable bags and containers. Many marine creatures die because of plastic waste, and (1) ______ are seriously endangered by pollution.',
+          '- Dispose of waste properly. Don\'t just (2) ______ your old clothes - donate or repurpose them.',
+          '- Instead of drinking bottled water, use a reusable bottle to cut down on plastic waste. Billions of plastic bottles end up in (3) ______ and oceans every year. A refillable bottle not only reduces waste but also saves money.',
+          '- Consider the (4) ______ of packaging when shopping. Less packaging means less waste!',
+          '- Support brands that care about the environment. (5) ______ their commitment, pollution can be reduced.',
+          '- Recycle properly by sorting paper, plastic, and glass. These materials can be turned into useful (6) ______ rather than being discarded.',
+          'Together, we can make a difference!'
+        ],
+        questions: [
+          Q(1, GAPQ, ['others', 'other', 'the others', 'another'], 'A', '“others” làm đại từ đại diện cho các sinh vật khác (“other marine creatures”).'),
+          Q(2, GAPQ, ['take off', 'throw away', 'set up', 'look after'], 'B', '“throw away” = vứt bỏ rác/quần áo cũ thay vì tái chế, quyên góp.'),
+          Q(3, GAPQ, ['landfill sites', 'dumping areas', 'disposal places', 'junk yards'], 'A', 'Thuật ngữ chính xác: “landfill sites” = bãi chôn lấp rác.'),
+          Q(4, GAPQ, ['number', 'amount', 'group', 'variety'], 'B', '“amount of packaging”: “packaging” là danh từ không đếm được.'),
+          Q(5, GAPQ, ['According to', 'Thanks to', 'As far as', 'On top of'], 'B', '“Thanks to their commitment” = Nhờ vào cam kết của họ.'),
+          Q(6, GAPQ, ['ingredients', 'factors', 'resources', 'substances'], 'C', '“useful resources” = các nguồn tài nguyên hữu ích sau khi tái chế.')
+        ]
+      },
+      {
+        id: 'gk1-b2',
+        short: 'Bản tin: Bão Milton (7–12)',
+        part: 'Part 2 · Announcement Gap-Fill',
+        title: 'Super Typhoon Milton and its Destruction (Câu 7–12)',
+        instruction: 'Read the following announcement and mark the letter A, B, C or D on your answer sheet to indicate the option that best fits each of the numbered blanks.',
+        passageTitle: 'Super Typhoon Milton and its Destruction',
+        paras: [
+          'Super Typhoon Milton struck the eastern coastline last weekend, causing widespread devastation. Many residents described it as the most (7) ______ experience they had ever faced. The combination of (8) ______ and relentless rain left the town completely paralyzed.',
+          'The typhoon, (9) ______ the coast at around 3 PM, brought winds exceeding 180 km/h. This resulted in massive flooding and left thousands in (10) ______ of emergency assistance. The authorities worked hard to (11) ______ a difference, but the sheer scale of the disaster made recovery efforts slow.',
+          'Now, the community is (12) ______ rebuilding their homes, hoping to restore what was lost.'
+        ],
+        questions: [
+          Q(7, GAPQ, ['terrifying', 'terrified', 'terrifies', 'terrify'], 'A', 'Tính từ mang nghĩa chủ động miêu tả tính chất trải nghiệm: “terrifying experience”.'),
+          Q(8, GAPQ, ['strong stormy winds', 'winds strong stormy', 'stormy strong winds', 'stormy winds strong'], 'A', 'Trật tự tính từ: ý kiến/tính chất (strong) + loại hình (stormy) + danh từ (winds).'),
+          Q(9, GAPQ, ['which had hit', 'hitting', 'that hit', 'hit'], 'B', 'Rút gọn mệnh đề quan hệ chủ động dùng V-ing: “hitting the coast”.'),
+          Q(10, GAPQ, ['charge', 'lack', 'control', 'need'], 'D', 'Cụm cố định “in need of” = đang cần sự giúp đỡ.'),
+          Q(11, GAPQ, ['make', 'take', 'do', 'have'], 'A', 'Cụm cố định “make a difference” = tạo ra sự thay đổi/tác động tích cực.'),
+          Q(12, GAPQ, ['already', 'fast', 'slowly', 'never'], 'C', 'Trạng từ “slowly” phù hợp với văn cảnh nỗ lực phục hồi còn chậm chạp.')
+        ]
+      },
+      {
+        id: 'gk1-b3',
+        short: 'Sắp xếp câu (13–17)',
+        part: 'Part 3 · Arrangement',
+        title: 'Sắp xếp câu tạo đoạn văn / hội thoại (Câu 13–17)',
+        instruction: 'Mark the letter A, B, C or D on your answer sheet to indicate the best arrangement of utterances or sentences to make a meaningful exchange or text.',
+        questions: [
+          Q(13, 'Hello Emma,\na. I\'m really excited about our upcoming trip next month, especially since it will be our first time traveling together to such a fascinating destination.\nb. To avoid any last-minute stress, we should book our accommodation soon, perhaps within the next few days, to secure the best deals available.\nc. Have you considered what specific attractions or landmarks you want to prioritize visiting during our stay?\nd. It\'s going to be absolutely wonderful exploring a completely new city together and discovering all the unique places it has to offer.\ne. By the way, I\'ve already done some preliminary research on hotels and managed to find several promising options with excellent reviews and reasonable prices.\nBest regards, Sophie', ['a-d-c-e-b', 'd-c-e-b-a', 'c-d-a-e-b', 'a-d-b-e-c'], 'A', 'Trình tự: Hào hứng chuyến đi (a) -> Mong chờ khám phá (d) -> Hỏi điểm tham quan (c) -> Đã tìm hiểu khách sạn (e) -> Đề xuất chốt đặt phòng sớm (b).'),
+          Q(14, 'a. For example, behaviors that are acceptable in one culture, such as direct eye contact, may be considered impolite in another.\nb. At first, people may feel excited about exploring a new culture, but this initial enthusiasm often fades as they begin to notice differences in language, customs, and social norms.\nc. Culture shock, which occurs when individuals struggle to adapt to a foreign culture, is a common experience for travelers and expatriates.\nd. This period of adjustment can be challenging, but it ultimately helps individuals develop a deeper understanding of and respect for cultural diversity.\ne. Such differences can lead to feelings of frustration, confusion, or even isolation for newcomers.', ['c-e-a-b-d', 'b-c-a-e-d', 'c-a-e-b-d', 'c-b-a-e-d'], 'D', 'Định nghĩa sốc văn hóa (c) -> Diễn biến tâm lý ban đầu (b) -> Ví dụ về sự khác biệt (a) -> Hậu quả của khác biệt (e) -> Tổng kết thời kỳ thích nghi (d).'),
+          Q(15, 'a. Mark: That\'s a great idea! They can significantly reduce your bills.\nb. Nam: Yes, I\'m thinking about installing solar panels on the roof.\nc. Mark: Composting is excellent; it enriches the soil and helps plants.\nd. Nam: I also want to start composting to reduce food waste.\ne. Mark: Have you considered switching to renewable energy sources in your home?', ['e-b-a-d-c', 'b-a-d-e-c', 'e-d-c-b-a', 'd-c-e-b-a'], 'A', 'Mark hỏi về năng lượng tái tạo (e) -> Nam nêu ý tưởng pin mặt trời (b) -> Mark khen ngợi (a) -> Nam nói tiếp về ủ phân hữu cơ (d) -> Mark đồng tình (c).'),
+          Q(16, 'Dear Mimi,\nI hope you\'re well.\na. In addition, students should be taught about natural and cultural importance of the heritage sites.\nb. These ways can result in the fact that people\'s awareness of preserving heritage sites will be raised.\nc. First, it\'s a good idea to spread information on social media because more people will get useful information quickly.\nd. To respond to your \'Go with the Culture Everywhere\' Project, I am thinking about what can be done to preserve heritage sites in my local community.\ne. Particularly, they all know that preserving heritages sites plays a pivotal role in keeping our traditions alive.\nf. I hope that my opinion can help you more.\nBest regards, Kate', ['e-f-a-c-d-b', 'd-c-a-b-e-f', 'b-e-c-d-f-a', 'd-a-c-e-b-f'], 'B', 'Mục đích viết thư (d) -> Biện pháp 1 mạng xã hội (c) -> Biện pháp 2 giáo dục học sinh (a) -> Nâng cao nhận thức (b) -> Ý nghĩa giữ gìn truyền thống (e) -> Lời chào (f).'),
+          Q(17, 'a. Nam: Hi, Jessica. I\'m so excited as I\'ve never met a talking robot before. Let\'s have a photo taken together!\nb. Teacher: Hello, class. Please meet Jessica. She\'s a human-like robot and will be your guide today.\nc. Jessica: Good morning, everybody. Welcome to the New Tech Centre.', ['a-b-c', 'b-a-c', 'c-a-b', 'b-c-a'], 'D', 'Giáo viên giới thiệu Jessica (b) -> Robot chào mừng (c) -> Nam hào hứng đáp lời (a).')
+        ]
+      },
+      {
+        id: 'gk1-b4',
+        short: 'Điền câu: Cultural Exchange (18–22)',
+        part: 'Part 4 · Phrase-Clause Insertion',
+        title: 'Chương trình Trao đổi Văn hóa (Câu 18–22)',
+        instruction: 'Read the following passage and mark the letter A, B, C, or D on your answer sheet to indicate the option that best fits each of the numbered blanks.',
+        passageTitle: 'Cultural Exchange Programs',
+        paras: [
+          'Cultural exchange programs have many benefits for individuals, communities, and the world. (18) ______ Working in a new cultural environment helps develop various soft skills like adaptability, organization, problem-solving, and self-confidence. (19) ______ a valuable learning opportunity that participants can use long after the program ends. Therefore, cultural exchange is an excellent way for young people to grow professionally and improve their career prospects. Future employers often view international experience positively, giving individuals (20) ______',
+          'Engaging with people from different cultures provides an eye-opening experience as it exposes individuals to different norms and values. This experience can significantly shape personal and professional growth. (21) ______ helps develop a broader view, known as intercultural competence. Intercultural competence not only fosters empathy and understanding but also uncovers aspects of one\'s own culture that were previously unknown.',
+          'Cultural exchange programs offer a unique way to travel, distinct from typical tourist experiences. These programs provide a deeper understanding of other countries and cultures, allowing participants to live like locals. Experiencing community-based travel, with its hidden gems, undiscovered streets, and delicious homemade meals, (22) ______ how they engage with different cultures, leading them to vow never to travel like tourists again.'
+        ],
+        questions: [
+          Q(18, GAPQ, [
+            'Providing learning opportunities for participants in these programs is an aim',
+            'These programs aim to provide learning opportunities for participants',
+            'Participants in these programs aim to learning to provide opportunities',
+            'To learn to provide opportunities is aimed for the participants in these programs'
+          ], 'B', 'Mệnh đề chuẩn ngữ pháp và văn phong: “These programs aim to provide learning opportunities for participants”.'),
+          Q(19, GAPQ, ['Such experiences can be', 'The experience is that', 'This experience is', 'All the experiences are'], 'A', '“Such experiences can be” = Những trải nghiệm như thế có thể là một cơ hội quý giá.'),
+          Q(20, GAPQ, [
+            'an advantage in today\'s competitive job market',
+            'the today advantage of competitive job market',
+            'a competitive advantage toward today\'s job market',
+            'the today\'s job market with competitive advantage'
+          ], 'A', 'Cụm từ tự nhiên: “giving individuals an advantage in today\'s competitive job market”.'),
+          Q(21, GAPQ, [
+            'Involve oneself in another culture',
+            'To be involving oneself in another culture',
+            'Involving oneself in another culture',
+            'Be involved oneself in another culture'
+          ], 'C', 'V-ing làm chủ ngữ cho động từ số ít “helps”: “Involving oneself in another culture”.'),
+          Q(22, GAPQ, [
+            'encourages individuals reconsider',
+            'encouraging individuals to reconsider',
+            'to encourage individuals to reconsider',
+            'encourages individuals to reconsider'
+          ], 'D', 'Chủ ngữ “Experiencing...” cần động từ chính chia số ít “encourages” + tân ngữ + “to V”.')
+        ]
+      },
+      {
+        id: 'gk1-b5',
+        short: 'Đọc hiểu: Landslides (23–30)',
+        part: 'Part 5 · Reading Comprehension',
+        title: 'Hiểm họa Sạt lở đất ở miền núi phía Bắc (Câu 23–30)',
+        instruction: 'Read the following passage and mark the letter A, B, C or D on your answer sheet to indicate the best answer to each of the questions.',
+        passageTitle: 'Landslides in Northern Vietnam',
+        numbered: true,
+        paras: [
+          '[I] Landslides are a significant environmental challenge in the northern mountainous provinces of Vietnam, particularly during the rainy season. The region, characterized by steep slopes and heavy rainfall, is prone to this natural disaster, which poses serious threats to both the local population and infrastructure. [II] In recent years, numerous landslides have occurred, often triggered by prolonged periods of heavy rain, resulting in devastating impacts on communities and livelihoods.',
+          'The mountainous terrain, combined with deforestation and improper land use, exacerbates the risk of landslides. [III] As farmers clear forests for agriculture, the natural vegetation that stabilizes the soil is lost, making slopes more susceptible to erosion. When heavy rains saturate the soil, it can quickly become unstable, leading to sudden and destructive landslides. [IV]',
+          'In response to this growing threat, local authorities and environmental organizations are taking proactive measures to mitigate the risks associated with landslides. Efforts include reforestation projects, improving drainage systems, and raising public awareness about safe practices during the rainy season. Additionally, advanced monitoring systems are being implemented to provide early warnings, allowing communities to evacuate before a disaster strikes.',
+          'Despite these efforts, the challenges remain significant, and ongoing education and support for sustainable land management practices are crucial for reducing the incidence and impact of landslides in northern Vietnam.'
+        ],
+        questions: [
+          Q(23, 'Where in this passage does the following sentence best fit?\n“These events not only destroy homes and roads but also disrupt essential services such as education and healthcare.”', ['[I]', '[II]', '[III]', '[IV]'], 'B', 'Vị trí [II] nối tiếp sau thông tin “resulting in devastating impacts on communities and livelihoods”.'),
+          Q(24, 'The word “prone” in paragraph 1 could be best replaced by ______.', ['resistant', 'vulnerable', 'indifferent', 'immune'], 'B', '“prone to” = dễ mắc phải, dễ bị tác động = vulnerable to.'),
+          Q(25, 'The word “it” in paragraph 2 refers to ______.', ['the soil', 'the rainy season', 'the local population', 'the infrastructure'], 'A', '“When heavy rains saturate the soil, it can quickly become unstable…” -> it = the soil.'),
+          Q(26, 'According to paragraph 3, which of the following is NOT a proactive measure to mitigate the risks associated with landslides?', ['Reforestation projects', 'Improving drainage systems', 'Increasing logging activities', 'Raising public awareness'], 'C', '“Increasing logging activities” (Gia tăng phá rừng) là hành vi tàn phá, không phải biện pháp giảm thiểu hiểm họa.'),
+          Q(27, 'Which of the following best summarises paragraph 3?', [
+            'Local authorities and organizations are actively working to reduce the risks of landslides through various projects and public education initiatives.',
+            'The government is focusing on implementing advanced technologies to predict landslides and ensure the safety of local communities.',
+            'Reforestation and improved drainage systems are essential for enhancing the environment and preventing landslides in northern Vietnam.',
+            'Communities are encouraged to participate in disaster preparedness training to minimize the impact of landslides during the rainy season.'
+          ], 'A', 'Đoạn 3 bao quát các giải pháp trồng rừng, thoát nước, tuyên truyền và hệ thống cảnh báo sớm.'),
+          Q(28, 'The phrase “susceptible to” in paragraph 2 is OPPOSITE in meaning to ______.', ['open to', 'immune to', 'prone to', 'favorable for'], 'B', '“susceptible to” (dễ bị ảnh hưởng) trái nghĩa với “immune to” (miễn nhiễm, không bị tổn hại).'),
+          Q(29, 'Which of the following can be inferred from the passage?', [
+            'Ongoing reforestation and improved land management practices are essential for minimizing future landslide risks in northern Vietnam.',
+            'The frequency of landslides in northern Vietnam will likely decrease in the coming years due to effective government interventions.',
+            'Local communities are fully aware of the risks of landslides and are actively participating in mitigation efforts.',
+            'Climate change is the sole cause of the increasing landslide occurrences in the northern mountainous provinces of Vietnam.'
+          ], 'A', 'Đoạn cuối nhấn mạnh: giáo dục liên tục và quản lý đất bền vững là yếu tố cốt lõi để giảm thiểu nguy cơ.'),
+          Q(30, 'Which of the following best summarises the passage?', [
+            'Landslides are a minor issue in northern Vietnam.',
+            'The effects of landslides are temporary and easily managed.',
+            'Landslides pose a significant threat, but measures are being taken to reduce their impact.',
+            'Local authorities have completely eliminated the risk of landslides.'
+          ], 'C', 'Ý tóm tắt toàn bài: Sạt lở đất đe dọa nghiêm trọng, nhưng các biện pháp ứng phó đang được triển khai tích cực.')
+        ]
+      },
+      {
+        id: 'gk1-b6',
+        short: 'Lỗi sai & Ngữ pháp (31–38)',
+        part: 'Part 6 · Use of English',
+        title: 'Sửa lỗi sai và Trắc nghiệm tổng hợp (Câu 31–38)',
+        instruction: 'Mark the letter A, B, C, or D on your answer sheet to indicate the correct answer.',
+        questions: [
+          Q(31, 'Tìm lỗi sai: As home to people from many countries, London is one of the most [cultural diverse] cities in the world.', ['home to', 'the', 'cultural diverse', 'As'], 'C', 'Sửa tính từ “cultural” thành trạng từ “culturally” bổ nghĩa cho tính từ “diverse”: “culturally diverse”.'),
+          Q(32, 'Tìm lỗi sai: [Dislike] mass tourism, which often prioritizes volume and profit, sustainable practices focus on long-term well-being.', ['focus on', 'well-being', 'Dislike', 'which'], 'C', 'Sửa động từ “Dislike” thành giới từ chỉ sự tương phản: “Unlike mass tourism...”.'),
+          Q(33, 'The environment project they ______ last month was so effective that our school was able to reduce its energy bill by 30 per cent.', ['relied on', 'washed off', 'looked after', 'carried out'], 'D', 'Cụm “carry out a project” = tiến hành, triển khai một dự án.'),
+          Q(34, 'She\'s a dedicated student who consistently hit the ______ to maintain her high grades.', ['books', 'hay', 'headlines', 'roof'], 'A', 'Thành ngữ “hit the books” = vùi đầu vào việc học tập.'),
+          Q(35, 'Many people tend to leave their fully charged phones connected, not knowing that it ______ around 2.24 watts and the figure goes up to 29.84 watts for laptops.', ['boosts', 'costs', 'saves', 'consumes'], 'D', '“consume power/electricity” = tiêu thụ điện năng.'),
+          Q(36, 'Leonardo qualified as a master artist and his work made a huge ______ on the Duke who decided to offer him a position in his court.', ['impressively', 'impress', 'impression', 'impressive'], 'C', 'Cụm kết hợp “make an impression on someone” = để lại ấn tượng sâu đậm đối với ai.'),
+          Q(37, 'In Brazil, the rapid pace of urbanization, with ______ population living in urban areas by 1991, has led to serious social challenges.', ['this', 'the', 'X (no article)', 'a'], 'B', 'Dùng mạo từ xác định “the” trước danh từ được bổ nghĩa bởi cụm phân từ: “the population living in urban areas”.'),
+          Q(38, 'Tony: "We won a trip to Hawaii, Kim. I\'m ______!" — Kim: "Wow! That\'s fantastic!"', ['under the weather', 'in the spot light', 'on cloud nine', 'up to the moon'], 'C', 'Thành ngữ “on cloud nine” = cực kỳ vui sướng, hạnh phúc ngập tràn.')
+        ]
+      },
+      {
+        id: 'gk1-b7',
+        short: 'Tự luận viết lại câu (39–40)',
+        part: 'Part 7 · Writing Transformation',
+        title: 'Tự luận viết lại câu (Câu 39–40)',
+        instruction: 'Rewrite the following sentences as directed.',
+        questions: [
+          Q(39, 'Rewrite using the word given:\nVietnamese teenagers now really enjoy Korean music. (POPULARITY)\n→ Korean music now __________________________________________________', [
+            'has gained immense popularity among Vietnamese teenagers.',
+            'enjoys great popularity with Vietnamese teenagers.',
+            'is growing popularity in Vietnamese teenagers.',
+            'has popular among Vietnamese teenagers.'
+          ], 'A', 'Đáp án chính xác: “Korean music now has gained popularity among / enjoys great popularity with Vietnamese teenagers.”'),
+          Q(40, 'Rewrite beginning as given:\nIt doesn\'t take me a long time to get to work anymore now that the new road has opened.\n→ I used __________________________________________________', [
+            'to spend a lot of time getting to work before the new road opened.',
+            'to take a long time to work before the new road opened.',
+            'to be taken long time to work.',
+            'to spend much time to work now.'
+          ], 'A', 'Đáp án chính xác: “I used to spend a long time getting to work before the new road opened.” (hoặc “I used to take a long time to get to work before...”).')
+        ]
+      }
+    ]
+  },
+
+  /* =====================================================================
      TEST 01 (50 CÂU)
      ===================================================================== */
   {
@@ -243,7 +437,7 @@ window.TESTS = [
           Q(33, 'Which of the following CANNOT be inferred about the Red River Lumber Company’s advertising campaign featuring Paul Bunyan?', ['It endured for quite a time.', 'The company did not protect its ownership of the stories.', 'The campaign did little to enhance the company’s profitability.', 'The company wanted the name Paul Bunyan to be known as widely as possible.'], 'C', 'Không có thông tin nào nói chiến dịch ít mang lại lợi nhuận cho công ty.'),
           Q(34, 'The pronoun “them” in paragraph 3 refers to ______.', ['publications', 'series', 'decades', 'writers'], 'A', '“Distributed these publications free of charge and made no attempt to obtain a copyright on them” -> them = publications.'),
           Q(35, 'The word “interwoven” in paragraph 3 could be best replaced by ______.', ['unfashionable', 'mixed together', 'not compatible', 'too separate'], 'B', '“Interwoven” = đan xen, gắn kết chặt chẽ với nhau = mixed together.'),
-          Q(36, 'Where in the passage does the author discuss a weather phenomenon that Paul Bunyan supposedly caused?', ['Paragraph 1', 'Paragraph 3', 'Paragraph 4', 'Paragraph 5'], 'C', 'Ở đoạn 4 (dòng 20–23 bản gốc): “Paul caused an entire winter of blue snow to fall…”.'),
+          Q(36, 'Where in the passage does the author discuss a weather phenomenon that Paul Bunyan supposedly caused?', ['Paragraph 1', 'Paragraph 3', 'Paragraph 4', 'Paragraph 5'], 'C', 'Ở đoạn 4: “Paul caused an entire winter of blue snow to fall…”.'),
           Q(37, 'The word “countless” in paragraph 5 could be best replaced by the expression ______.', ['an overestimated number of', 'an insubstantial number of', 'a large number of', 'a specified number of'], 'C', '“Countless” = vô số = a large number of.')
         ]
       },
@@ -306,7 +500,7 @@ window.TESTS = [
         questions: [
           Q(1, 'Garbage ______, the town looked much cleaner and more inviting.', ['collected', 'collecting', 'had been collecting', 'was collected'], 'A', 'Cấu trúc tuyệt đối (Absolute phrase) rút gọn bị động: “Garbage (having been) collected, the town looked…”.'),
           Q(2, '______, things are going well.', ['Worries aside', 'Much to worries', 'Worries as well', 'Except from worries'], 'A', '“Worries aside” = Gác những nỗi lo sang một bên.'),
-          Q(3, 'The cashier can’t have given us the change, ______?', ['hasn’t she', 'can she', 'must she', 'did she'], 'D', 'Câu hỏi đuôi cho “can’t have + V3/ed” chỉ hành động trong quá khứ: dùng trợ động từ “did she” (hoặc “has she”, trong 4 lựa chọn chỉ có “did she” đúng dạng khẳng định).'),
+          Q(3, 'The cashier can’t have given us the change, ______?', ['hasn’t she', 'can she', 'must she', 'did she'], 'D', 'Câu hỏi đuôi cho “can’t have + V3/ed” chỉ hành động trong quá khứ: dùng trợ động từ “did she”.'),
           Q(4, 'Had it not been for the last-minute donation, the animal shelter ______ down.', ['would close', 'had closed', 'would have closed', 'closed'], 'C', 'Đảo ngữ câu điều kiện loại 3: “Had it not been for…, S + would have V3/ed”.'),
           Q(5, 'The new policy is intended to ______ a balance between national security and individual privacy.', ['strike', 'beat', 'hit', 'press'], 'A', 'Cụm cố định “strike a balance” = đạt được sự cân bằng.'),
           Q(6, 'Progress made today will shape our world for years ______.', ['to come', 'coming', 'in coming', 'that will come'], 'A', 'Cụm cố định “for years to come” = trong nhiều năm tới.'),
@@ -450,7 +644,7 @@ window.TESTS = [
           Q(4, GAPQ, ['which provided them with detailed data on eating patterns', 'result in the collection of detailed data on eating patterns', 'they provided them with detailed data on eating habits', 'a process that it provided with detailed information about their diets'], 'A', 'Mệnh đề quan hệ nối tiếp bổ nghĩa cho cả mệnh đề trước: “, which provided them with…”.'),
           Q(5, GAPQ, ['tend to consume more calories', 'showing a tendency to increase calorie intake', 'are associated with higher calorie consumption', 'likely to consume additional calories'], 'A', 'Chủ ngữ “Other participants in the study” cần động từ chính chia thì: “tend to consume more calories in order to compensate…”.'),
           Q(6, GAPQ, ['This pattern suggests inadequate protein raises calorie intake.', 'Such dietary behaviour causing to excessive calorie use.', 'Suggesting inadequate protein raises calorie consumption.', 'That insufficient protein intake lead to overeating.'], 'A', 'Cần một câu hoàn chỉnh đúng ngữ pháp; B, C, D đều thiếu động từ chính hoặc sai cấu trúc.'),
-          Q(7, GAPQ, ['Our bodies need protein, it supports many vital processes.', 'While protein performs many essential biological functions, it is often underconsumed.', 'It makes sense that our bodies want protein because it does many things for us.', 'This biological role contributes to hormone regulation explains the importance of protein.'], 'C', 'Câu C dẫn nhập tự nhiên cho câu tiếp theo giải thích các chức năng sinh học của protein (A bị lỗi comma splice, B lặp y nguyên câu sau, D thừa động từ).'),
+          Q(7, GAPQ, ['Our bodies need protein, it supports many vital processes.', 'While protein performs many essential biological functions, it is often underconsumed.', 'It makes sense that our bodies want protein because it does many things for us.', 'This biological role contributes to hormone regulation explains the importance of protein.'], 'C', 'Câu C dẫn nhập tự nhiên cho câu tiếp theo giải thích các chức năng sinh học của protein.'),
           Q(8, GAPQ, ['with differences observed across people', 'since individual responses are not identical', 'because reactions differ from person to person', 'although this effect may vary among individuals'], 'D', 'Mệnh đề nhượng bộ “although this effect may vary among individuals” phù hợp về ngữ nghĩa và ngữ pháp.')
         ]
       },
@@ -559,7 +753,7 @@ window.TESTS = [
           Q(46, 'The word “obsolete” in paragraph 2 is OPPOSITE in meaning to ______.', ['expensive', 'outdated', 'useless', 'modern'], 'D', '“Obsolete” (lỗi thời) trái nghĩa với “modern” (hiện đại).'),
           Q(47, 'Which of the following is NOT true according to the passage?', ['The concept of staying in one job for a lifetime is becoming outdated.', 'Career counselors advise students to focus primarily on specific job titles.', 'Interdisciplinary fields combine knowledge from different domains.', 'A university diploma is considered just a checkpoint in a lifelong learning journey.'], 'B', 'Đoạn 2 nêu rõ: “students should not focus solely on job titles”.'),
           Q(48, 'Which of the following best paraphrases “The willingness to unlearn old habits and relearn new technologies will be the defining characteristic of the modern workforce”?', ['Modern workers are defined by their ability to refuse old habits and reject new technologies.', 'To succeed in the modern workforce, one must be ready to discard outdated practices and acquire new technical skills.', 'Workers today are willing to learn new technologies only if they can keep their old habits.', 'The defining characteristic of the workforce is the stability of old habits combined with new technologies.'], 'B', 'Sẵn sàng từ bỏ thói quen lạc hậu và học hỏi công nghệ mới.'),
-          Q(49, 'Rosie: “______” — Jolie: “Once bitten, twice shy.”', ['How terrible is the test score!', 'She was defeated again.', 'Has the cat got your tongue?', 'She is still all on her own.'], 'D', '“She is still all on her own” (Cô ấy vẫn lẻ bóng một mình sau lần đổ vỡ trước) -> “Once bitten, twice shy” (Chim phải đạn sợ cành cong).'),
+          Q(49, 'Rosie: “______” — Jolie: “Once bitten, twice shy.”', ['How terrible is the test score!', 'She was defeated again.', 'Has the cat got your tongue?', 'She is still all on her own.'], 'D', '“She is still all on her own” -> “Once bitten, twice shy” (Chim phải đạn sợ cành cong).'),
           Q(50, 'Harry: “You look so tired!” — Tina: “______”', ['Never mind! All work and no play makes Jack a dull boy.', 'There’s no way for me to miss that deadline.', 'I’ve been snowed under with work this week.', 'We haven’t got any hope in hell of meeting such a tight deadline.'], 'C', '“I’ve been snowed under with work this week” = Tuần này mình ngập đầu trong công việc.')
         ]
       }
@@ -581,7 +775,7 @@ window.TESTS = [
         questions: [
           Q(1, 'When autumn leaves fall to the ground, they slowly ______ and enrich the soil with vital nutrients.', ['integrate', 'delegate', 'decompose', 'alleviate'], 'C', '“Decompose” = phân hủy.'),
           Q(2, 'Let’s ______ the situation before we make a final decision.', ['catch up with', 'brush up on', 'take stock of', 'make up for'], 'C', '“Take stock of the situation” = xem xét, đánh giá kỹ tình hình.'),
-          Q(3, 'The claim that eating red and processed meat increases the risk of heart attack ______ our eyebrows.', ['should be raising', 'have raised', 'will be raised', 'has been raising'], 'A', 'Chủ ngữ số ít “The claim” + động từ chủ động có tân ngữ “our eyebrows”: “should be raising” (hoặc “has been raising”, trong đó “should be raising our eyebrows” = đáng phải khiến chúng ta ngạc nhiên/chú ý).'),
+          Q(3, 'The claim that eating red and processed meat increases the risk of heart attack ______ our eyebrows.', ['should be raising', 'have raised', 'will be raised', 'has been raising'], 'A', 'Chủ ngữ số ít “The claim” + động từ chủ động có tân ngữ: “should be raising our eyebrows”.'),
           Q(4, 'The doctor recommended that Neil should take Echinacea, a plant that is used as a medicine, to keep colds at ______.', ['bay', 'channel', 'lake', 'river'], 'A', 'Thành ngữ “keep sth at bay” = ngăn ngừa, đẩy lùi bệnh tật.'),
           Q(5, 'The survey indicates that Coronavirus may ______ the end of foreign travel for a while.', ['flee', 'hit', 'spell', 'strike'], 'C', '“Spell the end of sth” = báo hiệu sự kết thúc / chấm dứt của cái gì.'),
           Q(6, 'Seo-yeon’s 40th birthday party was very ______, just a few friends at a local pub.', ['lowland', 'lowlight', 'low-flying', 'low-key'], 'D', '“Low-key” = kín tiếng, giản dị, không phô trương.'),
@@ -654,7 +848,7 @@ window.TESTS = [
           'Let’s stand up for nature. Our future depends on it.'
         ],
         questions: [
-          Q(28, GAPQ, ['to make', 'making', 'maked', 'that make'], 'B', 'Rút gọn mệnh đề quan hệ chủ động: “the stunning variety of life making our planet unique” (D sai vì “variety” là số ít nên phải là “that makes”).'),
+          Q(28, GAPQ, ['to make', 'making', 'maked', 'that make'], 'B', 'Rút gọn mệnh đề quan hệ chủ động: “the stunning variety of life making our planet unique”.'),
           Q(29, GAPQ, ['incredibly', 'incredibility', 'incredibleness', 'incredible'], 'D', 'Trước danh từ “beauty” cần tính từ “incredible”.'),
           Q(30, GAPQ, ['Remaining', 'Reserving', 'Maintaining', 'Preserving'], 'D', '“Preserving wildlife” = Bảo tồn động vật hoang dã.'),
           Q(31, GAPQ, ['ecological balance delicate', 'delicate ecological balance', 'ecological delicate balance', 'balance ecological delicate'], 'B', 'Trật tự từ: Tính từ chỉ tính chất (delicate) + Tính từ phân loại (ecological) + Danh từ (balance).'),
@@ -686,12 +880,12 @@ window.TESTS = [
         questions: [
           Q(41, 'Which of the following best serves as the title for the passage?', ['The End of Traditional Language Classrooms.', 'How AI Algorithms Work in Education.', 'Why Human Teachers are Better than Machines.', 'AI in Language Learning: A Double-Edged Sword.'], 'D', 'Bài viết phân tích cả lợi ích đột phá và những thách thức (con dao hai lưỡi) của AI trong việc học ngôn ngữ.'),
           Q(42, 'Which of the following best summarizes the reading passage?', ['AI has transformed language learning by providing 24/7 personalized, data-driven tutoring, and raises little concerns about human connection.', 'AI focuses solely on grammar and ignores cultural context but it is likely to replace teachers in language learning.', 'AI makes language learning more personalized and accessible, but human guidance remains essential for culture, nuance, and privacy.', 'AI’s only benefit is faster feedback, with no significant drawbacks or considerations for culture and privacy.'], 'C', 'Tóm tắt đầy đủ cả ưu điểm cá nhân hóa của AI lẫn vai trò không thể thay thế của con người.'),
-          Q(43, 'According to paragraph 2, why is AI considered a “safe space” for learners?', ['It connects them with other learners who are at the same level.', 'It protects their personal data securely.', 'It prevents them from making any grammatical errors.', 'It allows them to practice without fear of judgment from others.'], 'D', 'Đoạn 2: “practice pronunciation and grammar repeatedly without embarrassment” (không sợ bị đánh giá trước mặt bạn bè).'),
+          Q(43, 'According to paragraph 2, why is AI considered a “safe space” for learners?', ['It connects them with other learners who are at the same level.', 'It protects their personal data securely.', 'It prevents them from making any grammatical errors.', 'It allows them to practice without fear of judgment from others.'], 'D', 'Đoạn 2: “practice pronunciation and grammar repeatedly without embarrassment”.'),
           Q(44, 'Which of the following is TRUE according to the passage?', ['AI tools can help save time for teachers by handling repetitive tasks.', 'The author believes AI will eventually replace human interaction entirely.', 'Teachers should stop teaching grammar and focus only on culture.', 'AI is currently capable of perfectly understanding sarcasm and cultural nuance.'], 'A', 'Đoạn 4: Giáo viên dùng AI xử lý các việc lặp đi lặp lại như chấm bài và luyện từ vựng để tiết kiệm thời gian trên lớp.'),
           Q(45, 'The word “supplementary” in the last paragraph is OPPOSITE in meaning to ______.', ['auxiliary', 'supporting', 'main', 'unnecessary'], 'C', '“Supplementary” (bổ trợ, phụ thêm) trái nghĩa với “main” (chính, chủ đạo).'),
           Q(46, 'The word “This” in paragraph 5 refers to ______.', ['The ethical privacy of AI.', 'The compromise of user privacy.', 'The collecting of immense amounts of user data.', 'The using of collected data.'], 'C', '“These apps collect lots of data to improve their programs. This raises questions…” -> This = việc thu thập lượng lớn dữ liệu người dùng.'),
           Q(47, 'Which of the following best paraphrases “Teachers can leverage AI tools to handle repetitive tasks like grading and vocabulary drilling, freeing up valuable class time for complex interactive activities…”?', ['Teachers should take care of more engaging activities while repetitive tasks are for AI tools.', 'AI tools can do both the repetitive tasks and complex interactive activities without the help of teachers.', 'Teachers should upgrade AI tools so that they can devote to harder, more engaging activities.', 'Teachers can use AI tools to do repetitive, mechanical tasks so that they can devote to harder, more engaging activities.'], 'D', 'Giáo viên có thể tận dụng công cụ AI để làm các công việc cơ học lặp lại nhằm dành thời gian cho các hoạt động tương tác sâu hơn.'),
-          Q(48, 'Where in paragraph 1 does the sentence “For instance, apps like Duolingo or chatbots powered by generative AI can simulate conversations that adapt in real-time to the user’s responses.” best fit?', ['[IV]', '[III]', '[I]', '[II]'], 'B', 'Đặt ở [III] để làm ví dụ minh họa trực tiếp cho câu ngay trước đó nói về NLP và machine learning điều chỉnh bài học theo tiến độ người học.'),
+          Q(48, 'Where in paragraph 1 does the sentence “For instance, apps like Duolingo or chatbots powered by generative AI can simulate conversations that adapt in real-time to the user’s responses.” best fit?', ['[IV]', '[III]', '[I]', '[II]'], 'B', 'Đặt ở [III] để làm ví dụ minh họa trực tiếp cho câu ngay trước đó nói về NLP và machine learning điều chỉnh bài học.'),
           Q(49, 'What can be inferred about the future of language learning from the passage?', ['It will be completely automated with no need for human teachers.', 'It will focus solely on translation rather than communication.', 'It will likely involve a blend of AI technology and human guidance.', 'It will return to traditional methods as people reject technology.'], 'C', 'Đoạn kết: “The future of learning will likely mix technology with human guidance.”'),
           Q(50, 'The word “reconfigured” in paragraph 4 is closest in meaning to ______.', ['ignored', 'preserved', 'reshaped', 'eliminated'], 'C', '“Reconfigured” = được định hình lại, tái cấu trúc = reshaped.')
         ]
