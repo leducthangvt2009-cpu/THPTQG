@@ -3,130 +3,397 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Ôn tập THPT · Cờ Tỷ Phú Edition</title>
+  <title>Ôn Thi THPT Quốc Gia · Monopoly Edition</title>
+  
+  <!-- Font chữ: Be Vietnam Pro & Press Start 2P -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="css/style.css">
+  
+  <style>
+    /* Custom Tokens & Theme Overrides for Monopoly Polish */
+    :root {
+      --mono-board: #cde6d0;
+      --mono-board-light: #eef7f0;
+      --mono-board-dark: #103b1d;
+      --mono-red: #d9232a;
+      --mono-red-hover: #b51920;
+      --mono-gold: #f5b800;
+      --mono-blue: #1b4aa5;
+      --mono-navy: #0e1e40;
+      --line: #111613;
+      --line-soft: #97ba9f;
+      --surface: #ffffff;
+      --text: #111613;
+      --muted: #42594a;
+      --shadow-hard: 6px 6px 0px var(--line);
+      --shadow-sm: 3px 3px 0px var(--line);
+      --shadow-lg: 10px 10px 0px var(--line);
+    }
+
+    /* Grid & Board Patterns */
+    .board-bg {
+      background-color: var(--mono-board);
+      background-image: 
+        radial-gradient(var(--line-soft) 1.5px, transparent 1.5px),
+        linear-gradient(rgba(17, 22, 19, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 22, 19, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px, 48px 48px, 48px 48px;
+    }
+
+    /* Monopoly Hero Card */
+    .hero-deed-card {
+      background: var(--surface);
+      border: 4px solid var(--line);
+      box-shadow: var(--shadow-lg);
+      padding: 0.75rem;
+      position: relative;
+    }
+    .hero-deed-header {
+      background: var(--mono-red);
+      color: #fff;
+      border: 3px solid var(--line);
+      padding: 0.6rem;
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+    .hero-deed-header small {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .hero-deed-header strong {
+      display: block;
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .hero-art-box {
+      background: var(--mono-board-light);
+      border: 3px solid var(--line);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      min-height: 180px;
+    }
+
+    /* Deed Land Cards (Môn học) */
+    .deed-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .deed-tile {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 3.5px solid var(--line);
+      box-shadow: var(--shadow-hard);
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+    }
+    .deed-tile:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 10px 10px 0px var(--line);
+    }
+    .deed-band {
+      border-bottom: 3.5px solid var(--line);
+      padding: 0.85rem 1rem;
+      text-align: center;
+      color: #ffffff;
+    }
+    .deed-band.english { background: #1b4aa5; }
+    .deed-band.vocab   { background: #d9232a; }
+    .deed-band.chem    { background: #007a52; }
+    .deed-band.bio     { background: #c97100; }
+    
+    .deed-band small {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .deed-band h3 {
+      margin: 0.2rem 0 0;
+      font-size: 1.4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .deed-content {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 0.75rem;
+    }
+    .deed-content p {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .deed-meta-table {
+      margin-top: auto;
+      border-top: 2px dashed var(--line-soft);
+      padding-top: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    /* Chance / Community Chest Banner */
+    .chance-banner {
+      background: var(--mono-gold);
+      border: 3.5px solid var(--line);
+      box-shadow: var(--shadow-hard);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .chance-icon {
+      font-family: var(--font-pixel);
+      font-size: 2.2rem;
+      color: var(--line);
+      background: #fff;
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border: 3px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    /* Live Stat Bar */
+    .stats-bar {
+      border: 3px solid var(--line);
+      background: var(--mono-board-light);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 0.75rem;
+    }
+    .stats-bar .s-cell {
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+    }
+    .stats-bar .s-cell + .s-cell {
+      border-left: 3px solid var(--line);
+    }
+    .stats-bar b {
+      display: block;
+      font-family: var(--font-pixel);
+      font-size: 1.15rem;
+      color: var(--mono-red);
+      margin-bottom: 0.25rem;
+    }
+    .stats-bar span {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+  </style>
 </head>
 <body>
 
-<header class="site-header" id="site-header">
-  <div class="header-inner">
-    <a class="logo" href="index.html">
-      <svg class="logo-icon" viewBox="0 0 9 9" width="20" height="20" aria-hidden="true">
-        <rect width="9" height="9" fill="#ffffff" stroke="#111613" stroke-width="1"/>
-        <rect x="2" y="2" width="1.5" height="1.5" fill="#111613"/>
-        <rect x="5.5" y="2" width="1.5" height="1.5" fill="#111613"/>
-        <rect x="3.75" y="3.75" width="1.5" height="1.5" fill="#d9232a"/>
-        <rect x="2" y="5.5" width="1.5" height="1.5" fill="#111613"/>
-        <rect x="5.5" y="5.5" width="1.5" height="1.5" fill="#111613"/>
-      </svg>
-      <span>Ôn tập THPT</span>
-    </a>
-    <nav class="nav" aria-label="Menu chính">
-      <a href="index.html" aria-current="page">Bàn cờ</a>
-      <a href="anh.html">Tiếng Anh</a>
-      <a href="tu-vung.html">Từ vựng</a>
-      <a href="hoa.html">Hóa học</a>
-      <a href="sinh.html">Sinh học</a>
-    </nav>
-  </div>
-</header>
-
-<main>
-  <section class="hero-wrap hero">
-    <div class="diamonds" id="diamonds" aria-hidden="true"></div>
-    <div class="hero-inner">
-      <div>
-        <span class="tag">BÀN CỜ THPT · KHỐI 12</span>
-        <h1><span>Ôn tập</span><span>Anh, Hóa &amp; Sinh</span></h1>
-        <p class="lead">Chọn ô môn học để bắt đầu hành trình chinh phục điểm số. Mỗi môn có phần lý thuyết kèm mô phỏng tương tác, thẻ ghi nhớ từ vựng và đề luyện thi theo cấu trúc THPT cùng lời giải chi tiết.</p>
-        <a class="cta" href="#mon-hoc">Chọn môn học</a>
-      </div>
-      <div class="card-wrap">
-        <article class="hcard">
-          <div class="hcard-deed-head">
-            <small>BẰNG KHOÁN · TITLE DEED</small>
-            <strong>ĐẠI TỶ PHÚ ÔN THI THPT</strong>
-          </div>
-          <div class="hcard-art">
-            <svg id="mono-art" viewBox="0 0 28 20" role="img" aria-label="Khách sạn đỏ, Nhà xanh và Xúc xắc Cờ Tỷ Phú"></svg>
-          </div>
-        </article>
-      </div>
+  <!-- ================= SITE HEADER ================= -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a class="logo" href="index.html">
+        <!-- SVG xúc xắc pixel -->
+        <svg class="logo-icon" viewBox="0 0 9 9" width="22" height="22" aria-hidden="true">
+          <rect width="9" height="9" fill="#ffffff" stroke="#111613" stroke-width="1"/>
+          <rect x="2" y="2" width="1.5" height="1.5" fill="#111613"/>
+          <rect x="5.5" y="2" width="1.5" height="1.5" fill="#111613"/>
+          <rect x="3.75" y="3.75" width="1.5" height="1.5" fill="#d9232a"/>
+          <rect x="2" y="5.5" width="1.5" height="1.5" fill="#111613"/>
+          <rect x="5.5" y="5.5" width="1.5" height="1.5" fill="#111613"/>
+        </svg>
+        <span>ÔN THI THPTQG</span>
+      </a>
+      <nav class="nav" aria-label="Menu chính">
+        <a href="index.html" aria-current="page">Bàn cờ</a>
+        <a href="anh.html">Tiếng Anh</a>
+        <a href="tu-vung.html">Từ vựng</a>
+        <a href="hoa.html">Hóa học</a>
+        <a href="sinh.html">Sinh học</a>
+      </nav>
     </div>
-  </section>
+  </header>
 
-  <section class="subjects" id="mon-hoc">
-    <div class="subjects-in">
-      <h2 class="h2-rule">Chọn ô môn học</h2>
-      <div class="subject-grid">
-        <a class="scard" href="anh.html">
-          <div class="scard-band" style="--band:#1b4aa5;--band-ink:#ffffff">
-            <small>Ô ĐẤT HẠNG S · MAYFAIR</small>
-            <h3>Đề Tiếng Anh</h3>
+  <main>
+    <!-- ================= HERO SECTION ================= -->
+    <section class="hero-wrap board-bg">
+      <div class="hero-inner">
+        
+        <!-- Cột trái: Thông tin tổng quan -->
+        <div class="hero-text">
+          <div class="tag">Kỳ thi tốt nghiệp THPT 2026 - 2027</div>
+          <h1 style="margin: 0 0 1rem; font-weight: 900; line-height: 1.1; text-transform: uppercase;">
+            CHINH PHỤC BÀN CỜ <br>
+            <span style="color: var(--mono-red); text-shadow: 2.5px 2.5px 0 var(--white);">ĐIỂM 10 THPTQG</span>
+          </h1>
+          <p class="lead">
+            Hệ thống ngân hàng đề thi chuẩn ma trận mới nhất, thẻ học thông minh 302 Idioms cùng mô phỏng phản ứng tương tác trực quan. Chọn ô đất để bắt đầu gieo xúc xắc ôn luyện!
+          </p>
+          <div class="btn-row">
+            <a href="#ban-co" class="btn">Gieo Xúc Xắc · Chọn Môn</a>
+            <a href="anh.html" class="btn ghost">Đề GK1 Lê Quý Đôn</a>
           </div>
-          <div class="scard-body">
-            <p>Đề luyện thi THPT: Lexico-Grammar và Reading, chấm điểm tự động và giải thích chi tiết từng câu.</p>
-            <div class="meta"><span>BẰNG KHOÁN</span><span>→</span></div>
-          </div>
-        </a>
+        </div>
 
-        <a class="scard" href="tu-vung.html">
-          <div class="scard-band" style="--band:#d9232a;--band-ink:#ffffff">
-            <small>Ô ĐẤT ĐỎ · STRAND</small>
-            <h3>Từ vựng Tiếng Anh</h3>
-          </div>
-          <div class="scard-body">
-            <p>Học từ vựng, cụm động từ (Phrasal Verbs) và thành ngữ (Idioms) trọng tâm THPT bằng thẻ lật Flashcard có phát âm và trắc nghiệm nhanh.</p>
-            <div class="meta"><span>BẰNG KHOÁN</span><span>Flashcard &amp; Quiz →</span></div>
-          </div>
-        </a>
+        <!-- Cột phải: Bằng khoán tổng hợp (Hero Deed Card) -->
+        <div class="card-wrap">
+          <article class="hero-deed-card" style="width: 100%; max-width: 440px;">
+            <div class="hero-deed-header">
+              <small>TITLE DEED OF EXCELLENCE</small>
+              <strong>BẰNG KHOÁN THỦ KHOA</strong>
+            </div>
+            
+            <div class="hero-art-box">
+              <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="var(--mono-navy)" stroke-width="2" stroke-linecap="square">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                <line x1="12" y1="6" x2="16" y2="6"/>
+                <line x1="12" y1="10" x2="16" y2="10"/>
+              </svg>
+              <div style="text-align: center;">
+                <div style="font-weight: 900; text-transform: uppercase; font-size: 1.1rem; color: var(--mono-navy);">CHƯƠNG TRÌNH MỚI 2026-2027</div>
+                <div style="font-size: 0.85rem; color: var(--muted); font-weight: 600;">100% Khảo thí có giải thích chi tiết</div>
+              </div>
+            </div>
 
-        <a class="scard" href="hoa.html">
-          <div class="scard-band" style="--band:#1f8a3b;--band-ink:#ffffff">
-            <small>Ô ĐẤT XANH LÁ · BOND STREET</small>
-            <h3>Hóa học</h3>
-          </div>
-          <div class="scard-body">
-            <p>Chuyên đề Ester - Lipid và Carbohydrate kèm bảng tóm tắt công thức và mô phỏng phản ứng hóa học.</p>
-            <div class="meta"><span>BẰNG KHOÁN</span><span>2 chuyên đề →</span></div>
-          </div>
-        </a>
+            <!-- Bảng chỉ số thống kê Realtime -->
+            <div class="stats-bar">
+              <div class="s-cell">
+                <b>4</b>
+                <span>Môn Học</span>
+              </div>
+              <div class="s-cell">
+                <b>6+</b>
+                <span>Đề Luyện</span>
+              </div>
+              <div class="s-cell">
+                <b>322</b>
+                <span>Idioms / Từ</span>
+              </div>
+            </div>
+          </article>
+        </div>
 
-        <a class="scard" href="sinh.html">
-          <div class="scard-band" style="--band:#f5b800;--band-ink:#111613">
-            <small>Ô ĐẤT VÀNG · PICCADILLY</small>
-            <h3>Sinh học</h3>
-          </div>
-          <div class="scard-body">
-            <p>Chuyên đề Di truyền phân tử: Cấu trúc DNA, nhân đôi, phiên mã, dịch mã và trình mô phỏng ghép mạch bổ sung.</p>
-            <div class="meta"><span>BẰNG KHOÁN</span><span>1 chuyên đề →</span></div>
-          </div>
-        </a>
+      </div>
+    </section>
+
+    <!-- ================= BÀN CỜ CHỌN MÔN (DEED BOARD) ================= -->
+    <section class="page-body" id="ban-co">
+      
+      <!-- Banner Hộp Cơ Hội / Khí Vận -->
+      <div class="chance-banner">
+        <div class="chance-icon">?</div>
+        <div>
+          <h2 style="margin: 0 0 0.2rem; font-size: 1.15rem; font-weight: 900; text-transform: uppercase;">CƠ HỘI: TẬP DƯỢT VỚI ĐỀ THI MỚI NHẤT</h2>
+          <p style="margin: 0; font-size: 0.95rem; color: #222;">Đã cập nhật Đề kiểm tra Giữa HK1 2026-2027 Trường THPT Chuyên Lê Quý Đôn (40 câu trắc nghiệm &amp; tự luận)!</p>
+        </div>
       </div>
 
-      <h2 class="h2-rule" style="margin-top: 3.5rem;">Lịch sử làm bài trên thiết bị</h2>
-      <div id="history-box"></div>
-    </div>
-  </section>
-</main>
+      <h2 class="h2-rule">Bàn cờ chuyên môn (Title Deeds)</h2>
+      
+      <div class="deed-grid">
+        
+        <!-- Ô đất 1: Tiếng Anh -->
+        <a href="anh.html" class="deed-tile">
+          <div class="deed-band english">
+            <small>DISTRICT 1 · MAYFAIR</small>
+            <h3>Tiếng Anh</h3>
+          </div>
+          <div class="deed-content">
+            <p>Ngân hàng 6 bộ đề chuẩn ma trận tốt nghiệp (Test 01 – Test 05 &amp; Đề GK1 Lê Quý Đôn). Có chế độ Luyện tập và Thi thử bấm giờ.</p>
+            <div class="deed-meta-table">
+              <span style="color: var(--mono-blue);">6 Đề thi</span>
+              <span>290+ Câu hỏi</span>
+            </div>
+          </div>
+        </a>
 
-<dialog id="dlg">
-  <form method="dialog">
-    <p id="dlg-msg"></p>
-    <div class="dlg-actions">
-      <button class="btn small ghost" value="cancel" id="dlg-cancel"></button>
-      <button class="btn small" value="ok" id="dlg-ok"></button>
-    </div>
-  </form>
-</dialog>
+        <!-- Ô đất 2: Từ vựng & Idioms -->
+        <a href="tu-vung.html" class="deed-tile">
+          <div class="deed-band vocab">
+            <small>DISTRICT 2 · STRAND</small>
+            <h3>Từ Vựng &amp; Idioms</h3>
+          </div>
+          <div class="deed-content">
+            <p>Hệ thống thẻ Flashcard 302 Idioms đề thi đại học kèm phát âm, tính năng lặp lại ngắt quãng và minigame phản xạ trắc nghiệm nhanh.</p>
+            <div class="deed-meta-table">
+              <span style="color: var(--mono-red);">Flashcard</span>
+              <span>322 Thuật ngữ</span>
+            </div>
+          </div>
+        </a>
 
-<script src="js/app.js"></script>
-<script>
-  initMonopolyHero();
-  renderHistoryBox();
-</script>
+        <!-- Ô đất 3: Hóa học -->
+        <a href="hoa.html" class="deed-tile">
+          <div class="deed-band chem">
+            <small>DISTRICT 3 · BOND STREET</small>
+            <h3>Hóa Học</h3>
+          </div>
+          <div class="deed-content">
+            <p>Lý thuyết trọng tâm Este - Lipit, Cacbohiđrat, Kim loại cùng các mô phỏng thí nghiệm phản ứng tương tác trực tiếp trên trình duyệt.</p>
+            <div class="deed-meta-table">
+              <span style="color: #007a52;">Tương tác</span>
+              <span>Mô phỏng lab</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Ô đất 4: Sinh học -->
+        <a href="sinh.html" class="deed-tile">
+          <div class="deed-band bio">
+            <small>DISTRICT 4 · PICCADILLY</small>
+            <h3>Sinh Học</h3>
+          </div>
+          <div class="deed-content">
+            <p>Cơ chế di truyền và biến dị, quy luật Mendel, di truyền quần thể và sinh thái học kèm câu hỏi vận dụng cao chống liệt.</p>
+            <div class="deed-meta-table">
+              <span style="color: #c97100;">Sơ đồ tư duy</span>
+              <span>Di truyền học</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer style="background: var(--mono-navy); color: #fff; border-top: 4px solid var(--line); padding: 2.5rem 1.5rem; text-align: center;">
+    <div style="max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+      <div style="font-family: var(--font-pixel); font-size: 0.85rem; color: var(--mono-gold);">
+        PASS GO · COLLECT 10 POINTS
+      </div>
+      <p style="margin: 0; font-size: 0.9rem; opacity: 0.85;">
+        Hệ thống ôn thi tốt nghiệp THPT Quốc Gia môn Tiếng Anh, Hóa học &amp; Sinh học.
+      </p>
+    </div>
+  </footer>
+
 </body>
 </html>
