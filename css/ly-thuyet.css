@@ -349,7 +349,7 @@ sub, sup {
 }
 sub { bottom: -0.25em; }
 sup { top: -0.5em; }
-.formula-tag, .chem-code { text-transform: none; }
+.formula-tag, .chem-code, .chem-case { text-transform: none; }
 
 /* 4. Sửa thẻ Callout và Badge tránh vỡ chữ tiếng Việt */
 .chem-callout, .tag-badge {
