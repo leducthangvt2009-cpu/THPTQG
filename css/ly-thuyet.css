@@ -345,9 +345,11 @@ sub, sup {
   line-height: 0;
   position: relative;
   vertical-align: baseline;
+  text-transform: none; /* giữ nguyên n/m thường trong công thức khi tiêu đề uppercase */
 }
 sub { bottom: -0.25em; }
 sup { top: -0.5em; }
+.formula-tag, .chem-code { text-transform: none; }
 
 /* 4. Sửa thẻ Callout và Badge tránh vỡ chữ tiếng Việt */
 .chem-callout, .tag-badge {
