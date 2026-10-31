@@ -9,7 +9,8 @@
   - Chế độ **Luyện tập** (chấm và giải thích ngay sau mỗi câu, hỗ trợ điều hướng bằng phím mũi tên + Enter/Space) và **Thi thử** (bấm giờ, đánh dấu câu `⚑`, xác nhận trước khi nộp).
   - Hỗ trợ **Luyện theo từng phần**, **Làm lại các câu sai** và lọc **Chỉ hiện câu sai** khi xem lại bài.
   - **Tự động lưu tiến độ** đang làm dở và lịch sử làm bài vào `localStorage` (an toàn cả khi duyệt web riêng tư).
-- **Môn Hóa học & Sinh học**: Tóm tắt lý thuyết trọng tâm và mô phỏng phản ứng / phiên mã tương tác.
+- **Môn Hóa học**: Lý thuyết Ester – Lipid, Carbohydrate, mô phỏng phản ứng và **10 bộ bài tập/đề kiểm tra** (280 câu) dạng PDF + DOCX.
+- **Môn Sinh học**: Tóm tắt lý thuyết trọng tâm và mô phỏng phiên mã tương tác.
 
 ## Lưu ý về tài khoản
 Trang là web tĩnh (GitHub Pages) nên tài khoản, tiến độ và lịch sử làm bài được lưu trong `localStorage` của từng trình duyệt, không đồng bộ giữa các thiết bị. Đây là lớp bảo vệ giao diện, không thay thế hệ thống đăng nhập máy chủ. Không dùng mật khẩu quan trọng và hãy đổi mật khẩu admin mặc định ngay sau lần đăng nhập đầu tiên.
