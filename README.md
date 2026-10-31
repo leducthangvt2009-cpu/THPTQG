@@ -15,4 +15,4 @@
 ## Lưu ý về tài khoản
 Trang là web tĩnh (GitHub Pages) nên tài khoản, tiến độ và lịch sử làm bài được lưu trong `localStorage` của từng trình duyệt, không đồng bộ giữa các thiết bị. Đây là lớp bảo vệ giao diện, không thay thế hệ thống đăng nhập máy chủ. Không dùng mật khẩu quan trọng và hãy đổi mật khẩu admin mặc định ngay sau lần đăng nhập đầu tiên.
 
-> Cập nhật: đã sửa lỗi hiển thị mũi tên và chỉ số trên/dưới trong công thức Hóa học.
+> Cập nhật: đã sửa lỗi hiển thị công thức Hóa học và bổ sung 10 bộ bài tập/đề kiểm tra (280 câu) tại trang Bài tập Hóa học 12.
