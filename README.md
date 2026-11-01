@@ -9,10 +9,10 @@
   - Chế độ **Luyện tập** (chấm và giải thích ngay sau mỗi câu, hỗ trợ điều hướng bằng phím mũi tên + Enter/Space) và **Thi thử** (bấm giờ, đánh dấu câu `⚑`, xác nhận trước khi nộp).
   - Hỗ trợ **Luyện theo từng phần**, **Làm lại các câu sai** và lọc **Chỉ hiện câu sai** khi xem lại bài.
   - **Tự động lưu tiến độ** đang làm dở và lịch sử làm bài vào `localStorage` (an toàn cả khi duyệt web riêng tư).
-- **Môn Hóa học**: Lý thuyết Ester – Lipid, Carbohydrate, mô phỏng phản ứng và **10 bộ bài tập/đề kiểm tra** (280 câu) dạng PDF + DOCX.
+- **Môn Hóa học**: Lý thuyết Ester – Lipid, Carbohydrate, mô phỏng phản ứng, **10 bộ bài tập/đề kiểm tra** (280 câu) dạng PDF + DOCX và **11 đề thi tương tác** (308 câu) có chấm điểm, đếm giờ, lời giải chi tiết, lưu tiến độ/lịch sử.
 - **Môn Sinh học**: Tóm tắt lý thuyết trọng tâm và mô phỏng phiên mã tương tác.
 
 ## Lưu ý về tài khoản
 Trang là web tĩnh (GitHub Pages) nên tài khoản, tiến độ và lịch sử làm bài được lưu trong `localStorage` của từng trình duyệt, không đồng bộ giữa các thiết bị. Đây là lớp bảo vệ giao diện, không thay thế hệ thống đăng nhập máy chủ. Không dùng mật khẩu quan trọng và hãy đổi mật khẩu admin mặc định ngay sau lần đăng nhập đầu tiên.
 
-> Cập nhật: đã sửa lỗi hiển thị công thức Hóa học và bổ sung 10 bộ bài tập/đề kiểm tra (280 câu) tại trang Bài tập Hóa học 12.
+> Cập nhật: đã sửa lỗi hiển thị công thức Hóa học, bổ sung 10 bộ bài tập/đề kiểm tra (280 câu) tại trang Bài tập Hóa học 12 và 11 đề thi tương tác (308 câu) tại trang Đề thi Hóa 12.
