@@ -1,6 +1,6 @@
 # Ôn tập THPT (Cờ Tỷ Phú Edition)
 
-Ứng dụng web hỗ trợ ôn tập THPT môn Tiếng Anh, Hóa học và Sinh học với giao diện lấy cảm hứng từ bàn cờ Tỷ Phú (Monopoly).
+Ứng dụng web hỗ trợ ôn tập THPT môn Tiếng Anh và Hóa học với giao diện lấy cảm hứng từ bàn cờ Tỷ Phú (Monopoly).
 
 ## Tính năng
 - **Đăng nhập / Đăng ký**: hỗ trợ Firebase Authentication (email/mật khẩu + Google) khi đã cấu hình; tự động quay về đăng nhập cục bộ SHA-256 khi chưa có Firebase. Hướng dẫn bật Firebase nằm trong `SETUP.md`.
@@ -12,7 +12,6 @@
   - **Tự động lưu tiến độ** đang làm dở và lịch sử làm bài; đồng bộ tiến trình lên Firestore khi đăng nhập Firebase.
   - **Bảng xếp hạng riêng từng đề và từng chế độ** (Thi thử / Luyện tập), lưu điểm cao nhất theo tài khoản.
 - **Môn Hóa học**: Lý thuyết Ester – Lipid, Carbohydrate, mô phỏng phản ứng, **10 bộ bài tập/đề kiểm tra** (280 câu) dạng PDF + DOCX và **11 đề thi tương tác** (308 câu) có chấm điểm, đếm giờ, lời giải chi tiết, lưu tiến trình/lịch sử và **bảng xếp hạng riêng từng đề**.
-- **Môn Sinh học**: Tóm tắt lý thuyết trọng tâm và mô phỏng phiên mã tương tác.
 
 ## Lưu ý về tài khoản
 - Khi chưa cấu hình Firebase, tài khoản, tiến trình, lịch sử và bảng xếp hạng được lưu trong `localStorage` của từng trình duyệt.
