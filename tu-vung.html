@@ -9,8 +9,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=20261102a">
   <link rel="stylesheet" href="css/vocab.css">
+  <link rel="stylesheet" href="css/background.css?v=20261102c">
+  <script>
+    (function () {
+      try {
+        var k = localStorage.getItem('ontap:bg');
+        if (k === 'off' || (!k && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+          document.documentElement.setAttribute('data-bg', 'off');
+        }
+      } catch (e) { /* bo qua */ }
+    })();
+  </script>
 </head>
-<body>
+<body data-bg-theme="tu-vung">
+  <div id="bg-scene" aria-hidden="true">
+    <div class="bg-aurora bg-aurora-a"></div>
+    <div class="bg-aurora bg-aurora-b"></div>
+    <div class="bg-aurora bg-aurora-c"></div>
+    <canvas id="bg-canvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="bg-vignette"></div>
+  </div>
 
 <header class="site-header" id="site-header">
   <div class="header-inner">
@@ -733,5 +752,6 @@
   renderQuiz();
 })();
 </script>
+  <script src="js/background.js?v=20261102c"></script>
 </body>
 </html>

@@ -1,0 +1,225 @@
+/* ==========================================================================
+   Nền tương tác "Bàn cờ sống"
+   --------------------------------------------------------------------------
+   - Lớp aurora CSS chuyển động rất chậm.
+   - Canvas vẽ hạt sáng + token pixel (xúc xắc, nhà, khách sạn, xu, sao).
+   - Tương tác chuột/chạm: đẩy nhẹ token, gợn sóng khi chạm vùng trống.
+   - Tự dừng khi vào phòng thi, khi chuyển tab hoặc khi người dùng tắt.
+   - Tôn trọng prefers-reduced-motion.
+   ========================================================================== */
+
+html { background: var(--bg); }
+
+#bg-scene {
+  --bg-aurora-1: rgba(31, 138, 59, 0.34);
+  --bg-aurora-2: rgba(245, 184, 0, 0.28);
+  --bg-aurora-3: rgba(27, 74, 165, 0.20);
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 620px at 18% 0%, rgba(255, 255, 255, 0.60), transparent 62%),
+    linear-gradient(180deg, rgba(244, 250, 245, 0.10), rgba(244, 250, 245, 0.02));
+  transition: opacity 0.6s ease;
+}
+
+html[data-bg="off"] #bg-scene { display: none; }
+
+/* Nội dung luôn nằm trên nền. Header đã có z-index riêng. */
+body > main,
+body > footer { position: relative; z-index: 1; }
+
+/* Hero trang chủ trong suốt vừa phải để thấy nền sống phía sau. */
+body .hero-wrap { background-color: rgba(205, 230, 208, 0.42); }
+
+/* ---------- Aurora ---------- */
+.bg-aurora {
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.62;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  pointer-events: none;
+}
+.bg-aurora-a {
+  top: -24vmax;
+  left: -14vmax;
+  background: radial-gradient(circle, var(--bg-aurora-1) 0%, transparent 66%);
+  animation: bgFloatA 30s ease-in-out infinite alternate;
+}
+.bg-aurora-b {
+  right: -20vmax;
+  top: 6vmax;
+  background: radial-gradient(circle, var(--bg-aurora-2) 0%, transparent 68%);
+  animation: bgFloatB 37s ease-in-out infinite alternate;
+}
+.bg-aurora-c {
+  left: 18vmax;
+  bottom: -30vmax;
+  background: radial-gradient(circle, var(--bg-aurora-3) 0%, transparent 70%);
+  animation: bgFloatC 34s ease-in-out infinite alternate;
+}
+
+@keyframes bgFloatA {
+  from { transform: translate3d(-3%, -2%, 0) scale(1); }
+  to   { transform: translate3d(9%, 7%, 0) scale(1.14); }
+}
+@keyframes bgFloatB {
+  from { transform: translate3d(2%, -1%, 0) scale(1.04); }
+  to   { transform: translate3d(-8%, 8%, 0) scale(0.92); }
+}
+@keyframes bgFloatC {
+  from { transform: translate3d(-2%, 3%, 0) scale(0.96); }
+  to   { transform: translate3d(7%, -7%, 0) scale(1.10); }
+}
+
+/* ---------- Canvas + lưới bàn cờ ---------- */
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.96;
+}
+
+.bg-grid {
+  position: absolute;
+  inset: -96px;
+  background-image:
+    linear-gradient(rgba(17, 22, 19, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17, 22, 19, 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 42%, #000 0%, transparent 74%);
+  mask-image: radial-gradient(ellipse at 50% 42%, #000 0%, transparent 74%);
+  animation: bgGridDrift 48s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes bgGridDrift {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(40px, 40px, 0); }
+}
+
+.bg-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 44%, transparent 28%, rgba(244, 250, 245, 0.42) 100%),
+    linear-gradient(180deg, rgba(244, 250, 245, 0.10) 0%, transparent 22%, transparent 78%, rgba(244, 250, 245, 0.32) 100%);
+  pointer-events: none;
+}
+
+/* ---------- Màu theo từng trang ---------- */
+body[data-bg-theme="board"] #bg-scene {
+  --bg-aurora-1: rgba(31, 138, 59, 0.34);
+  --bg-aurora-2: rgba(245, 184, 0, 0.30);
+  --bg-aurora-3: rgba(217, 35, 42, 0.13);
+}
+body[data-bg-theme="anh"] #bg-scene {
+  --bg-aurora-1: rgba(27, 74, 165, 0.30);
+  --bg-aurora-2: rgba(245, 184, 0, 0.24);
+  --bg-aurora-3: rgba(31, 138, 59, 0.16);
+}
+body[data-bg-theme="tu-vung"] #bg-scene {
+  --bg-aurora-1: rgba(217, 35, 42, 0.26);
+  --bg-aurora-2: rgba(245, 184, 0, 0.30);
+  --bg-aurora-3: rgba(27, 74, 165, 0.16);
+}
+body[data-bg-theme="hoa"] #bg-scene {
+  --bg-aurora-1: rgba(31, 138, 59, 0.36);
+  --bg-aurora-2: rgba(245, 184, 0, 0.28);
+  --bg-aurora-3: rgba(27, 74, 165, 0.14);
+}
+body[data-bg-theme="sinh"] #bg-scene {
+  --bg-aurora-1: rgba(245, 184, 0, 0.28);
+  --bg-aurora-2: rgba(31, 138, 59, 0.30);
+  --bg-aurora-3: rgba(217, 35, 42, 0.14);
+}
+
+/* ---------- Nút bật/tắt ---------- */
+.bg-toggle {
+  position: fixed;
+  right: calc(1rem + env(safe-area-inset-right, 0px));
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0.45rem 0.8rem;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 3px 3px 0 var(--shadow);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.88;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease, background 0.12s ease;
+}
+.bg-toggle:hover {
+  opacity: 1;
+  background: var(--mono-gold);
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+.bg-toggle:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--shadow);
+}
+.bg-toggle-dot {
+  width: 0.62rem;
+  height: 0.62rem;
+  flex-shrink: 0;
+  background: var(--mono-gold);
+  border: 1.5px solid var(--line);
+  box-shadow: 1px 1px 0 var(--line);
+}
+html[data-bg="off"] .bg-toggle-dot { background: var(--line-soft); }
+
+/* ---------- Chế độ thi: nền tĩnh, không phân tâm ---------- */
+body.exam-active #bg-scene { opacity: 0.58; }
+body.exam-active #bg-canvas { opacity: 0; transition: opacity 0.35s ease; }
+body.exam-active .bg-aurora { animation-play-state: paused; }
+body.exam-active .bg-grid { animation-play-state: paused; }
+body.exam-active .bg-toggle { display: none; }
+
+/* ---------- Điện thoại ---------- */
+@media (max-width: 720px) {
+  .bg-aurora { filter: blur(54px); opacity: 0.52; }
+  .bg-grid { background-size: 32px 32px; }
+  .bg-toggle {
+    right: calc(0.7rem + env(safe-area-inset-right, 0px));
+    bottom: calc(0.7rem + env(safe-area-inset-bottom, 0px));
+    min-height: 36px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.6rem;
+  }
+}
+@media (max-width: 420px) {
+  .bg-toggle-label { display: none; }
+  .bg-toggle::after { content: "NỀN"; font: inherit; letter-spacing: 0.06em; }
+  html[data-bg="off"] .bg-toggle::after { content: "BẬT"; }
+}
+
+/* ---------- Giảm chuyển động ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-bg="on"]) #bg-scene .bg-aurora,
+  html:not([data-bg="on"]) #bg-scene .bg-grid { animation: none !important; }
+}
+
+/* ---------- In ấn ---------- */
+@media print {
+  #bg-scene,
+  .bg-toggle { display: none !important; }
+}
