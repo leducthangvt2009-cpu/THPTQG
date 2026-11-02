@@ -39,6 +39,8 @@
   var state = null;
   var timer = null;
   var scrollTick = false;
+  var lbDe = H.meta.length ? H.meta[0].id : 'de8';
+  var lbMode = 'thi';
 
   /* ---------- Tiện ích ---------- */
   function qs(sel, root) { return (root || document).querySelector(sel); }
@@ -100,6 +102,90 @@
   }
 
   function pKey(id, mode) { return 'hoaExam:v1:progress:' + id + ':' + mode; }
+  function cloudCategory(id, mode) { return 'hoa:' + id + ':' + mode; }
+
+  function cloudApi() { return g.OntapCloud || null; }
+
+  function submitCloudScore() {
+    var c = cloudApi();
+    if (!state || !state.result || !c || typeof c.submitScore !== 'function') return;
+    var identityKey;
+    if (c.status && c.status().mode === 'firebase') {
+      var u = c.currentUser && c.currentUser();
+      identityKey = u ? u.uid : 'signed-out';
+    } else {
+      var localId = c.localIdentity && c.localIdentity();
+      identityKey = localId ? localId.uid : 'local';
+    }
+    if (state.scoreKey === identityKey) return;
+    state.scoreKey = identityKey;
+
+    var r = state.result;
+    var percent = r.max ? Math.round(r.total / r.max * 10000) / 100 : 0;
+    var correct = 0, total = 0;
+    ['mcq', 'tf', 'short'].forEach(function (k) {
+      correct += r[k].correct;
+      total += r[k].total;
+    });
+    Promise.resolve(c.submitScore(cloudCategory(state.id, state.mode), {
+      score: r.total,
+      max: r.max,
+      percent: percent,
+      correct: correct,
+      total: total,
+      timeSec: r.usedSec,
+      mode: state.mode,
+      modeLabel: MODE[state.mode],
+      examId: state.id,
+      title: state.data.meta.code + ' · ' + state.data.meta.title
+    })).catch(function () { /* không chặn kết quả */ });
+  }
+
+  function syncCloudProgress() {
+    var c = cloudApi();
+    if (!c || typeof c.pullAllProgress !== 'function') return;
+    Promise.resolve(c.pullAllProgress()).then(function (map) {
+      if (!map) return;
+      var changed = false;
+      H.meta.forEach(function (meta) {
+        ['thi', 'luyen'].forEach(function (mode) {
+          var cat = cloudCategory(meta.id, mode);
+          var rec = map[cat];
+          var local = loadProgress(meta.id, mode);
+          var remoteAt = rec ? Number(rec.updatedAt || (rec.payload && rec.payload.updatedAt) || 0) : 0;
+          var localAt = local ? Number(local.updatedAt || 0) : 0;
+          if (rec && rec.payload && remoteAt > localAt) {
+            lsSet(pKey(meta.id, mode), rec.payload);
+            changed = true;
+          } else if (local && localAt > remoteAt && typeof c.saveProgress === 'function') {
+            c.saveProgress(cat, local);
+          }
+        });
+      });
+      if (changed && (!state || (state.phase !== 'room' && state.phase !== 'result'))) renderLanding();
+    }).catch(function () { /* bỏ qua lỗi đồng bộ */ });
+  }
+
+  function restoreCloudProgress() {
+    var c = cloudApi();
+    if (!state || state.phase !== 'room' || !c || typeof c.pullProgress !== 'function' || state.freshStart) return;
+    if (answerStats(state).done > 0 || Object.keys(state.flags || {}).length) return;
+    var id = state.id, mode = state.mode;
+    Promise.resolve(c.pullProgress(cloudCategory(id, mode))).then(function (rec) {
+      if (!rec || !rec.payload || !state || state.phase !== 'room' || state.id !== id || state.mode !== mode || state.freshStart) return;
+      if (answerStats(state).done > 0) return;
+      var remoteAt = Number(rec.updatedAt || 0);
+      var localAt = Number(state.cloudBaseAt || 0);
+      if (remoteAt <= localAt) return;
+      var restored = mergeSaved(makeState(H.byId(id), mode), rec.payload);
+      restored.phase = 'room';
+      restored.freshStart = false;
+      restored.scoreKey = '';
+      state = restored;
+      saveProgress();
+      renderRoom(true);
+    }).catch(function () { /* bỏ qua */ });
+  }
 
   /* ---------- Dữ liệu và trạng thái ---------- */
   function dataOf(meta) {
@@ -182,14 +268,21 @@
   function saveProgress() {
     if (!state) return;
     state.updatedAt = Date.now();
-    lsSet(pKey(state.id, state.mode), {
+    var payload = {
       v: 1, id: state.id, mode: state.mode,
       answers: state.answers, flags: state.flags, checked: state.checked,
       startedAt: state.startedAt, deadline: state.deadline, updatedAt: state.updatedAt
-    });
+    };
+    lsSet(pKey(state.id, state.mode), payload);
+    var c = cloudApi();
+    if (c && typeof c.saveProgress === 'function') c.saveProgress(cloudCategory(state.id, state.mode), payload);
   }
 
-  function removeProgress(id, mode) { lsDel(pKey(id, mode)); }
+  function removeProgress(id, mode) {
+    lsDel(pKey(id, mode));
+    var c = cloudApi();
+    if (c && typeof c.deleteProgress === 'function') c.deleteProgress(cloudCategory(id, mode));
+  }
 
   function answerStats(s) {
     var done = 0, total = 0;
@@ -642,6 +735,9 @@
     mode = (mode === 'luyen') ? 'luyen' : 'thi';
     var saved = opts.fresh ? null : loadProgress(id, mode);
     var s = mergeSaved(makeState(meta, mode), saved);
+    s.freshStart = !!opts.fresh;
+    s.scoreKey = '';
+    s.cloudBaseAt = saved ? Number(saved.updatedAt || 0) : 0;
     state = s;
     state.phase = 'room';
     if (opts.fresh) removeProgress(id, mode);
@@ -651,6 +747,7 @@
         location.pathname + '?de=' + encodeURIComponent(id) + '&mode=' + mode);
     } catch (e) { /* bỏ qua */ }
     renderRoom(!!saved);
+    restoreCloudProgress();
   }
 
   /* ---------- Chấm điểm và kết quả ---------- */
@@ -733,6 +830,7 @@
     pushHistory();
     removeProgress(state.id, state.mode);
     state.phase = 'result';
+    submitCloudScore();
     renderResult();
   }
 
@@ -792,6 +890,7 @@
       + '<button type="button" class="btn" data-act="retry">Làm lại đề này</button>'
       + '<a class="btn ghost" href="hoa-de-thi.html">Về danh sách đề</a>'
       + '<button type="button" class="btn ghost" data-act="print">In kết quả</button></div>'
+      + '<div id="hoaResultLeaderboard" class="result-lb-wrap"></div>'
       + '<div class="review-head"><h2>Xem lại bài làm</h2><div class="filter-row">'
       + '<button type="button" class="filter-btn on" data-act="filter" data-filter="all">Tất cả</button>'
       + '<button type="button" class="filter-btn" data-act="filter" data-filter="right">Đúng</button>'
@@ -799,6 +898,15 @@
       + '<button type="button" class="filter-btn" data-act="filter" data-filter="empty">Bỏ trống</button>'
       + '</div></div><div id="reviewList">' + reviewSection('mcq') + reviewSection('tf') + reviewSection('short')
       + '</div><div class="review-empty" id="reviewEmpty">Không có câu nào trong nhóm này.</div></div>';
+    var lbHost = qs('#hoaResultLeaderboard');
+    var c = cloudApi();
+    if (lbHost && c && typeof c.mountLeaderboard === 'function') {
+      c.mountLeaderboard(lbHost, cloudCategory(state.id, state.mode), {
+        title: 'Bảng xếp hạng · ' + meta.code + ' · ' + meta.title,
+        subtitle: MODE[state.mode] + ' · ' + score2(r.total) + '/' + num(r.max, 2) + ' điểm',
+        limit: 10
+      });
+    }
     applyFilter('all');
     clearSelection();
     jumpTop();
@@ -854,7 +962,7 @@
     return '<div class="exam-hero"><div><span class="tag">HÓA 12 · ĐỀ TƯƠNG TÁC</span>'
       + '<h2>Luyện đề Hóa 12 như thi thật</h2>'
       + '<p>10 bộ đề chính và 1 đề chuyên, bám sát cấu trúc giữa học kì 1: trắc nghiệm, đúng/sai và trả lời ngắn. '
-      + 'Thi thử có đếm ngược; luyện tập chấm ngay từng câu kèm lời giải. Tiến độ và lịch sử được lưu trên thiết bị.</p>'
+      + 'Thi thử có đếm ngược; luyện tập chấm ngay từng câu kèm lời giải. Tiến trình được lưu tự động và đồng bộ khi đăng nhập.</p>'
       + '<div class="kpis"><span><b>10</b> đề chính</span><span><b>+1</b> đề chuyên</span>'
       + '<span>Đáp án đã đối chiếu</span><span>Tự động lưu bài</span></div></div>'
       + '<div class="exam-hero-stats">'
@@ -953,6 +1061,33 @@
       + 'Đề Hồ Thị Hải có thời gian 45 phút; các đề còn lại 50 phút.</p>';
   }
 
+  function leaderboardSectionHTML() {
+    var options = H.meta.map(function (meta) {
+      return '<option value="' + meta.id + '"' + (meta.id === lbDe ? ' selected' : '') + '>'
+        + esc(meta.code + ' · ' + meta.title) + '</option>';
+    }).join('');
+    return '<section class="exam-lb-section"><h2 class="h2-rule">Bảng xếp hạng theo đề</h2>'
+      + '<p class="exam-lb-lead">Mỗi đề và mỗi chế độ có bảng riêng. Điểm cao nhất của mỗi tài khoản được giữ lại; '
+      + 'đăng nhập Firebase để thi đấu trên mọi thiết bị.</p>'
+      + '<div class="lb-picker"><label>Chọn đề<select id="lbExamSelect">' + options + '</select></label>'
+      + '<label>Chế độ<select id="lbModeSelect">'
+      + '<option value="thi"' + (lbMode === 'thi' ? ' selected' : '') + '>Thi thử</option>'
+      + '<option value="luyen"' + (lbMode === 'luyen' ? ' selected' : '') + '>Luyện tập</option>'
+      + '</select></label></div><div id="hoaLeaderboard"></div></section>';
+  }
+
+  function mountHoaLeaderboard() {
+    var host = qs('#hoaLeaderboard');
+    var c = cloudApi();
+    var meta = H.byId(lbDe);
+    if (!host || !c || typeof c.mountLeaderboard !== 'function' || !meta) return;
+    c.mountLeaderboard(host, cloudCategory(lbDe, lbMode), {
+      title: 'Bảng xếp hạng · ' + meta.code + ' · ' + meta.title,
+      subtitle: MODE[lbMode] + ' · điểm cao nhất của mỗi tài khoản',
+      limit: 10
+    });
+  }
+
   function renderLanding() {
     stopTimer();
     document.body.classList.remove('exam-active');
@@ -966,7 +1101,9 @@
     result.innerHTML = '';
     var saved = savedList();
     qs('#examLanding').innerHTML = heroHTML() + modeInfoHTML()
-      + (saved.length ? savedHTML(saved) : '') + sectionsHTML() + historyHTML() + scoringHTML();
+      + (saved.length ? savedHTML(saved) : '') + sectionsHTML()
+      + leaderboardSectionHTML() + historyHTML() + scoringHTML();
+    mountHoaLeaderboard();
     clearSelection();
     jumpTop();
   }
@@ -1108,6 +1245,17 @@
     updateBottom();
   }
 
+  function onChange(e) {
+    if (!e.target) return;
+    if (e.target.id === 'lbExamSelect') {
+      lbDe = H.byId(e.target.value) ? e.target.value : lbDe;
+      mountHoaLeaderboard();
+    } else if (e.target.id === 'lbModeSelect') {
+      lbMode = e.target.value === 'luyen' ? 'luyen' : 'thi';
+      mountHoaLeaderboard();
+    }
+  }
+
   function onScroll() {
     if (scrollTick || !state || state.phase !== 'room') return;
     scrollTick = true;
@@ -1131,14 +1279,43 @@
     });
   }
 
+  function flushCloudProgress() {
+    var c = cloudApi();
+    if (!state || !c || typeof c.flushProgress !== 'function') return;
+    Promise.resolve(c.flushProgress(cloudCategory(state.id, state.mode))).catch(function () { /* bỏ qua */ });
+  }
+
   function init() {
     document.addEventListener('click', onClick);
     document.addEventListener('input', onInput);
+    document.addEventListener('change', onChange);
+    g.addEventListener('pagehide', function () {
+      if (state && state.phase === 'room') { saveProgress(); flushCloudProgress(); }
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden' && state && state.phase === 'room') flushCloudProgress();
+    });
     document.addEventListener('click', function (e) {
       var d = qs('#paletteDialog');
       if (d && d.open && e.target === d) d.close();
     });
     g.addEventListener('scroll', onScroll, { passive: true });
+
+    var c = cloudApi();
+    if (c && typeof c.onAuthChange === 'function') {
+      c.onAuthChange(function () {
+        if (state && state.phase === 'result') submitCloudScore();
+        syncCloudProgress();
+        if (state && state.phase === 'room') restoreCloudProgress();
+      });
+    }
+    g.addEventListener('ontap:authchange', function () {
+      if (state && state.phase === 'result') submitCloudScore();
+      syncCloudProgress();
+      if (state && state.phase === 'room') restoreCloudProgress();
+    });
+    if (c && c.ready && typeof c.ready.then === 'function') c.ready.then(syncCloudProgress);
+
     var params = new URLSearchParams(location.search);
     var de = params.get('de');
     var mode = params.get('mode') === 'luyen' ? 'luyen' : 'thi';

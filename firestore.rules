@@ -1,8 +1,49 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Hồ sơ + tiến trình riêng của từng tài khoản.
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Bảng xếp hạng công khai, mỗi đề/chế độ là một category riêng.
+    // Mỗi người chỉ được ghi đúng entry của mình và phải giữ uid khớp.
+    match /leaderboards/{category}/entries/{userId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId
+        && request.resource.data.percent is number
+        && request.resource.data.percent >= 0
+        && request.resource.data.percent <= 100
+        && request.resource.data.score is number
+        && request.resource.data.score >= 0
+        && request.resource.data.max is number
+        && request.resource.data.max > 0
+        && request.resource.data.timeSec is number
+        && request.resource.data.timeSec >= 0
+        && request.resource.data.nickname is string
+        && request.resource.data.nickname.size() >= 1
+        && request.resource.data.nickname.size() <= 30;
+
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId
+        && request.resource.data.percent is number
+        && request.resource.data.percent >= 0
+        && request.resource.data.percent <= 100
+        && request.resource.data.score is number
+        && request.resource.data.score >= 0
+        && request.resource.data.max is number
+        && request.resource.data.max > 0
+        && request.resource.data.timeSec is number
+        && request.resource.data.timeSec >= 0
+        && request.resource.data.nickname is string
+        && request.resource.data.nickname.size() >= 1
+        && request.resource.data.nickname.size() <= 30;
+
+      allow delete: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

@@ -3,16 +3,20 @@
 Ứng dụng web hỗ trợ ôn tập THPT môn Tiếng Anh, Hóa học và Sinh học với giao diện lấy cảm hứng từ bàn cờ Tỷ Phú (Monopoly).
 
 ## Tính năng
-- **Đăng nhập / Đăng ký**: mật khẩu được băm SHA-256 kèm salt riêng, phiên đăng nhập có hạn 7 ngày và tự động nâng cấp mật khẩu cũ. Tài khoản admin mặc định `admin@gmail.com` / `admin123` sẽ buộc đổi mật khẩu ở lần đăng nhập đầu tiên.
+- **Đăng nhập / Đăng ký**: hỗ trợ Firebase Authentication (email/mật khẩu + Google) khi đã cấu hình; tự động quay về đăng nhập cục bộ SHA-256 khi chưa có Firebase. Hướng dẫn bật Firebase nằm trong `SETUP.md`.
 - **Giao diện Cờ Tỷ Phú (Monopoly Theme)**: Tông màu xanh bàn cờ (`#cde6d0`), đỏ Monopoly (`#d9232a`) và vàng kim (`#f5b800`), thẻ môn học thiết kế dạng Bằng khoán (Title Deed).
 - **Môn Tiếng Anh (6 đề · 290 câu · 7 phần mỗi đề)**:
   - Chế độ **Luyện tập** (chấm và giải thích ngay sau mỗi câu, hỗ trợ điều hướng bằng phím mũi tên + Enter/Space) và **Thi thử** (bấm giờ, đánh dấu câu `⚑`, xác nhận trước khi nộp).
   - Hỗ trợ **Luyện theo từng phần**, **Làm lại các câu sai** và lọc **Chỉ hiện câu sai** khi xem lại bài.
-  - **Tự động lưu tiến độ** đang làm dở và lịch sử làm bài vào `localStorage` (an toàn cả khi duyệt web riêng tư).
-- **Môn Hóa học**: Lý thuyết Ester – Lipid, Carbohydrate, mô phỏng phản ứng, **10 bộ bài tập/đề kiểm tra** (280 câu) dạng PDF + DOCX và **11 đề thi tương tác** (308 câu) có chấm điểm, đếm giờ, lời giải chi tiết, lưu tiến độ/lịch sử.
+  - **Tự động lưu tiến độ** đang làm dở và lịch sử làm bài; đồng bộ tiến trình lên Firestore khi đăng nhập Firebase.
+  - **Bảng xếp hạng riêng từng đề và từng chế độ** (Thi thử / Luyện tập), lưu điểm cao nhất theo tài khoản.
+- **Môn Hóa học**: Lý thuyết Ester – Lipid, Carbohydrate, mô phỏng phản ứng, **10 bộ bài tập/đề kiểm tra** (280 câu) dạng PDF + DOCX và **11 đề thi tương tác** (308 câu) có chấm điểm, đếm giờ, lời giải chi tiết, lưu tiến trình/lịch sử và **bảng xếp hạng riêng từng đề**.
 - **Môn Sinh học**: Tóm tắt lý thuyết trọng tâm và mô phỏng phiên mã tương tác.
 
 ## Lưu ý về tài khoản
-Trang là web tĩnh (GitHub Pages) nên tài khoản, tiến độ và lịch sử làm bài được lưu trong `localStorage` của từng trình duyệt, không đồng bộ giữa các thiết bị. Đây là lớp bảo vệ giao diện, không thay thế hệ thống đăng nhập máy chủ. Không dùng mật khẩu quan trọng và hãy đổi mật khẩu admin mặc định ngay sau lần đăng nhập đầu tiên.
+- Khi chưa cấu hình Firebase, tài khoản, tiến trình, lịch sử và bảng xếp hạng được lưu trong `localStorage` của từng trình duyệt.
+- Khi đã điền `js/firebase-config.js` và publish `firestore.rules`, tài khoản dùng Firebase Auth; tiến trình và điểm xếp hạng được đồng bộ giữa các thiết bị.
+- Điểm xếp hạng hiện được gửi từ trình duyệt, phù hợp cho lớp học/tự ôn; nếu cần chống gian lận tuyệt đối hãy chuyển chấm điểm sang Cloud Functions.
+- Không dùng mật khẩu quan trọng và không đặt khóa bí mật trong mã nguồn công khai.
 
-> Cập nhật: đã sửa lỗi hiển thị công thức Hóa học, bổ sung 10 bộ bài tập/đề kiểm tra (280 câu) tại trang Bài tập Hóa học 12 và 11 đề thi tương tác (308 câu) tại trang Đề thi Hóa 12.
+> Cập nhật: đã sửa lỗi hiển thị công thức Hóa học, bổ sung 10 bộ bài tập/đề kiểm tra (280 câu) tại trang Bài tập Hóa học 12 và 11 đề thi tương tác (308 câu) tại trang Đề thi Hóa 12. Đã thêm Firebase Auth, đồng bộ tiến trình và bảng xếp hạng riêng từng đề (11 đề Hóa + 6 đề Tiếng Anh).

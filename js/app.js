@@ -34,6 +34,24 @@
     }
   };
 
+  /* Lớp mây dùng chung: Firebase khi có cấu hình, local khi chưa cấu hình. */
+  function cloudApi() { return window.OntapCloud || null; }
+  function cloudConfigured() {
+    var c = cloudApi();
+    return !!(c && typeof c.isConfigured === 'function' && c.isConfigured());
+  }
+  function cloudManaged() {
+    var c = cloudApi();
+    if (!c || typeof c.status !== 'function') return false;
+    var s = c.status();
+    return !!(s.configured && s.mode !== 'local');
+  }
+  function notifyAuthChange() {
+    try {
+      window.dispatchEvent(new CustomEvent('ontap:authchange', { detail: getCurrentUser() }));
+    } catch (e) { /* bỏ qua */ }
+  }
+
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
   function mmss(s) {
     var sec = Math.max(0, parseInt(s, 10) || 0);
@@ -205,6 +223,8 @@
   }
 
   function getCurrentUser() {
+    var c = cloudApi();
+    if (cloudManaged() && c && typeof c.currentUser === 'function') return c.currentUser() || null;
     var sess = getCurrentSession();
     if (!sess || !sess.email) return null;
     var users = getUsers();
@@ -242,6 +262,11 @@
   }
 
   function renderAdminSection() {
+    if (cloudManaged()) {
+      var cloudAdminBox = $('#admin-user-manager');
+      if (cloudAdminBox) cloudAdminBox.remove();
+      return;
+    }
     var user = getCurrentUser();
     var isAdm = user && (user.role === 'admin' || isAdminEmail(user.email));
     var existing = $('#admin-user-manager');
@@ -368,9 +393,10 @@
   function openAuthModal() {
     var d = ensureAuthDialog();
     var user = getCurrentUser();
+    var isCloud = cloudManaged();
 
     if (user) {
-      if (user.mustChangePass) {
+      if (user.mustChangePass && !isCloud) {
         try { d.close(); } catch (e) {}
         openChangePassDialog(user);
         return;
@@ -383,9 +409,10 @@
           '<button type="button" class="auth-close" id="auth-close-btn">✕</button>' +
         '</div>' +
         '<div class="auth-body">' +
-          '<div class="auth-field"><label>Tài khoản Gmail</label><input type="text" value="' + esc(user.email) + '" disabled></div>' +
+          '<div class="auth-field"><label>' + (isCloud ? 'Email' : 'Tài khoản Gmail') + '</label><input type="text" value="' + esc(user.email) + '" disabled></div>' +
           '<div class="auth-field"><label>Biệt danh hiển thị</label><input type="text" id="prof-nickname" value="' + esc(user.nickname) + '" maxlength="28"></div>' +
           '<p class="auth-msg ok" id="prof-msg" hidden></p>' +
+          (isCloud ? '<p class="auth-status">Tài khoản Firebase · tiến trình và điểm xếp hạng được đồng bộ khi có mạng.</p>' : '') +
           '<div class="btn-row" style="justify-content:space-between;margin-top:.25rem">' +
             '<button type="button" class="btn small" id="btn-save-nick">Lưu biệt danh</button>' +
             '<button type="button" class="btn small ghost" id="btn-logout">Đăng xuất</button>' +
@@ -393,30 +420,59 @@
         '</div>';
 
       $('#auth-close-btn', d).onclick = function () { d.close(); };
-      $('#btn-save-nick', d).onclick = function () {
+      $('#btn-save-nick', d).onclick = async function () {
         var newNick = ($('#prof-nickname', d).value || '').trim();
         var msg = $('#prof-msg', d);
-        if (newNick.length < 2) {
-          msg.textContent = 'Biệt danh cần ít nhất 2 ký tự.';
-          msg.className = 'auth-msg err';
+        var saveBtn = $('#btn-save-nick', d);
+        function show(msgText, ok) {
+          msg.textContent = msgText;
+          msg.className = 'auth-msg ' + (ok ? 'ok' : 'err');
           msg.hidden = false;
+        }
+        if (newNick.length < 2) { show('Biệt danh cần ít nhất 2 ký tự.', false); return; }
+
+        if (isCloud) {
+          var c = cloudApi();
+          if (!c) return;
+          saveBtn.disabled = true;
+          try {
+            await c.updateNickname(newNick);
+            show('✓ Đã cập nhật biệt danh thành công!', true);
+            updateNavbarAuth();
+          } catch (e) {
+            show(c.errorMessage ? c.errorMessage(e) : 'Không cập nhật được biệt danh.', false);
+          } finally {
+            saveBtn.disabled = false;
+          }
           return;
         }
+
         var users = getUsers();
         users.forEach(function (u) { if (u.email === user.email) u.nickname = newNick; });
         saveUsers(users);
-        msg.textContent = '✓ Đã cập nhật biệt danh thành công!';
-        msg.className = 'auth-msg ok';
-        msg.hidden = false;
+        show('✓ Đã cập nhật biệt danh thành công!', true);
         updateNavbarAuth();
         renderAdminSection();
+        notifyAuthChange();
       };
       $('#btn-logout', d).onclick = function () {
+        if (isCloud) {
+          var c = cloudApi();
+          var logoutBtn = $('#btn-logout', d);
+          if (logoutBtn) logoutBtn.disabled = true;
+          Promise.resolve(c && c.signOut()).catch(function () {}).then(function () {
+            d.close();
+            updateNavbarAuth();
+            renderAdminSection();
+          });
+          return;
+        }
         store.del(SESSION_KEY);
         store.del(LEGACY_SESSION_KEY);
         d.close();
         updateNavbarAuth();
         renderAdminSection();
+        notifyAuthChange();
       };
 
       if (typeof d.showModal === 'function') d.showModal();
@@ -429,6 +485,13 @@
 
   function renderAuthForms(d, tab) {
     var isLogin = tab === 'login';
+    var isCloud = cloudManaged();
+    var authNote = isCloud
+      ? 'Bảo mật bởi Firebase Authentication · dùng được trên nhiều thiết bị.'
+      : (cloudConfigured()
+        ? 'Firebase chưa tải được, đang dùng đăng nhập cục bộ trên thiết bị này.'
+        : 'Đăng nhập cục bộ trên thiết bị · điền js/firebase-config.js để bật đồng bộ.');
+
     d.innerHTML =
       '<div class="auth-head">' +
         '<strong>' + (isLogin ? 'Đăng nhập tài khoản' : 'Đăng ký tài khoản mới') + '</strong>' +
@@ -440,35 +503,112 @@
       '</div>' +
       '<form class="auth-body" id="auth-form">' +
         (!isLogin ? '<div class="auth-field"><label>Biệt danh của bạn</label><input type="text" id="auth-nick" placeholder="VD: LEGIT" required maxlength="28"></div>' : '') +
-        '<div class="auth-field"><label>Tài khoản Gmail</label><input type="email" id="auth-email" placeholder="tenban@gmail.com" required></div>' +
+        '<div class="auth-field"><label>' + (isCloud ? 'Email' : 'Tài khoản Gmail') + '</label><input type="email" id="auth-email" placeholder="tenban@gmail.com" required></div>' +
         '<div class="auth-field"><label>Mật khẩu</label><input type="password" id="auth-pass" placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)" required></div>' +
+        (isCloud && isLogin ? '<button type="button" class="auth-forgot" id="auth-forgot">Quên mật khẩu?</button>' : '') +
         '<p class="auth-msg err" id="auth-err" hidden></p>' +
         '<button type="submit" class="btn" id="auth-submit" style="width:100%">' + (isLogin ? '🎲 Vào bàn cờ ngay' : '✓ Tạo tài khoản') + '</button>' +
-      '</form>';
+      '</form>' +
+      (isCloud
+        ? '<div class="auth-body" style="padding-top:0;gap:.75rem"><div class="auth-or">hoặc</div>' +
+          '<button type="button" class="auth-google" id="auth-google"><span class="auth-google-mark">G</span> Tiếp tục với Google</button></div>'
+        : '') +
+      '<p class="auth-status">' + esc(authNote) + '</p>';
 
     $('#auth-close-btn', d).onclick = function () { d.close(); };
     d.querySelectorAll('[data-tab]').forEach(function (btn) {
       btn.onclick = function () { renderAuthForms(d, btn.getAttribute('data-tab')); };
     });
 
+    function showMsg(txt, ok) {
+      var errEl = $('#auth-err', d);
+      if (!errEl) return;
+      errEl.textContent = txt;
+      errEl.className = 'auth-msg ' + (ok ? 'ok' : 'err');
+      errEl.hidden = false;
+    }
+
+    function closeAfterAuth() {
+      try { d.close(); } catch (e) { /* bỏ qua */ }
+      updateNavbarAuth();
+      renderAdminSection();
+    }
+
+    var googleBtn = $('#auth-google', d);
+    if (googleBtn) {
+      googleBtn.onclick = async function () {
+        var c = cloudApi();
+        if (!c) return;
+        googleBtn.disabled = true;
+        try {
+          await c.signInWithGoogle();
+          closeAfterAuth();
+        } catch (e) {
+          showMsg(c.errorMessage ? c.errorMessage(e) : 'Không đăng nhập được Google.', false);
+          googleBtn.disabled = false;
+        }
+      };
+    }
+
+    var forgotBtn = $('#auth-forgot', d);
+    if (forgotBtn) {
+      forgotBtn.onclick = async function () {
+        var c = cloudApi();
+        var email = ($('#auth-email', d).value || '').trim().toLowerCase();
+        if (!c) return;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showMsg('Nhập email của bạn trước khi đặt lại mật khẩu.', false);
+          return;
+        }
+        forgotBtn.disabled = true;
+        try {
+          await c.resetPassword(email);
+          showMsg('✓ Đã gửi email đặt lại mật khẩu tới ' + email + '.', true);
+        } catch (e) {
+          showMsg(c.errorMessage ? c.errorMessage(e) : 'Không gửi được email đặt lại mật khẩu.', false);
+        } finally {
+          forgotBtn.disabled = false;
+        }
+      };
+    }
+
     $('#auth-form', d).onsubmit = async function (e) {
       e.preventDefault();
       var email = ($('#auth-email', d).value || '').trim().toLowerCase();
       var pass = $('#auth-pass', d).value || '';
-      var errEl = $('#auth-err', d);
       var submitBtn = $('#auth-submit', d);
 
-      function showErr(txt) {
-        errEl.textContent = txt;
-        errEl.hidden = false;
-      }
-
-      if (!/^[a-z0-9._%+-]+@gmail\.com$/i.test(email)) {
-        showErr('Vui lòng sử dụng đúng địa chỉ @gmail.com hợp lệ.');
+      if (isCloud) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showMsg('Vui lòng nhập địa chỉ email hợp lệ.', false);
+          return;
+        }
+      } else if (!/^[a-z0-9._%+-]+@gmail\.com$/i.test(email)) {
+        showMsg('Vui lòng sử dụng đúng địa chỉ @gmail.com hợp lệ.', false);
         return;
       }
       if (pass.length < 6) {
-        showErr('Mật khẩu cần có ít nhất 6 ký tự.');
+        showMsg('Mật khẩu cần có ít nhất 6 ký tự.', false);
+        return;
+      }
+
+      if (isCloud) {
+        var c = cloudApi();
+        if (!c) return;
+        var nick = !isLogin ? ($('#auth-nick', d).value || '').trim() : '';
+        if (!isLogin && nick.length < 2) {
+          showMsg('Biệt danh cần có ít nhất 2 ký tự.', false);
+          return;
+        }
+        submitBtn.disabled = true;
+        try {
+          if (isLogin) await c.signIn(email, pass);
+          else await c.signUp(email, pass, nick);
+          closeAfterAuth();
+        } catch (err) {
+          submitBtn.disabled = false;
+          showMsg(c.errorMessage ? c.errorMessage(err) : 'Không đăng nhập được. Vui lòng thử lại.', false);
+        }
         return;
       }
 
@@ -477,14 +617,14 @@
 
       if (isLogin) {
         if (!existing) {
-          showErr('Tài khoản Gmail hoặc mật khẩu không chính xác.');
+          showMsg('Tài khoản Gmail hoặc mật khẩu không chính xác.', false);
           return;
         }
         submitBtn.disabled = true;
         var v = await verifyPassword(pass, existing);
         if (!v.ok) {
           submitBtn.disabled = false;
-          showErr('Tài khoản Gmail hoặc mật khẩu không chính xác.');
+          showMsg('Tài khoản Gmail hoặc mật khẩu không chính xác.', false);
           return;
         }
         // Nâng cấp tài khoản legacy sang SHA-256 ngay khi đăng nhập thành công
@@ -501,20 +641,19 @@
           existing = getUsers().filter(function (u) { return u.email === email; })[0];
         }
         createSession(existing);
-        d.close();
-        updateNavbarAuth();
-        renderAdminSection();
+        closeAfterAuth();
+        notifyAuthChange();
         if (existing.mustChangePass) openChangePassDialog(existing);
         return;
       }
 
-      var nick = ($('#auth-nick', d).value || '').trim();
-      if (nick.length < 2) {
-        showErr('Biệt danh cần có ít nhất 2 ký tự.');
+      var nickLocal = ($('#auth-nick', d).value || '').trim();
+      if (nickLocal.length < 2) {
+        showMsg('Biệt danh cần có ít nhất 2 ký tự.', false);
         return;
       }
       if (existing) {
-        showErr('Tài khoản Gmail này đã được đăng ký. Vui lòng chuyển sang Đăng nhập.');
+        showMsg('Tài khoản Gmail này đã được đăng ký. Vui lòng chuyển sang Đăng nhập.', false);
         return;
       }
 
@@ -522,7 +661,7 @@
       var hpNew = await hashPassword(pass);
       users.push({
         email: email,
-        nickname: nick,
+        nickname: nickLocal,
         passHash: hpNew.hash,
         salt: hpNew.salt,
         hashAlgo: hpNew.algo,
@@ -532,21 +671,35 @@
       saveUsers(users);
       var created = getUsers().filter(function (u) { return u.email === email; })[0];
       createSession(created);
-      d.close();
-      updateNavbarAuth();
-      renderAdminSection();
+      closeAfterAuth();
+      notifyAuthChange();
     };
   }
 
   function initAuthSystem() {
-    getUsers();
+    var c = cloudApi();
+    if (c && typeof c.onAuthChange === 'function') {
+      c.onAuthChange(function () {
+        updateNavbarAuth();
+        renderAdminSection();
+      });
+    }
+    if (!cloudManaged()) getUsers();
     updateNavbarAuth();
     renderAdminSection();
     var user = getCurrentUser();
-    if (user && user.mustChangePass) {
+    if (user && user.mustChangePass && !cloudManaged()) {
       setTimeout(function () { openChangePassDialog(user); }, 400);
     }
+    if (c && c.ready && typeof c.ready.then === 'function') {
+      c.ready.then(function () {
+        updateNavbarAuth();
+        renderAdminSection();
+      });
+    }
   }
+  window.openAuthModal = openAuthModal;
+  window.updateNavbarAuth = updateNavbarAuth;
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAuthSystem);
   } else {
@@ -646,19 +799,92 @@
     function total(test) { return allQids(test).length; }
     function progKey(id) { return 'ontap:progress:' + id; }
     function histAll() { return store.get('ontap:history', []); }
+    function progressCategory(id) { return 'anh:' + id; }
+    function scoreCategory(id, mode) { return 'anh:' + id + ':' + (mode === 'exam' ? 'exam' : 'practice'); }
 
     var selectedTestId = TESTS[0].id;
+    var lbMode = 'exam';
     var S = {
       test: null, qmap: null, mode: 'practice', label: '', qids: [], answers: {}, flags: {}, blockIdx: 0,
-      startMs: 0, secs: 0, submitted: false, review: false, onlyWrong: false, result: null, timer: null, paletteOpen: false
+      startMs: 0, secs: 0, submitted: false, review: false, onlyWrong: false, result: null, timer: null, paletteOpen: false,
+      scoreKey: ''
     };
+
+    function submitCloudScore() {
+      var c = cloudApi();
+      if (!c || typeof c.submitScore !== 'function' || !S.result || !S.submitted || !S.test) return;
+      if (S.qids.length !== total(S.test)) return; // chỉ xếp hạng khi làm trọn đề
+
+      var identityKey;
+      if (c.status && c.status().mode === 'firebase') {
+        var u = c.currentUser && c.currentUser();
+        identityKey = u ? u.uid : 'signed-out';
+      } else {
+        var localId = c.localIdentity && c.localIdentity();
+        identityKey = localId ? localId.uid : 'local';
+      }
+      if (S.scoreKey === identityKey) return;
+      S.scoreKey = identityKey;
+
+      var r = S.result;
+      var pct = r.total ? Math.round(r.correct / r.total * 10000) / 100 : 0;
+      Promise.resolve(c.submitScore(scoreCategory(S.test.id, S.mode), {
+        score: r.correct,
+        max: r.total,
+        percent: pct,
+        correct: r.correct,
+        total: r.total,
+        timeSec: r.secs,
+        mode: S.mode,
+        modeLabel: modeName(S.mode),
+        examId: S.test.id,
+        title: S.test.title
+      })).catch(function () { /* không chặn kết quả */ });
+    }
+
+    function syncCloudProgress() {
+      var c = cloudApi();
+      if (!c || typeof c.pullAllProgress !== 'function') return;
+      Promise.resolve(c.pullAllProgress()).then(function (map) {
+        if (!map) return;
+        var changed = false;
+        TESTS.filter(function (t) { return t.subject === 'anh'; }).forEach(function (t) {
+          var cat = progressCategory(t.id);
+          var rec = map[cat];
+          var local = store.get(progKey(t.id), null);
+          var remoteAt = rec ? Number(rec.updatedAt || (rec.payload && rec.payload.updatedAt) || 0) : 0;
+          var localAt = local ? Number(local.updatedAt || 0) : 0;
+          if (rec && rec.payload && remoteAt > localAt) {
+            store.set(progKey(t.id), rec.payload);
+            changed = true;
+          } else if (local && localAt > remoteAt && typeof c.saveProgress === 'function') {
+            c.saveProgress(cat, local);
+          }
+        });
+        if (changed) {
+          var h = location.hash.replace(/^#\/?/, '');
+          if (h !== 'lam-bai' && h !== 'ket-qua') renderEnglish();
+        }
+      }).catch(function () { /* bỏ qua lỗi đồng bộ */ });
+    }
+
+    function mountEnglishLeaderboard(test) {
+      var host = $('#englishLeaderboard');
+      var c = cloudApi();
+      if (!host || !c || typeof c.mountLeaderboard !== 'function' || !test) return;
+      c.mountLeaderboard(host, scoreCategory(test.id, lbMode), {
+        title: 'Bảng xếp hạng · ' + test.title,
+        subtitle: (lbMode === 'exam' ? 'Thi thử' : 'Luyện tập') + ' · điểm cao nhất của mỗi tài khoản',
+        limit: 10
+      });
+    }
 
     function go(hash) { if (location.hash === hash) route(); else location.hash = hash; }
 
     function startAttempt(test, mode, qids, label) {
       S.test = test; S.qmap = buildMap(test); S.mode = mode; S.qids = qids.slice(); S.label = label || '';
       S.answers = {}; S.flags = {}; S.blockIdx = 0; S.secs = 0; S.startMs = Date.now();
-      S.submitted = false; S.review = false; S.onlyWrong = false; S.result = null; S.paletteOpen = false;
+      S.submitted = false; S.review = false; S.onlyWrong = false; S.result = null; S.paletteOpen = false; S.scoreKey = '';
       saveProgress();
       go('#lam-bai');
     }
@@ -669,17 +895,23 @@
       S.test = test; S.qmap = buildMap(test); S.mode = p.mode || 'practice'; S.qids = p.qids; S.label = p.label || '';
       S.answers = p.answers || {}; S.flags = p.flags || {}; S.blockIdx = p.blockIdx || 0; S.secs = p.secs || 0;
       S.startMs = Date.now() - S.secs * 1000;
-      S.submitted = false; S.review = false; S.onlyWrong = false; S.result = null; S.paletteOpen = false;
+      S.submitted = false; S.review = false; S.onlyWrong = false; S.result = null; S.paletteOpen = false; S.scoreKey = '';
       go('#lam-bai');
       return true;
     }
 
     function saveProgress() {
       if (!S.test || S.submitted) return;
-      store.set(progKey(S.test.id), {
+      var payload = {
         v: 1, mode: S.mode, label: S.label, qids: S.qids,
-        answers: S.answers, flags: S.flags, blockIdx: S.blockIdx, secs: S.secs
-      });
+        answers: S.answers, flags: S.flags, blockIdx: S.blockIdx, secs: S.secs,
+        updatedAt: Date.now()
+      };
+      store.set(progKey(S.test.id), payload);
+      var c = cloudApi();
+      if (c && typeof c.saveProgress === 'function' && cloudManaged()) {
+        c.saveProgress(progressCategory(S.test.id), payload);
+      }
     }
 
     function startTimer() {
@@ -768,6 +1000,13 @@
         '<div><h2 class="sec" style="margin-top:.5rem">Luyện theo từng phần (' + esc(t.title) + ')</h2><ul class="part-list">' + parts + '</ul></div>' +
       '</article>';
 
+      var leaderboard = '<section class="exam-lb-section"><h2 class="h2-rule">Bảng xếp hạng đề này</h2>'
+        + '<p class="exam-lb-lead">Mỗi đề và mỗi chế độ có bảng riêng; điểm cao nhất của tài khoản được giữ lại.</p>'
+        + '<div class="lb-mode-tabs" role="tablist" aria-label="Chọn chế độ xếp hạng">'
+        + '<button type="button" class="lb-mode-tab' + (lbMode === 'exam' ? ' on' : '') + '" data-act="lb-mode" data-mode="exam">Thi thử</button>'
+        + '<button type="button" class="lb-mode-tab' + (lbMode === 'practice' ? ' on' : '') + '" data-act="lb-mode" data-mode="practice">Luyện tập</button>'
+        + '</div><div id="englishLeaderboard"></div></section>';
+
       app.innerHTML =
         '<section class="page-head"><div class="page-head-in">' +
           '<a class="crumb" href="index.html">← Quay lại bàn cờ môn học</a>' +
@@ -776,8 +1015,9 @@
         '</div></section>' +
         '<div class="page-body">' +
           '<div class="test-selector" role="tablist" aria-label="Chọn đề thi">' + tabs + '</div>' +
-          card +
+          card + leaderboard +
         '</div>';
+      mountEnglishLeaderboard(t);
     }
 
     function passageHTML(b) {
@@ -974,12 +1214,16 @@
       });
       store.set('ontap:history', h.slice(0, 60));
       store.del(progKey(S.test.id));
+      var c = cloudApi();
+      if (c && typeof c.deleteProgress === 'function' && cloudManaged()) c.deleteProgress(progressCategory(S.test.id));
+      submitCloudScore();
       go('#ket-qua');
     }
 
     function renderResult() {
       var r = S.result, pct = r.total ? r.correct / r.total : 0;
       var ten = (pct * 10).toFixed(1).replace('.', ',');
+      var partOnly = S.qids.length !== total(S.test);
       var msg = pct >= .8 ? 'Kết quả xuất sắc! Bạn đã thâu tóm gần hết các ô đất trong đề này.'
         : pct >= .5 ? 'Bạn đã nắm được phần lớn. Xem lại các câu sai để nâng cấp thêm.'
         : 'Cần ôn thêm. Làm lại các câu sai ở chế độ luyện tập để đọc kỹ lời giải.';
@@ -987,6 +1231,10 @@
         var w = p.total ? Math.round(p.correct / p.total * 100) : 0;
         return '<div class="bar-row"><div class="bar-label"><span>' + esc(p.title) + '</span><span>' + p.correct + '/' + p.total + '</span></div><div class="bar" role="img" aria-label="' + p.correct + ' trên ' + p.total + ' câu đúng"><i style="width:' + w + '%"></i></div></div>';
       }).join('');
+
+      var lbBlock = partOnly
+        ? '<div class="panel" style="margin-top:1rem"><p style="margin:0;font-size:.86rem;color:var(--muted)"><b>Bảng xếp hạng:</b> chỉ ghi nhận khi bạn làm trọn bộ đề. Hãy chọn “Làm lại từ đầu” để thi đấu toàn đề.</p></div>'
+        : '<div id="englishResultLeaderboard" class="result-lb-wrap" style="margin-top:1rem"></div>';
 
       app.innerHTML =
         '<section class="page-head"><div class="page-head-in">' +
@@ -1004,7 +1252,19 @@
             (r.wrong.length ? '<button class="btn ghost" type="button" data-act="retry-wrong">Làm lại ' + r.wrong.length + ' câu sai</button>' : '') +
             '<button class="btn ghost" type="button" data-act="again">Làm lại từ đầu</button>' +
           '</div>' +
-        '</div></div>';
+        '</div>' + lbBlock + '</div>';
+
+      if (!partOnly) {
+        var host = $('#englishResultLeaderboard');
+        var c = cloudApi();
+        if (host && c && typeof c.mountLeaderboard === 'function') {
+          c.mountLeaderboard(host, scoreCategory(S.test.id, S.mode), {
+            title: 'Bảng xếp hạng · ' + S.test.title,
+            subtitle: modeName(S.mode) + ' · ' + r.correct + '/' + r.total + ' câu đúng',
+            limit: 10
+          });
+        }
+      }
     }
 
     function route() {
@@ -1076,6 +1336,10 @@
         case 'select-test':
           if (test) { selectedTestId = test.id; renderEnglish(); }
           break;
+        case 'lb-mode':
+          lbMode = el.getAttribute('data-mode') === 'practice' ? 'practice' : 'exam';
+          renderEnglish();
+          break;
         case 'start': startAttempt(test, el.getAttribute('data-mode'), allQids(test), ''); break;
         case 'resume': resumeAttempt(test); break;
         case 'part': {
@@ -1121,10 +1385,33 @@
       }
     });
 
+    function flushCloudProgress() {
+      var c = cloudApi();
+      if (!c || typeof c.flushProgress !== 'function' || !S.test) return;
+      if (!cloudManaged()) return;
+      Promise.resolve(c.flushProgress(progressCategory(S.test.id))).catch(function () { /* bỏ qua */ });
+    }
+
     window.addEventListener('hashchange', route);
     window.addEventListener('pagehide', function () {
       if (S.timer) { S.secs = Math.floor((Date.now() - S.startMs) / 1000); saveProgress(); }
+      flushCloudProgress();
     });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') flushCloudProgress();
+    });
+    var cloud = cloudApi();
+    if (cloud && typeof cloud.onAuthChange === 'function') {
+      cloud.onAuthChange(function () {
+        if (S.submitted && S.result) submitCloudScore();
+        syncCloudProgress();
+      });
+    }
+    window.addEventListener('ontap:authchange', function () {
+      if (S.submitted && S.result) submitCloudScore();
+      syncCloudProgress();
+    });
+    if (cloud && cloud.ready && typeof cloud.ready.then === 'function') cloud.ready.then(syncCloudProgress);
     route();
   };
 
