@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": 1000,
+    "word": "know the ropes",
+    "ipa": "",
+    "pos": "idiom",
+    "topic": "admin",
+    "topicLabel": "Từ vựng/Idiom mới",
+    "meaning": "Đã biết, đã thành thạo công việc gì đó",
+    "ex": "\"This job is difficult at first, but once I know the ropes, I will be OK.\" (Công việc này ban đầu thì khó, nhưng một khi tôi đã thành thạo rồi thì sẽ ổn thôi)."
+  }
+]
