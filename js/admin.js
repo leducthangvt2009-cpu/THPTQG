@@ -138,9 +138,15 @@
     }
   }
 
+  function isGoogleUser(user) {
+    if (!user) return false;
+    var ids = Array.isArray(user.providerIds) ? user.providerIds : [];
+    return ids.indexOf('google.com') !== -1 || user.providerId === 'google.com';
+  }
+
   function isAdminUser(user) {
     if (!user) return false;
-    return text(user.email).toLowerCase().trim() === ADMIN_EMAIL;
+    return text(user.email).toLowerCase().trim() === ADMIN_EMAIL && isGoogleUser(user);
   }
 
   function adminUser() {
@@ -495,7 +501,11 @@
       if (actions) {
         actions.innerHTML = '<button type="button" class="btn ghost" data-act="admin-signout">Đăng xuất tài khoản này</button>';
       }
-      gateMessage('bad', 'Tài khoản <b>' + esc(user.email || '') + '</b> không có quyền quản trị. Chỉ <b>' + ADMIN_EMAIL + '</b> được truy cập trang này.');
+      if (text(user.email).toLowerCase().trim() === ADMIN_EMAIL) {
+        gateMessage('bad', 'Tài khoản <b>' + esc(user.email || '') + '</b> đúng email quản trị nhưng chưa đăng nhập bằng Google. Hãy đăng xuất rồi chọn <b>Đăng nhập bằng Google</b>.');
+      } else {
+        gateMessage('bad', 'Tài khoản <b>' + esc(user.email || '') + '</b> không có quyền quản trị. Chỉ <b>' + ADMIN_EMAIL + '</b> được truy cập trang này.');
+      }
       return;
     }
 

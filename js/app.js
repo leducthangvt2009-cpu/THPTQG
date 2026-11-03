@@ -246,8 +246,10 @@
     var contentAdmin = false;
 
     if (user) {
+      var providers = Array.isArray(user.providerIds) ? user.providerIds : [];
+      var googleUser = providers.indexOf('google.com') !== -1 || user.providerId === 'google.com';
       isAdm = user.role === 'admin' || isAdminEmail(user.email);
-      contentAdmin = String(user.email || '').toLowerCase().trim() === 'leducthangvt2009@gmail.com';
+      contentAdmin = googleUser && String(user.email || '').toLowerCase().trim() === 'leducthangvt2009@gmail.com';
       btnClass += isAdm ? ' is-admin' : ' logged-in';
       btnLabel = (isAdm ? '[ADMIN] ' : '👤 ') + esc(user.nickname);
     }

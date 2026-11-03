@@ -119,6 +119,14 @@
   function normalizeFirebaseUser(user, prof) {
     if (!user) return null;
     var nick = (prof && prof.nickname) || user.displayName || nicknameOf(user.email);
+    var providerIds = [];
+    if (Array.isArray(user.providerData)) {
+      user.providerData.forEach(function (item) {
+        var pid = item && item.providerId;
+        if (pid && providerIds.indexOf(pid) === -1) providerIds.push(pid);
+      });
+    }
+    if (!providerIds.length && user.providerId) providerIds.push(user.providerId);
     return {
       uid: user.uid,
       email: user.email || '',
@@ -127,6 +135,8 @@
       photoURL: user.photoURL || '',
       role: isAdminEmail(user.email) ? 'admin' : 'user',
       provider: 'firebase',
+      providerId: providerIds[0] || '',
+      providerIds: providerIds,
       isCloud: true,
       emailVerified: !!user.emailVerified
     };
