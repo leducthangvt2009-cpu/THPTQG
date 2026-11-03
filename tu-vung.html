@@ -145,7 +145,8 @@
 
 <script src="js/firebase-config.js?v=20261102a"></script>
 <script src="js/cloud.js?v=20261102a"></script>
-<script src="js/app.js?v=20261102a"></script>
+<script src="js/app.js?v=20261103a"></script>
+<script src="js/content.js?v=20261103a"></script>
 <script>
 (function () {
   'use strict';
@@ -494,6 +495,93 @@
 
   VOCAB = VOCAB.concat(EXTRA_VOCAB);
 
+  var KNOWN_TOPICS = { p1: 1, p2: 1, p3: 1, p4: 1, p5: 1, p6: 1, test: 1, unmastered: 1 };
+  var TOPIC_LABELS = { admin: 'Từ vựng/Idiom mới', test: 'Từ vựng Đề thi' };
+
+  function mergeDynamicVocab() {
+    var content = window.OntapContent && window.OntapContent.state;
+    var list = content && Array.isArray(content.vocab) ? content.vocab : [];
+    if (!list.length) return;
+    var seen = {};
+    VOCAB.forEach(function (item) { seen[String(item.id)] = true; });
+    list.forEach(function (item) {
+      if (!item || item.id === undefined || item.id === null) return;
+      var id = parseInt(item.id, 10);
+      if (!isFinite(id) || id <= 0 || seen[String(id)]) return;
+      seen[String(id)] = true;
+      VOCAB.push({
+        id: id,
+        word: String(item.word || ''),
+        ipa: String(item.ipa || ''),
+        pos: String(item.pos || 'Từ vựng'),
+        topic: String(item.topic || 'admin'),
+        topicLabel: String(item.topicLabel || ''),
+        meaning: String(item.meaning || ''),
+        ex: String(item.ex || '')
+      });
+    });
+  }
+
+  function updateTopicPills() {
+    var host = document.getElementById('topic-pills');
+    if (!host) return;
+
+    var allPill = host.querySelector('[data-topic="all"]');
+    if (allPill) allPill.textContent = 'Tất cả (' + VOCAB.length + ')';
+
+    var testPill = host.querySelector('[data-topic="test"]');
+    if (testPill) {
+      var testCount = VOCAB.filter(function (v) { return v.topic === 'test'; }).length;
+      testPill.textContent = 'Từ vựng Đề thi (' + testCount + ')';
+    }
+
+    var labels = {};
+    VOCAB.forEach(function (v) {
+      if (!v.topic || KNOWN_TOPICS[v.topic]) return;
+      labels[v.topic] = v.topicLabel || TOPIC_LABELS[v.topic] || 'Từ vựng/Idiom mới';
+    });
+
+    Array.prototype.slice.call(host.querySelectorAll('[data-topic]')).forEach(function (pill) {
+      var topic = pill.getAttribute('data-topic');
+      if (topic !== 'all' && topic !== 'test' && topic !== 'unmastered' && !KNOWN_TOPICS[topic] && !labels[topic]) {
+        pill.remove();
+      }
+    });
+
+    var unmastered = host.querySelector('[data-topic="unmastered"]');
+    Object.keys(labels).forEach(function (topic) {
+      if (host.querySelector('[data-topic="' + topic + '"]')) return;
+      var count = VOCAB.filter(function (v) { return v.topic === topic; }).length;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pill';
+      btn.setAttribute('data-topic', topic);
+      btn.textContent = labels[topic] + ' (' + count + ')';
+      if (unmastered) host.insertBefore(btn, unmastered);
+      else host.appendChild(btn);
+    });
+  }
+
+  function updateVocabHead() {
+    var head = document.querySelector('.page-head h1');
+    if (head) head.textContent = 'Ô đất: Từ vựng & Idioms';
+    var lead = document.querySelector('.page-head p');
+    if (lead) {
+      lead.textContent = 'Hệ thống thẻ ghi nhớ (Flashcard) gồm ' + VOCAB.length
+        + ' mục từ vựng, cụm động từ và thành ngữ trọng tâm, tích hợp phát âm và lặp lại ngắt quãng các từ chưa thuộc.';
+    }
+  }
+
+  function bootVocab() {
+    mergeDynamicVocab();
+    filtered = VOCAB.slice();
+    updateTopicPills();
+    updateVocabHead();
+    renderFlashcard();
+    renderGrid();
+    renderQuiz();
+  }
+
   var storeKey = 'ontap:vocab:mastered';
   var repeatKey = 'ontap:vocab:repeat';
   function getStore(k) {
@@ -746,9 +834,11 @@
     }
   });
 
-  renderFlashcard();
-  renderGrid();
-  renderQuiz();
+  if (window.OntapContentReady && window.OntapContent && window.OntapContent.state && !window.OntapContent.state.ready) {
+    window.OntapContentReady.then(bootVocab, bootVocab);
+  } else {
+    bootVocab();
+  }
 })();
 </script>
   <script src="js/background.js?v=20261102c"></script>

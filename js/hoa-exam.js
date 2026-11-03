@@ -959,17 +959,23 @@
   }
 
   function heroHTML() {
+    var main = H.progressList();
+    var bonus = H.meta.filter(function (m) { return !!m.bonus; }).length;
+    var durations = H.meta.map(function (m) { return Number(m.duration) || 0; }).filter(Boolean);
+    var minDuration = durations.length ? Math.min.apply(null, durations) : 45;
+    var maxDuration = durations.length ? Math.max.apply(null, durations) : 50;
+    var durationText = minDuration === maxDuration ? String(minDuration) : (minDuration + '–' + maxDuration);
     return '<div class="exam-hero"><div><span class="tag">HÓA 12 · ĐỀ TƯƠNG TÁC</span>'
       + '<h2>Luyện đề Hóa 12 như thi thật</h2>'
-      + '<p>10 bộ đề chính và 1 đề chuyên, bám sát cấu trúc giữa học kì 1: trắc nghiệm, đúng/sai và trả lời ngắn. '
+      + '<p>' + main.length + ' bộ đề chính và ' + bonus + ' đề chuyên, bám sát cấu trúc giữa học kì 1: trắc nghiệm, đúng/sai và trả lời ngắn. '
       + 'Thi thử có đếm ngược; luyện tập chấm ngay từng câu kèm lời giải. Tiến trình được lưu tự động và đồng bộ khi đăng nhập.</p>'
-      + '<div class="kpis"><span><b>10</b> đề chính</span><span><b>+1</b> đề chuyên</span>'
+      + '<div class="kpis"><span><b>' + main.length + '</b> đề chính</span><span><b>+' + bonus + '</b> đề chuyên</span>'
       + '<span>Đáp án đã đối chiếu</span><span>Tự động lưu bài</span></div></div>'
       + '<div class="exam-hero-stats">'
-      + '<div class="exam-hero-stat"><b>11</b><span>Bộ đề</span></div>'
+      + '<div class="exam-hero-stat"><b>' + H.meta.length + '</b><span>Bộ đề</span></div>'
       + '<div class="exam-hero-stat"><b>' + totalQuestions() + '</b><span>Câu hỏi</span></div>'
       + '<div class="exam-hero-stat"><b>10</b><span>Thang điểm</span></div>'
-      + '<div class="exam-hero-stat"><b>45–50</b><span>Phút/đề</span></div>'
+      + '<div class="exam-hero-stat"><b>' + durationText + '</b><span>Phút/đề</span></div>'
       + '</div></div>';
   }
 
@@ -1286,6 +1292,14 @@
   }
 
   function init() {
+    var headNote = qs('#examPageHead p');
+    if (headNote) {
+      var mainCount = H.progressList().length;
+      var bonusCount = H.meta.filter(function (m) { return !!m.bonus; }).length;
+      headNote.textContent = H.meta.length + ' bộ đề tương tác gồm ' + mainCount + ' đề chính và ' + bonusCount
+        + ' đề chuyên. Thi thử có đếm giờ, luyện tập chấm ngay, xem lời giải chi tiết, lưu tiến trình và có bảng xếp hạng riêng từng đề.';
+    }
+
     document.addEventListener('click', onClick);
     document.addEventListener('input', onInput);
     document.addEventListener('change', onChange);
@@ -1323,6 +1337,16 @@
     else renderLanding();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  function boot() {
+    if (boot.started) return;
+    boot.started = true;
+    if (g.OntapContentReady && g.OntapContent && g.OntapContent.state && !g.OntapContent.state.ready) {
+      g.OntapContentReady.then(init, init);
+      return;
+    }
+    init();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })(window);

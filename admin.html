@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Quản trị nội dung · Ôn tập THPT</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=20261102a">
+  <link rel="stylesheet" href="css/background.css?v=20261102c">
+  <link rel="stylesheet" href="css/admin.css?v=20261103a">
+  <script>
+    (function () {
+      try {
+        var k = localStorage.getItem('ontap:bg');
+        if (k === 'off' || (!k && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+          document.documentElement.setAttribute('data-bg', 'off');
+        }
+      } catch (e) { /* bo qua */ }
+    })();
+  </script>
+</head>
+<body data-bg-theme="board">
+  <div id="bg-scene" aria-hidden="true">
+    <div class="bg-aurora bg-aurora-a"></div>
+    <div class="bg-aurora bg-aurora-b"></div>
+    <div class="bg-aurora bg-aurora-c"></div>
+    <canvas id="bg-canvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="bg-vignette"></div>
+  </div>
+
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a class="logo" href="index.html">
+        <svg class="logo-icon" viewBox="0 0 9 9" width="20" height="20" aria-hidden="true">
+          <rect width="9" height="9" fill="#ffffff" stroke="#111613" stroke-width="1"/>
+          <rect x="2" y="2" width="1.5" height="1.5" fill="#111613"/>
+          <rect x="5.5" y="2" width="1.5" height="1.5" fill="#111613"/>
+          <rect x="3.75" y="3.75" width="1.5" height="1.5" fill="#d9232a"/>
+          <rect x="2" y="5.5" width="1.5" height="1.5" fill="#111613"/>
+          <rect x="5.5" y="5.5" width="1.5" height="1.5" fill="#111613"/>
+        </svg>
+        <span>Ôn tập THPT</span>
+      </a>
+      <nav class="nav" aria-label="Menu chính">
+        <a href="index.html">Bàn cờ</a>
+        <a href="anh.html">Tiếng Anh</a>
+        <a href="tu-vung.html">Từ vựng</a>
+        <a href="hoa.html">Hóa học</a>
+        <a href="admin.html" aria-current="page">Quản trị</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <section class="admin-gate" id="admin-gate" aria-live="polite">
+      <div class="admin-gate-card">
+        <span class="tag">KHU VỰC QUẢN TRỊ</span>
+        <h1>Đăng nhập quản trị</h1>
+        <p>Trang này chỉ dành cho tài khoản Google <b>leducthangvt2009@gmail.com</b>. Nội dung do bạn tạo sẽ được đăng cho tất cả người dùng.</p>
+        <div id="admin-gate-actions" class="admin-gate-actions"></div>
+        <p id="admin-gate-msg" class="admin-msg" role="status"></p>
+        <p class="admin-gate-foot">Bạn có thể quay lại <a href="index.html">trang người dùng</a> mà không cần đăng nhập quản trị.</p>
+      </div>
+    </section>
+
+    <section class="admin-app" id="admin-app" hidden></section>
+  </main>
+
+  <script src="js/data-anh.js?v=20261102d"></script>
+  <script src="js/exams-hoa/setup.js?v=20261102d"></script>
+  <script src="js/firebase-config.js?v=20261102a"></script>
+  <script src="js/cloud.js?v=20261102a"></script>
+  <script src="js/content.js?v=20261103a"></script>
+  <script src="js/admin.js?v=20261103a"></script>
+  <script src="js/background.js?v=20261102c"></script>
+</body>
+</html>

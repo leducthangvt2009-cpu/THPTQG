@@ -242,15 +242,30 @@
     var user = getCurrentUser();
     var btnClass = 'nav-box';
     var btnLabel = '👤 Đăng nhập / Đăng ký';
+    var isAdm = false;
+    var contentAdmin = false;
 
     if (user) {
-      var isAdm = user.role === 'admin' || isAdminEmail(user.email);
+      isAdm = user.role === 'admin' || isAdminEmail(user.email);
+      contentAdmin = String(user.email || '').toLowerCase().trim() === 'leducthangvt2009@gmail.com';
       btnClass += isAdm ? ' is-admin' : ' logged-in';
       btnLabel = (isAdm ? '[ADMIN] ' : '👤 ') + esc(user.nickname);
     }
 
     var oldBtn = $('#nav-auth-btn', nav);
     if (oldBtn) oldBtn.remove();
+
+    var oldAdmin = $('#nav-admin-link', nav);
+    if (oldAdmin) oldAdmin.remove();
+
+    if (contentAdmin) {
+      var adminLink = document.createElement('a');
+      adminLink.id = 'nav-admin-link';
+      adminLink.className = 'nav-box is-admin';
+      adminLink.href = 'admin.html';
+      adminLink.textContent = '⚙️ Quản trị';
+      nav.appendChild(adminLink);
+    }
 
     var authBtn = document.createElement('button');
     authBtn.type = 'button';
@@ -777,6 +792,20 @@
     if (englishInitialized) return;
     var app = $('#app');
     if (!app) return;
+
+    if (window.OntapContentReady && window.OntapContent && window.OntapContent.state && !window.OntapContent.state.ready) {
+      if (!window.initEnglishApp._waiting) {
+        window.initEnglishApp._waiting = true;
+        window.OntapContentReady.then(function () {
+          window.initEnglishApp._waiting = false;
+          window.initEnglishApp();
+        }, function () {
+          window.initEnglishApp._waiting = false;
+          window.initEnglishApp();
+        });
+      }
+      return;
+    }
 
     if (!window.TESTS || !Array.isArray(window.TESTS) || !window.TESTS.length) {
       app.innerHTML =
@@ -1418,10 +1447,10 @@
   /* Tự động khởi chạy trang Tiếng Anh nếu đang ở trang anh.html */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {
-      if ($('#app') && window.TESTS) window.initEnglishApp();
+      if ($('#app')) window.initEnglishApp();
     });
   } else {
-    if ($('#app') && window.TESTS) window.initEnglishApp();
+    if ($('#app')) window.initEnglishApp();
   }
 
   /* =====================================================
