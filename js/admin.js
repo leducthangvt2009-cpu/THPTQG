@@ -1205,7 +1205,6 @@
     if (state.users.loading) return;
     var fresh = state.users.loadedAt && Date.now() - state.users.loadedAt < 30 * 1000;
     if (state.users.loaded && !force && fresh) return;
-    if (state.users.loaded && !force) state.users.selected = null;
     var cloud = g.OntapCloud;
     if (!cloud || typeof cloud.getAllLeaderboardEntries !== 'function') {
       state.users.loaded = true;
