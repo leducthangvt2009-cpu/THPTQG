@@ -1172,9 +1172,40 @@
     return list;
   }
 
+  function leaderboardCategories() {
+    var seen = {};
+    var list = [];
+    function add(category) {
+      if (!category || seen[category]) return;
+      seen[category] = true;
+      list.push(category);
+    }
+    function addEnglish(id) {
+      if (!id) return;
+      add('anh:' + id + ':exam');
+      add('anh:' + id + ':practice');
+    }
+    function addHoa(id) {
+      if (!id) return;
+      add('hoa:' + id + ':thi');
+      add('hoa:' + id + ':luyen');
+    }
+
+    arr(g.TESTS).forEach(function (test) { addEnglish(test && test.id); });
+    var hoaStatic = g.HoaExams && g.HoaExams.meta;
+    arr(hoaStatic).forEach(function (exam) { addHoa(exam && exam.id); });
+    arr(state.content.english).forEach(function (test) { addEnglish(test && test.id); });
+    arr(state.content.hoa && state.content.hoa.exams).forEach(function (exam) {
+      addHoa(exam && exam.meta && exam.meta.id);
+    });
+    return list;
+  }
+
   function maybeLoadUsers(force) {
     if (state.users.loading) return;
-    if (state.users.loaded && !force) return;
+    var fresh = state.users.loadedAt && Date.now() - state.users.loadedAt < 30 * 1000;
+    if (state.users.loaded && !force && fresh) return;
+    if (state.users.loaded && !force) state.users.selected = null;
     var cloud = g.OntapCloud;
     if (!cloud || typeof cloud.getAllLeaderboardEntries !== 'function') {
       state.users.loaded = true;
@@ -1188,7 +1219,7 @@
     state.users.error = '';
     if (force) state.users.selected = null;
     refreshUsersView();
-    Promise.resolve(cloud.getAllLeaderboardEntries()).then(function (result) {
+    Promise.resolve(cloud.getAllLeaderboardEntries(leaderboardCategories())).then(function (result) {
       state.users.entries = arr(result && result.entries);
       state.users.source = (result && result.source) || 'local';
       state.users.loadedAt = Date.now();
@@ -1255,7 +1286,7 @@
 
     return '<div class="admin-pagehead">'
       + '<div><span class="admin-eyebrow">Cộng đồng</span><h1>Quản lí Users</h1>'
-      + '<p>Xem hoạt động học tập qua dữ liệu công khai từ bảng xếp hạng. Màn hình này chỉ đọc, không có thao tác xóa hay khóa tài khoản.</p></div>'
+      + '<p>Xem người học đã có điểm trong bảng xếp hạng. Tài khoản mới sẽ xuất hiện sau khi hoàn thành và nộp một đề; màn hình này chỉ đọc, không có thao tác xóa hay khóa tài khoản.</p></div>'
       + '<div class="admin-pagehead-actions"><button type="button" class="btn ghost" data-act="reload-users">' + icon('refresh', 'sm') + ' Tải lại người học</button></div>'
       + '</div>'
       + '<div class="admin-stat-grid">'
@@ -1266,7 +1297,7 @@
       + '</div>'
       + '<div class="admin-card admin-card--flush">'
       + '<div class="admin-users-toolbar"><div><h2>Danh sách người học</h2>'
-      + '<p>Dữ liệu công khai từ BXH · email và tiến trình riêng không hiển thị vì quyền riêng tư.</p></div>'
+      + '<p>Dữ liệu công khai từ BXH · người học xuất hiện sau khi có điểm; email và tiến trình riêng không hiển thị.</p></div>'
       + '<div class="admin-users-tools">'
       + '<label class="admin-inline-search">' + icon('search')
       + '<input type="search" id="users-search" value="' + esc(state.users.query) + '" placeholder="Tìm tên, uid hoặc hạng mục…" aria-label="Tìm người học"></label>'
@@ -3117,6 +3148,12 @@
         return '';
       }
       return undefined;
+    });
+    g.addEventListener('focus', function () {
+      if (state.authed && state.tab === 'users') maybeLoadUsers();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && state.authed && state.tab === 'users') maybeLoadUsers();
     });
 
     initAuth();

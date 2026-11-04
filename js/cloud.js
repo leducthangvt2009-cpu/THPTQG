@@ -600,24 +600,71 @@
     return entries;
   }
 
-  async function getAllLeaderboardEntries() {
+  function entriesFromSnap(snap, fallbackCategory) {
+    var entries = [];
+    snap.forEach(function (docSnap) {
+      var d = docSnap.data() || {};
+      d.uid = d.uid || docSnap.id;
+      var parent = docSnap.ref && docSnap.ref.parent && docSnap.ref.parent.parent;
+      if (!d.category && parent) d.category = parent.id;
+      if (!d.category && fallbackCategory) d.category = fallbackCategory;
+      entries.push(d);
+    });
+    return entries;
+  }
+
+  async function readLeaderboardCategory(category) {
+    var q = api.fs.query(
+      api.fs.collection(db, 'leaderboards', category, 'entries'),
+      api.fs.limit(500)
+    );
+    var snap = await withTimeout(api.fs.getDocs(q), 9000, 'leaderboard-timeout');
+    return entriesFromSnap(snap, category);
+  }
+
+  async function getAllLeaderboardEntries(categories) {
     await ready;
+    categories = Array.isArray(categories)
+      ? categories.filter(function (category) {
+        return typeof category === 'string' && category;
+      })
+      : [];
+    var seenCategories = {};
+    categories = categories.filter(function (category) {
+      if (seenCategories[category]) return false;
+      seenCategories[category] = true;
+      return true;
+    });
+
     if (CONF.mode === 'firebase' && db) {
+      if (categories.length) {
+        var results = await Promise.all(categories.map(function (category) {
+          return readLeaderboardCategory(category).then(function (entries) {
+            return { entries: entries, error: null };
+          }).catch(function (error) {
+            return { entries: [], error: error };
+          });
+        }));
+        var entries = [];
+        var firstError = null;
+        results.forEach(function (result) {
+          entries = entries.concat(result.entries);
+          if (result.error && !firstError) firstError = result.error;
+        });
+        if (entries.length || !firstError) {
+          return { entries: entries, total: entries.length, source: 'cloud', error: firstError || undefined };
+        }
+        var local = readAllLocalBoards();
+        return { entries: local, total: local.length, source: 'local', error: firstError };
+      }
       try {
         var q = api.fs.query(api.fs.collectionGroup(db, 'entries'), api.fs.limit(1000));
         var snap = await withTimeout(api.fs.getDocs(q), 12000, 'leaderboard-timeout');
-        var entries = [];
-        snap.forEach(function (docSnap) {
-          var d = docSnap.data() || {};
-          d.uid = d.uid || docSnap.id;
-          var parent = docSnap.ref && docSnap.ref.parent && docSnap.ref.parent.parent;
-          if (!d.category && parent) d.category = parent.id;
-          entries.push(d);
-        });
-        return { entries: entries, total: entries.length, source: 'cloud' };
+        var all = entriesFromSnap(snap);
+        return { entries: all, total: all.length, source: 'cloud' };
       } catch (e) {
-        var local = readAllLocalBoards();
-        return { entries: local, total: local.length, source: 'local', error: e };
+        var fallback = readAllLocalBoards();
+        return { entries: fallback, total: fallback.length, source: 'local', error: e };
       }
     }
     var list = readAllLocalBoards();
