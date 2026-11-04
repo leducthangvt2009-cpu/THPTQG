@@ -91,8 +91,11 @@
   function setVars() {
     var hh = $('#site-header');
     if (hh) document.documentElement.style.setProperty('--header-h', hh.offsetHeight + 'px');
-    var rb = $('#runbar .runbar-in');
-    document.documentElement.style.setProperty('--runbar-h', (rb ? rb.offsetHeight : 56) + 'px');
+    var bar = $('#runbar');
+    if (bar && !window.matchMedia('(max-width: 959px)').matches) bar.classList.remove('runbar-hidden');
+    var rb = bar && bar.querySelector('.runbar-in');
+    var hidden = bar && bar.classList.contains('runbar-hidden');
+    document.documentElement.style.setProperty('--runbar-h', hidden ? '0px' : ((rb ? rb.offsetHeight : 56) + 'px'));
   }
   window.addEventListener('resize', setVars);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(setVars);
@@ -1463,6 +1466,20 @@
     if (!header) return;
     var lastY = window.scrollY || 0;
     var ticking = false;
+    var mobile = window.matchMedia('(max-width: 959px)');
+
+    function runbarHeight() {
+      var bar = document.getElementById('runbar');
+      var inner = bar && bar.querySelector('.runbar-in');
+      return inner ? inner.offsetHeight : 56;
+    }
+
+    function setRunbarHidden(hidden) {
+      var bar = document.getElementById('runbar');
+      if (!bar) return;
+      bar.classList.toggle('runbar-hidden', hidden);
+      document.documentElement.style.setProperty('--runbar-h', hidden ? '0px' : (runbarHeight() + 'px'));
+    }
 
     function onScroll() {
       var curY = window.scrollY || 0;
@@ -1471,12 +1488,15 @@
       if (curY <= 40) {
         header.classList.remove('header-hidden');
         document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+        if (mobile.matches) setRunbarHidden(false);
       } else if (delta > 8) {
         header.classList.add('header-hidden');
         document.documentElement.style.setProperty('--header-h', '0px');
+        if (mobile.matches) setRunbarHidden(true);
       } else if (delta < -8) {
         header.classList.remove('header-hidden');
         document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+        if (mobile.matches) setRunbarHidden(false);
       }
 
       lastY = curY;
