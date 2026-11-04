@@ -580,6 +580,50 @@
     return { ok: true, source: 'local', updated: better2, attempts: attempts2, entry: better2 ? localEntry : old };
   }
 
+  function readAllLocalBoards() {
+    var entries = [];
+    var prefix = 'ontap:leaderboard:v1:';
+    try {
+      for (var i = 0; i < g.localStorage.length; i += 1) {
+        var key = g.localStorage.key(i);
+        if (!key || key.indexOf(prefix) !== 0) continue;
+        var category = key.slice(prefix.length);
+        readLocalBoard(category).forEach(function (entry) {
+          if (!entry || !entry.uid) return;
+          var copy = {};
+          Object.keys(entry).forEach(function (k) { copy[k] = entry[k]; });
+          if (!copy.category) copy.category = category;
+          entries.push(copy);
+        });
+      }
+    } catch (e) { /* trình duyệt chặn bộ nhớ */ }
+    return entries;
+  }
+
+  async function getAllLeaderboardEntries() {
+    await ready;
+    if (CONF.mode === 'firebase' && db) {
+      try {
+        var q = api.fs.query(api.fs.collectionGroup(db, 'entries'), api.fs.limit(1000));
+        var snap = await withTimeout(api.fs.getDocs(q), 12000, 'leaderboard-timeout');
+        var entries = [];
+        snap.forEach(function (docSnap) {
+          var d = docSnap.data() || {};
+          d.uid = d.uid || docSnap.id;
+          var parent = docSnap.ref && docSnap.ref.parent && docSnap.ref.parent.parent;
+          if (!d.category && parent) d.category = parent.id;
+          entries.push(d);
+        });
+        return { entries: entries, total: entries.length, source: 'cloud' };
+      } catch (e) {
+        var local = readAllLocalBoards();
+        return { entries: local, total: local.length, source: 'local', error: e };
+      }
+    }
+    var list = readAllLocalBoards();
+    return { entries: list, total: list.length, source: 'local' };
+  }
+
   async function getLeaderboard(category, limit) {
     await ready;
     limit = Math.max(1, Math.min(100, Number(limit) || 20));
@@ -763,7 +807,7 @@
   /* Công khai API                                                       */
   /* ------------------------------------------------------------------ */
   var Cloud = {
-    version: '20261101a',
+    version: '20261103c',
     ready: ready,
     isConfigured: function () { return CONF.configured; },
     status: function () {
@@ -792,6 +836,7 @@
     pullAllProgress: pullAllProgress,
     submitScore: submitScore,
     getLeaderboard: getLeaderboard,
+    getAllLeaderboardEntries: getAllLeaderboardEntries,
     mountLeaderboard: mountLeaderboard,
     refreshLeaderboards: refreshAllLeaderboards,
     openAuth: openAuth,

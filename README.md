@@ -14,9 +14,12 @@
 - **Môn Hóa học**: Lý thuyết Ester – Lipid, Carbohydrate, mô phỏng phản ứng, **10 bộ bài tập/đề kiểm tra** (280 câu) dạng PDF + DOCX và **11 đề thi tương tác** (308 câu) có chấm điểm, đếm giờ, lời giải chi tiết, lưu tiến trình/lịch sử và **bảng xếp hạng riêng từng đề**.
 
 ## Giao diện quản trị
-- Trang quản trị riêng: `admin.html`, chỉ mở được khi đăng nhập Google bằng **leducthangvt2009@gmail.com**. Người dùng thường không thấy link quản trị và không ghi được nội dung.
+- Trang quản trị riêng: `admin.html`, chỉ mở được khi đăng nhập Google bằng **leducthangvt2009@gmail.com** (tài khoản email/mật khẩu cùng email cũng bị chặn). Người dùng thường không thấy link quản trị và không ghi được nội dung.
+- Giao diện quản trị dạng dashboard: sidebar tối bên trái gồm **Tổng quan**, nhóm **Điều khiển nội dung** (Đề Tiếng Anh, Đề Hóa, Từ vựng & Idiom), **Quản lí Users** và **Cài đặt & GitHub**; topbar có tìm kiếm toàn cục, thông báo, link mở trang người dùng và avatar. Trên mobile, sidebar chuyển thành menu trượt.
 - Quản trị viên có thể tạo/sửa đề **Tiếng Anh**, đề **Hóa học**, thêm **từ vựng/idiom**, quản lý chuyên mục Hóa, nhập/xuất JSON và tải file JSON lên.
+- Tab **Quản lí Users** tổng hợp người học từ dữ liệu công khai của bảng xếp hạng (`leaderboards/{category}/entries/{uid}`): số người học, tổng lượt làm bài, điểm tốt nhất trung bình, hoạt động 7 ngày, tìm kiếm/sắp xếp và xem chi tiết theo hạng mục. Trang chỉ đọc, không hiển thị email, mật khẩu hay tiến trình riêng tư và không có thao tác khóa/xóa tài khoản.
 - Nội dung quản trị được lưu trong `content/english.json`, `content/hoa.json`, `content/vocab.json`. Trang người dùng tải các file này qua `js/content.js` và hợp nhất với đề tĩnh sẵn có; đề tĩnh trong `js/data-anh.js` và `js/exams-hoa/` không bị sửa.
+- Thanh lưu cuối trang hiển thị trạng thái bản đang soạn: có thay đổi chưa lưu trong trình soạn thảo, có thay đổi chưa đăng, đang tải hoặc đang đăng. Nút **Đăng lên website** bị chặn nếu trình soạn thảo còn thay đổi chưa lưu.
 - Để đăng nội dung, vào **Cài đặt & GitHub** trên trang quản trị và dán **fine-grained personal access token** của repo `leducthangvt2009-cpu/THPTQG` với quyền **Contents: Read and write**. Token chỉ lưu trong trình duyệt của quản trị viên, không nằm trong mã nguồn.
 - Sau khi bấm **Đăng lên website**, hệ thống tạo một commit mới trên nhánh `main`; GitHub Pages có thể cần 1–2 phút để cập nhật. Bản nháp trên máy giúp tránh mất bài khi lỡ đóng tab.
 - Từ vựng động dùng mã từ **1000** trở lên để không trùng 322 mục từ vựng/idiom có sẵn.

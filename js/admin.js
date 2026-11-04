@@ -17,6 +17,7 @@
   var TOKEN_KEY = 'ontap:admin:github-token';
   var REMEMBER_KEY = 'ontap:admin:github-remember';
   var DRAFT_KEY = 'ontap:admin:draft:v1';
+  var NOTIF_KEY = 'ontap:admin:notif-seen:v1';
 
   function emptyContent() {
     return { english: [], hoa: { sections: [], exams: [] }, vocab: [] };
@@ -45,7 +46,24 @@
     tokenValid: false,
     tokenMessage: '',
     vocabSearch: '',
-    lastCommit: ''
+    lastCommit: '',
+    users: {
+      loaded: false,
+      loading: false,
+      entries: [],
+      source: '',
+      error: '',
+      loadedAt: 0,
+      query: '',
+      sort: 'recent',
+      selected: null
+    },
+    searchQuery: '',
+    searchOpen: false,
+    notifOpen: false,
+    notifSeenSig: readStorage(g.localStorage, NOTIF_KEY) || '',
+    sidebarOpen: false,
+    contentNavOpen: true
   };
 
   var gate = null;
@@ -171,6 +189,73 @@
     try {
       return new Date(ts).toLocaleString('vi-VN');
     } catch (e) { return '—'; }
+  }
+
+  function dateShort(ts) {
+    if (!ts) return '—';
+    try {
+      return new Date(ts).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch (e) { return '—'; }
+  }
+
+  function relativeTime(ts) {
+    var value = Number(ts) || 0;
+    if (!value) return '—';
+    var diff = Date.now() - value;
+    if (diff < 0) diff = 0;
+    if (diff < 60 * 1000) return 'Vừa xong';
+    if (diff < 60 * 60 * 1000) return Math.floor(diff / 60000) + ' phút trước';
+    if (diff < 24 * 60 * 60 * 1000) return Math.floor(diff / 3600000) + ' giờ trước';
+    if (diff < 7 * 24 * 60 * 60 * 1000) return Math.floor(diff / 86400000) + ' ngày trước';
+    return dateShort(value);
+  }
+
+  function initials(value) {
+    var raw = text(value).trim();
+    if (!raw) return 'QT';
+    if (raw.indexOf('@') !== -1) raw = raw.split('@')[0].replace(/[._-]+/g, ' ');
+    var words = raw.split(/\s+/).filter(Boolean);
+    if (!words.length) return 'QT';
+    var out = words.slice(0, 2).map(function (word) { return word.charAt(0); }).join('');
+    return out.toUpperCase().slice(0, 2);
+  }
+
+  var ICONS = {
+    dashboard: '<rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/>',
+    layers: '<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 16 9 5 9-5"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>',
+    file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
+    flask: '<path d="M9 3h6M10 3v6.5L5 19.5a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3L14 9.5V3"/><path d="M7.5 15h9"/>',
+    vocab: '<path d="m4 19 6-14 6 14"/><path d="M6.5 13h7"/><path d="M17 19V9"/><path d="m14.5 11.5 2.5-2.5 2.5 2.5"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    settings: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+    menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+    external: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/>',
+    chevron: '<path d="m6 9 6 6 6-6"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    refresh: '<path d="M3 12a9 9 0 0 1 15.5-6.4L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.4L3 16"/><path d="M3 21v-5h5"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>',
+    close: '<path d="M18 6 6 18M6 6l12 12"/>',
+    check: '<path d="m20 6-11 11-5-5"/>',
+    checkCircle: '<circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',
+    warning: '<path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    trophy: '<path d="M6 4h12v5a6 6 0 0 1-12 0Z"/><path d="M6 6H3v2a4 4 0 0 0 4 4M18 6h3v2a4 4 0 0 1-4 4M9 20h6M12 15v5"/>',
+    activity: '<path d="M3 12h4l2-7 4 14 2-7h6"/>',
+    key: '<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3M15 8l2 2"/>',
+    arrowLeft: '<path d="M19 12H5M12 19l-7-7 7-7"/>',
+    arrowRight: '<path d="M5 12h14M12 5l7 7-7 7"/>',
+    eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+    cloud: '<path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.1 9.2 4.5 4.5 0 0 0 6.5 19Z"/>',
+    github: '<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>'
+  };
+
+  function icon(name, cls) {
+    return '<svg class="admin-icon' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + (ICONS[name] || ICONS.file) + '</svg>';
   }
 
   function commitUrl(sha) {
@@ -371,6 +456,10 @@
 
   async function publish() {
     if (state.busy) return;
+    if (state.editor && state.editorDirty) {
+      showErrors('Chưa thể đăng vì còn thay đổi chưa lưu:', ['Hãy bấm nút lưu trong trình soạn thảo trước khi đăng nội dung.']);
+      return;
+    }
 
     var errors = validateAll();
     if (errors.length) {
@@ -530,6 +619,7 @@
     app.hidden = false;
     renderShell();
     if (!state.contentReady && !state.contentLoading) loadRepoContent();
+    maybeLoadUsers();
     if (state.token && !state.tokenValid && !state.tokenMessage) {
       state.tokenMessage = 'Token đã lưu trên trình duyệt. Bấm “Kiểm tra token” trong Cài đặt nếu muốn xác nhận quyền ghi.';
     }
@@ -590,48 +680,135 @@
   function renderShell() {
     if (!app) return;
     var email = state.user && state.user.email ? state.user.email : ADMIN_EMAIL;
-    var nick = state.user && state.user.nickname ? state.user.nickname : 'Quản trị viên';
+    var nick = state.user && state.user.nickname ? state.user.nickname : email.split('@')[0];
+    var summary = usersSummary();
+    var userCount = state.users.loaded ? String(summary.total) : '—';
+    var contentActive = ['english', 'hoa', 'vocab'].indexOf(state.tab) !== -1;
 
-    app.innerHTML = '<div class="admin-hero">'
-      + '<div><span class="tag">KHU VỰC QUẢN TRỊ</span>'
-      + '<h1>Bảng điều khiển nội dung</h1>'
-      + '<p>Tạo đề Tiếng Anh, đề Hóa và thêm từ vựng/idiom cho toàn bộ người dùng. Nội dung được đăng trực tiếp vào repo GitHub và tải về trang người dùng.</p></div>'
-      + '<div class="admin-userbox"><b>👤 ' + esc(nick) + '</b><small>' + esc(email) + '</small>'
-      + '<button type="button" class="btn small ghost" data-act="admin-signout">Đăng xuất</button></div>'
+    app.innerHTML = '<div class="admin-shell' + (state.sidebarOpen ? ' is-sidebar-open' : '') + '" id="admin-shell">'
+      + '<button type="button" class="admin-scrim" data-act="close-sidebar" aria-label="Đóng menu"></button>'
+      + '<aside class="admin-sidebar" id="admin-sidebar" aria-label="Điều hướng quản trị">'
+      + '<a class="admin-brand" href="index.html" title="Về trang người dùng">'
+      + '<span class="admin-brand-mark">' + icon('book') + '</span>'
+      + '<span class="admin-brand-text"><b>Ôn tập THPT</b><small>Không gian quản trị</small></span>'
+      + '</a>'
+      + '<nav class="admin-nav" aria-label="Khu vực quản trị">'
+      + '<span class="admin-nav-label">Không gian</span>'
+      + '<button type="button" class="admin-nav-item" data-act="tab" data-tab="overview">'
+      + icon('dashboard') + '<span>Tổng quan</span></button>'
+      + '<button type="button" class="admin-nav-item admin-nav-parent' + (contentActive ? ' is-active is-open' : '') + '" data-act="toggle-content-nav" aria-expanded="' + (state.contentNavOpen ? 'true' : 'false') + '" aria-controls="admin-content-nav">'
+      + icon('layers') + '<span>Điều khiển nội dung</span>' + icon('chevron', 'sm admin-nav-chevron') + '</button>'
+      + '<div class="admin-subnav" id="admin-content-nav"' + (state.contentNavOpen ? '' : ' hidden') + '>'
+      + '<button type="button" class="admin-nav-item" data-act="tab" data-tab="english">'
+      + '<span>Đề Tiếng Anh</span><span class="admin-nav-count" data-nav-count="english">' + state.content.english.length + '</span></button>'
+      + '<button type="button" class="admin-nav-item" data-act="tab" data-tab="hoa">'
+      + '<span>Đề Hóa</span><span class="admin-nav-count" data-nav-count="hoa">' + state.content.hoa.exams.length + '</span></button>'
+      + '<button type="button" class="admin-nav-item" data-act="tab" data-tab="vocab">'
+      + '<span>Từ vựng &amp; Idiom</span><span class="admin-nav-count" data-nav-count="vocab">' + state.content.vocab.length + '</span></button>'
       + '</div>'
-      + '<div class="admin-tabs" role="tablist" aria-label="Khu vực quản trị">'
-      + '<button type="button" class="admin-tab" role="tab" data-act="tab" data-tab="overview">Tổng quan</button>'
-      + '<button type="button" class="admin-tab" role="tab" data-act="tab" data-tab="english">Đề Tiếng Anh</button>'
-      + '<button type="button" class="admin-tab" role="tab" data-act="tab" data-tab="hoa">Đề Hóa</button>'
-      + '<button type="button" class="admin-tab" role="tab" data-act="tab" data-tab="vocab">Từ vựng &amp; Idiom</button>'
-      + '<button type="button" class="admin-tab" role="tab" data-act="tab" data-tab="settings">Cài đặt &amp; GitHub</button>'
+      + '<button type="button" class="admin-nav-item" data-act="tab" data-tab="users">'
+      + icon('users') + '<span>Quản lí Users</span><span class="admin-nav-count" data-nav-count="users">' + userCount + '</span></button>'
+      + '<span class="admin-nav-label">Hệ thống</span>'
+      + '<button type="button" class="admin-nav-item" data-act="tab" data-tab="settings">'
+      + icon('settings') + '<span>Cài đặt &amp; GitHub</span></button>'
+      + '</nav>'
+      + '<div class="admin-sidebar-foot">'
+      + '<div class="admin-profile">'
+      + '<span class="admin-profile-avatar">' + esc(initials(nick)) + '</span>'
+      + '<span class="admin-profile-text"><b>' + esc(nick) + '</b><small>' + esc(email) + '</small></span>'
+      + '<button type="button" class="admin-icon-btn" data-act="admin-signout" title="Đăng xuất" aria-label="Đăng xuất">' + icon('logout', 'sm') + '</button>'
       + '</div>'
-      + '<div class="admin-status info" id="admin-status" role="status" aria-live="polite">Đang tải nội dung…</div>'
+      + '<a class="admin-sidebar-back" href="index.html">' + icon('arrowLeft', 'xs') + ' Về trang người dùng</a>'
+      + '</div>'
+      + '</aside>'
+      + '<div class="admin-workspace">'
+      + '<header class="admin-topbar">'
+      + '<div class="admin-topbar-start">'
+      + '<button type="button" class="admin-icon-btn admin-topbar-menu" data-act="toggle-sidebar" aria-label="Mở menu quản trị" aria-expanded="' + (state.sidebarOpen ? 'true' : 'false') + '" aria-controls="admin-sidebar">' + icon('menu') + '</button>'
+      + '<div class="admin-crumbs"><span>Quản trị</span>' + icon('chevron', 'xs') + '<b id="admin-crumb-current">' + esc(pageLabel()) + '</b></div>'
+      + '</div>'
+      + '<div class="admin-search" id="admin-search">'
+      + icon('search')
+      + '<input type="search" id="admin-search-input" value="' + esc(state.searchQuery) + '" placeholder="Tìm đề, từ vựng, người học…" autocomplete="off" spellcheck="false" aria-label="Tìm kiếm trong quản trị" aria-controls="admin-search-pop">'
+      + '<kbd class="admin-kbd">Ctrl K</kbd>'
+      + '<div class="admin-search-pop" id="admin-search-pop" hidden></div>'
+      + '</div>'
+      + '<div class="admin-topbar-end">'
+      + '<a class="admin-icon-btn" href="index.html" target="_blank" rel="noopener" title="Xem trang người dùng" aria-label="Xem trang người dùng">' + icon('external') + '</a>'
+      + '<div class="admin-notif-wrap" id="admin-notif">'
+      + '<button type="button" class="admin-icon-btn admin-notif-button" data-act="toggle-notifications" aria-label="Thông báo" aria-expanded="' + (state.notifOpen ? 'true' : 'false') + '" aria-controls="admin-notif-panel">'
+      + icon('bell') + '<span class="admin-notif-dot is-empty" id="admin-notif-dot"></span>'
+      + '</button>'
+      + '<div class="admin-notif-panel" id="admin-notif-panel" hidden></div>'
+      + '</div>'
+      + '<div class="admin-top-avatar" title="' + esc(email) + '">' + esc(initials(nick)) + '</div>'
+      + '</div>'
+      + '</header>'
+      + '<div class="admin-content" id="admin-content">'
+      + '<div class="admin-status info" id="admin-status" role="status" aria-live="polite"></div>'
       + '<div id="admin-view"></div>'
-      + '<div class="admin-savebar" id="admin-savebar"></div>';
+      + '</div>'
+      + '<div class="admin-savebar" id="admin-savebar"></div>'
+      + '</div></div>';
 
     renderStatus();
     renderTabs();
     renderView();
     renderSavebar();
+    renderNotifications();
+    renderSearchResults();
+  }
+
+  function pageLabel() {
+    if (state.tab === 'english') return 'Đề Tiếng Anh';
+    if (state.tab === 'hoa') return 'Đề Hóa';
+    if (state.tab === 'vocab') return 'Từ vựng & Idiom';
+    if (state.tab === 'users') return 'Quản lí Users';
+    if (state.tab === 'settings') return 'Cài đặt & GitHub';
+    return 'Tổng quan';
   }
 
   function renderTabs() {
-    $$('.admin-tab').forEach(function (btn) {
+    var contentActive = ['english', 'hoa', 'vocab'].indexOf(state.tab) !== -1;
+    $$('.admin-nav [data-tab]').forEach(function (btn) {
       var active = btn.getAttribute('data-tab') === state.tab;
       btn.classList.toggle('is-active', active);
       btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    var parent = $('.admin-nav-parent');
+    if (parent) {
+      parent.classList.toggle('is-active', contentActive);
+      parent.classList.toggle('is-open', state.contentNavOpen || contentActive);
+      parent.setAttribute('aria-expanded', state.contentNavOpen ? 'true' : 'false');
+    }
+    var subnav = $('#admin-content-nav');
+    if (subnav) subnav.hidden = !state.contentNavOpen;
+    var crumb = $('#admin-crumb-current');
+    if (crumb) crumb.textContent = pageLabel();
+
+    var counts = {
+      english: state.content.english.length,
+      hoa: state.content.hoa.exams.length,
+      vocab: state.content.vocab.length,
+      users: state.users.loaded ? usersSummary().total : '—'
+    };
+    Object.keys(counts).forEach(function (key) {
+      var node = $('[data-nav-count="' + key + '"]');
+      if (node) node.textContent = counts[key];
     });
   }
 
   function renderStatus() {
     var box = $('#admin-status');
     if (!box) return;
+    if (!state.status && !state.contentLoading) {
+      box.className = 'admin-status info';
+      box.innerHTML = '';
+      return;
+    }
     if (!state.status) {
       box.className = 'admin-status info';
-      box.innerHTML = state.contentLoading
-        ? '<span class="admin-spinner"></span> Đang tải nội dung từ GitHub…'
-        : 'Sẵn sàng.';
+      box.innerHTML = '<span class="admin-spinner"></span> Đang tải nội dung từ GitHub…';
       return;
     }
     box.className = 'admin-status ' + (state.status.kind || 'info');
@@ -642,15 +819,28 @@
     var bar = $('#admin-savebar');
     if (!bar) return;
     var dirty = contentDirty();
+    var editing = !!(state.editor && state.editorDirty);
     var draft = state.draftRestored;
-    bar.innerHTML = '<div><b>' + (dirty ? 'Có thay đổi chưa đăng lên website' : 'Nội dung đang khớp với bản trên GitHub')
-      + '</b><small>' + (draft ? 'Đang có bản nháp lưu trên máy.' : 'Bản nháp trên máy giúp bạn không mất bài khi lỡ đóng tab.')
-      + '</small></div>'
+    var loading = state.contentLoading;
+    var disabled = state.busy || loading || !state.contentReady;
+    var headline = loading ? 'Đang tải nội dung từ GitHub…'
+      : state.busy ? 'Đang đăng nội dung lên GitHub…'
+        : editing ? 'Có thay đổi chưa lưu trong trình soạn thảo'
+          : dirty ? 'Có thay đổi chưa đăng lên website'
+            : 'Nội dung đang khớp với bản trên GitHub';
+    var subline = loading ? 'Vui lòng chờ trong giây lát.'
+      : editing ? 'Bấm “Lưu đề”, “Lưu chuyên mục” hoặc “Lưu mục” để đưa thay đổi vào bản đang soạn.'
+        : draft ? 'Đang có bản nháp lưu trên máy.'
+          : 'Bản nháp tự động giúp bạn không mất bài khi lỡ đóng tab.';
+    bar.innerHTML = '<div class="admin-save-info">'
+      + '<span class="admin-save-dot' + (dirty || editing ? ' is-dirty' : '') + '"></span>'
+      + '<div><b>' + headline + '</b><small>' + subline + '</small></div>'
+      + '</div>'
       + '<div class="admin-savebar-actions">'
-      + (draft ? '<button type="button" class="btn ghost small" data-act="discard-draft">Bỏ nháp</button>' : '')
-      + '<button type="button" class="btn ghost small" data-act="save-draft">Lưu nháp trên máy</button>'
-      + '<button type="button" class="btn small" data-act="publish"' + (state.busy ? ' disabled' : '') + '>'
-      + (state.busy ? '<span class="admin-spinner"></span> Đang đăng…' : 'Đăng lên website') + '</button>'
+      + (draft ? '<button type="button" class="btn ghost small" data-act="discard-draft"' + (disabled ? ' disabled' : '') + '>Bỏ nháp</button>' : '')
+      + '<button type="button" class="btn ghost small" data-act="save-draft"' + (disabled ? ' disabled' : '') + '>Lưu nháp</button>'
+      + '<button type="button" class="btn small" data-act="publish"' + (disabled ? ' disabled' : '') + '>'
+      + (state.busy ? '<span class="admin-spinner"></span> Đang đăng…' : icon('cloud', 'sm') + ' Đăng lên website') + '</button>'
       + '</div>';
   }
 
@@ -659,16 +849,27 @@
     state.editor = null;
     state.editorDirty = false;
     state.tab = tab;
+    closeSidebar();
+    state.searchOpen = false;
+    state.searchQuery = '';
+    var searchInput = $('#admin-search-input');
+    if (searchInput) searchInput.value = '';
+    state.notifOpen = false;
+    state.users.selected = null;
+    if (tab === 'english' || tab === 'hoa' || tab === 'vocab') state.contentNavOpen = true;
+    if (tab === 'users') maybeLoadUsers();
     renderTabs();
     renderView();
     renderSavebar();
-    var host = $('#admin-view');
-    if (host) host.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    renderSearchResults();
+    renderNotifications();
+    scrollTop();
   }
 
   function renderView() {
     var host = $('#admin-view');
     if (!host) return;
+    renderTabs();
     if (state.editor) {
       if (state.editor.kind === 'english') host.innerHTML = englishEditorHTML();
       else if (state.editor.kind === 'hoa') host.innerHTML = hoaEditorHTML();
@@ -677,9 +878,8 @@
       else host.innerHTML = '<div class="admin-empty">Trình soạn thảo không hợp lệ.</div>';
       return;
     }
-    if (state.tab === 'english') host.innerHTML = englishTabHTML();
-    else if (state.tab === 'hoa') host.innerHTML = hoaTabHTML();
-    else if (state.tab === 'vocab') host.innerHTML = vocabTabHTML();
+    if (state.tab === 'english' || state.tab === 'hoa' || state.tab === 'vocab') host.innerHTML = contentPageHTML();
+    else if (state.tab === 'users') host.innerHTML = usersTabHTML();
     else if (state.tab === 'settings') host.innerHTML = settingsTabHTML();
     else host.innerHTML = overviewHTML();
   }
@@ -693,54 +893,107 @@
     return h && Array.isArray(h.meta) ? h.meta.filter(function (m) { return !m.__dynamic; }).length : 0;
   }
 
+  function statCard(iconName, tone, value, label, sub) {
+    return '<div class="admin-stat">'
+      + '<span class="admin-stat-icon' + (tone ? ' ' + tone : '') + '">' + icon(iconName) + '</span>'
+      + '<b>' + esc(value) + '</b><span>' + esc(label) + '</span>'
+      + (sub ? '<small>' + esc(sub) + '</small>' : '')
+      + '</div>';
+  }
+
+  function statusRow(iconName, tone, label, value, sub) {
+    return '<div class="admin-status-row">'
+      + '<span class="admin-status-row-icon' + (tone ? ' ' + tone : '') + '">' + icon(iconName) + '</span>'
+      + '<span class="admin-status-row-text"><b>' + esc(label) + '</b>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>'
+      + '<span class="admin-status-value">' + value + '</span>'
+      + '</div>';
+  }
+
+  function pendingTasks() {
+    var tasks = [];
+    if (!state.token) {
+      tasks.push({ icon: 'key', tone: 'warn', title: 'Thêm token GitHub', desc: 'Cần token fine-grained có quyền Contents: Read and write để đăng nội dung.', act: 'tab', tab: 'settings', label: 'Mở cài đặt' });
+    }
+    if (state.contentWarnings.length) {
+      tasks.push({ icon: 'warning', tone: 'warn', title: 'Có cảnh báo khi tải nội dung', desc: state.contentWarnings[0], act: 'reload-content', label: 'Tải lại' });
+    }
+    if (contentDirty() || state.draftRestored) {
+      tasks.push({ icon: 'cloud', tone: '', title: 'Hoàn tất đăng nội dung', desc: 'Bản đang soạn khác với nội dung người dùng đang thấy trên website.', act: 'publish', label: 'Đăng ngay' });
+    }
+    if (!state.content.english.length && !state.content.hoa.exams.length && !state.content.vocab.length) {
+      tasks.push({ icon: 'plus', tone: '', title: 'Tạo nội dung đầu tiên', desc: 'Bắt đầu với một đề Tiếng Anh, đề Hóa hoặc mục từ vựng mới.', act: 'tab', tab: 'english', label: 'Tạo đề Anh' });
+    }
+    if (state.users.error) {
+      tasks.push({ icon: 'users', tone: 'warn', title: 'Chưa tải được danh sách người học', desc: state.users.error, act: 'tab', tab: 'users', label: 'Kiểm tra' });
+    }
+    if (!tasks.length) {
+      tasks.push({ icon: 'checkCircle', tone: 'ok', title: 'Mọi thứ đã sẵn sàng', desc: 'Nội dung đã đồng bộ và không có việc nào đang chờ xử lý.', act: '', tab: '', label: '' });
+    }
+    return tasks.slice(0, 3);
+  }
+
   function overviewHTML() {
     var c = state.content;
+    var summary = usersSummary();
     var tokenLabel = state.token
-      ? (state.tokenValid ? 'Hợp lệ, có quyền ghi' : 'Đã lưu, chưa kiểm tra')
-      : 'Chưa nhập';
+      ? (state.tokenValid ? 'Hợp lệ' : 'Đã lưu')
+      : 'Chưa có';
+    var tokenTone = state.token ? (state.tokenValid ? 'ok' : 'warn') : 'warn';
     var sourceLabel = state.contentSource === 'draft' ? 'Bản nháp trên máy'
       : state.contentSource === 'fallback' ? 'Bản dự phòng'
-        : state.contentSource === 'github' ? 'GitHub (mới nhất)' : '—';
+        : state.contentSource === 'github' ? 'GitHub mới nhất' : 'Đang tải';
+    var cloud = g.OntapCloud;
+    var cloudReady = !!(cloud && cloud.isConfigured && cloud.isConfigured());
+    var firebaseText = cloudReady ? 'Đã cấu hình' : 'Dùng bộ nhớ máy';
+    var tasks = pendingTasks();
 
-    return '<div class="admin-grid">'
-      + '<div class="admin-card"><h2>Tình trạng nội dung</h2>'
+    return '<div class="admin-pagehead">'
+      + '<div><span class="admin-eyebrow">Bảng điều khiển</span>'
+      + '<h1>Tổng quan</h1>'
+      + '<p>Theo dõi nội dung, kết nối GitHub và hoạt động học tập của người dùng trong một màn hình gọn.</p></div>'
+      + '<div class="admin-pagehead-actions">'
+      + '<button type="button" class="btn ghost" data-act="reload-content">' + icon('refresh', 'sm') + ' Tải lại nội dung</button>'
+      + '<button type="button" class="btn" data-act="tab" data-tab="english">' + icon('plus', 'sm') + ' Tạo nội dung</button>'
+      + '</div></div>'
       + '<div class="admin-stat-grid">'
-      + '<div class="admin-stat"><b>' + c.english.length + '</b><span>Đề Anh động</span></div>'
-      + '<div class="admin-stat"><b>' + c.hoa.exams.length + '</b><span>Đề Hóa động</span></div>'
-      + '<div class="admin-stat"><b>' + c.vocab.length + '</b><span>Từ vựng mới</span></div>'
-      + '<div class="admin-stat"><b>' + (staticEnglishCount() + staticHoaCount()) + '</b><span>Đề tĩnh có sẵn</span></div>'
+      + statCard('file', '', c.english.length, 'Đề Tiếng Anh động', 'Đăng trực tiếp lên website')
+      + statCard('flask', 'green', c.hoa.exams.length, 'Đề Hóa động', c.hoa.sections.length + ' chuyên mục động')
+      + statCard('vocab', 'amber', c.vocab.length, 'Từ vựng & Idiom mới', 'Bắt đầu từ mã #1000')
+      + statCard('users', 'purple', state.users.loaded ? summary.total : '—', 'Người học', state.users.loaded ? summary.attempts + ' lượt làm bài' : 'Đang tải bảng xếp hạng')
       + '</div>'
-      + '<p style="margin-top:1rem">Đề tĩnh trong <code>js/data-anh.js</code> và <code>js/exams-hoa/</code> vẫn giữ nguyên. Giao diện quản trị chỉ sửa nội dung động trong thư mục <code>content/</code>.</p>'
-      + '<div class="admin-note">Nguồn đang mở: <b>' + esc(sourceLabel) + '</b> · Tải lúc: ' + esc(dateText(state.loadedAt))
-      + (state.headSha ? ' · Commit: <code>' + esc(state.headSha.slice(0, 7)) + '</code>' : '') + '</div>'
+      + '<div class="admin-overview-grid">'
+      + '<div class="admin-card"><div class="admin-card-head"><div><h2>Trạng thái hệ thống</h2><p>Nguồn nội dung và kết nối đang dùng.</p></div>'
+      + '<span class="admin-pill ' + (state.contentReady ? 'ok' : 'warn') + '">' + (state.contentReady ? 'Sẵn sàng' : 'Đang tải') + '</span></div>'
+      + '<div class="admin-status-list">'
+      + statusRow('cloud', state.contentSource === 'github' ? 'ok' : 'warn', 'Nội dung', '<span class="admin-pill ' + (state.contentSource === 'github' ? 'ok' : 'warn') + '">' + esc(sourceLabel) + '</span>', state.loadedAt ? 'Cập nhật ' + relativeTime(state.loadedAt) : 'Chưa tải nội dung')
+      + statusRow('key', tokenTone, 'Token GitHub', '<span class="admin-pill ' + tokenTone + '">' + esc(tokenLabel) + '</span>', state.token ? 'Chỉ lưu trên trình duyệt này' : 'Cần thiết để đăng nội dung')
+      + statusRow('github', '', 'Kho nội dung', '<code>' + esc(REPO.split('/')[1]) + '</code> <span class="admin-pill">' + esc(BRANCH) + '</span>', REPO)
+      + statusRow('activity', cloudReady ? 'ok' : '', 'Firebase', '<span class="admin-pill ' + (cloudReady ? 'ok' : '') + '">' + esc(firebaseText) + '</span>', cloudReady ? 'Auth + Firestore đang hoạt động' : 'Chưa cấu hình Firebase')
       + '</div>'
-      + '<div class="admin-card"><h2>Quy trình đăng</h2>'
-      + '<ol style="margin:.4rem 0 0;padding-left:1.2rem">'
-      + '<li>Tạo hoặc sửa đề ở các tab <b>Đề Tiếng Anh</b>, <b>Đề Hóa</b>, <b>Từ vựng</b>.</li>'
-      + '<li>Bấm <b>Đăng lên website</b> ở thanh dưới cùng.</li>'
-      + '<li>Hệ thống tạo một commit mới trên GitHub; trang người dùng tự tải nội dung mới khi mở lại.</li>'
-      + '</ol>'
-      + '<div class="admin-note" style="margin-top:1rem">Lần đầu sử dụng, hãy vào <b>Cài đặt &amp; GitHub</b> để dán token fine-grained có quyền <b>Contents: Read and write</b>.</div>'
-      + '<div class="btn-row"><button type="button" class="btn small" data-act="tab" data-tab="settings">Mở cài đặt GitHub</button></div>'
-      + '</div>'
-      + '<div class="admin-card"><h2>Kết nối</h2>'
-      + '<div class="admin-details-list">'
-      + '<div><b>Quản trị viên:</b> ' + esc(ADMIN_EMAIL) + '</div>'
-      + '<div><b>Repo:</b> <code>' + esc(REPO) + '</code> · nhánh <code>' + esc(BRANCH) + '</code></div>'
-      + '<div><b>Token GitHub:</b> ' + esc(tokenLabel) + '</div>'
-      + '<div><b>Nội dung:</b> ' + esc(sourceLabel) + '</div>'
-      + '</div>'
-      + '<div class="btn-row"><button type="button" class="btn ghost small" data-act="reload-content">Tải lại từ GitHub</button></div>'
-      + '</div>'
-      + '<div class="admin-card"><h2>Liên kết nhanh</h2>'
-      + '<p>Mở trang người dùng để kiểm tra kết quả sau khi đăng.</p>'
       + '<div class="btn-row">'
-      + '<a class="btn small ghost" href="anh.html" target="_blank" rel="noopener">Tiếng Anh</a>'
-      + '<a class="btn small ghost" href="hoa-de-thi.html" target="_blank" rel="noopener">Đề Hóa</a>'
-      + '<a class="btn small ghost" href="tu-vung.html" target="_blank" rel="noopener">Từ vựng</a>'
-      + '<a class="btn small ghost" href="index.html" target="_blank" rel="noopener">Trang chủ</a>'
-      + '</div>'
-      + '</div>'
+      + '<button type="button" class="btn ghost small" data-act="tab" data-tab="settings">' + icon('settings', 'sm') + ' Cài đặt kết nối</button>'
+      + '<a class="btn ghost small" href="' + (state.headSha ? commitUrl(state.headSha) : 'https://github.com/' + REPO) + '" target="_blank" rel="noopener">' + icon('external', 'sm') + ' Xem commit gần nhất</a>'
+      + '</div></div>'
+      + '<div class="admin-card"><div class="admin-card-head"><div><h2>Việc cần làm</h2><p>Những bước nên xử lý tiếp theo.</p></div>'
+      + '<span class="admin-pill blue">' + tasks.length + '</span></div>'
+      + '<div class="admin-task-list">'
+      + tasks.map(function (task) {
+        var action = task.act
+          ? '<button type="button" class="btn ghost small" data-act="' + esc(task.act) + '"'
+            + (task.tab ? ' data-tab="' + esc(task.tab) + '"' : '') + '>' + esc(task.label) + '</button>'
+          : '';
+        return '<div class="admin-task"><span class="admin-task-icon' + (task.tone ? ' ' + task.tone : '') + '">' + icon(task.icon) + '</span>'
+          + '<span class="admin-task-main"><b>' + esc(task.title) + '</b><small>' + esc(task.desc) + '</small></span>'
+          + action + '</div>';
+      }).join('')
+      + '</div></div>'
+      + '<div class="admin-card admin-span-2"><div class="admin-card-head"><div><h2>Lối tắt</h2><p>Mở nhanh khu vực bạn đang làm việc.</p></div></div>'
+      + '<div class="admin-shortcuts">'
+      + '<button type="button" class="admin-shortcut" data-act="tab" data-tab="english">' + icon('file', 'sm') + ' Đề Tiếng Anh</button>'
+      + '<button type="button" class="admin-shortcut" data-act="tab" data-tab="hoa">' + icon('flask', 'sm') + ' Đề Hóa</button>'
+      + '<button type="button" class="admin-shortcut" data-act="tab" data-tab="vocab">' + icon('vocab', 'sm') + ' Từ vựng</button>'
+      + '<button type="button" class="admin-shortcut" data-act="tab" data-tab="users">' + icon('users', 'sm') + ' Quản lí Users</button>'
+      + '</div></div>'
       + '</div>';
   }
 
@@ -748,9 +1001,15 @@
     var tokenState = state.token
       ? (state.tokenValid ? 'Đang dùng token hợp lệ.' : 'Đã lưu token trên trình duyệt này.')
       : 'Chưa có token. Bạn vẫn có thể soạn nội dung, nhưng cần token để đăng.';
-    return '<div class="admin-grid two">'
-      + '<div class="admin-card"><h2>Token GitHub</h2>'
-      + '<p>Token chỉ dùng để ghi file <code>content/*.json</code>. Hãy tạo <b>fine-grained personal access token</b> cho repo <code>' + esc(REPO) + '</code> với quyền <b>Contents: Read and write</b>.</p>'
+    return '<div class="admin-pagehead">'
+      + '<div><span class="admin-eyebrow">Hệ thống</span><h1>Cài đặt &amp; GitHub</h1>'
+      + '<p>Quản lý token đăng nội dung, theo dõi đồng bộ và kiểm tra tài khoản quản trị.</p></div>'
+      + '<div class="admin-pagehead-actions"><button type="button" class="btn ghost" data-act="admin-signout">' + icon('logout', 'sm') + ' Đăng xuất</button></div>'
+      + '</div>'
+      + '<div class="admin-grid two">'
+      + '<div class="admin-card"><div class="admin-card-head"><div><h2>Token GitHub</h2><p>Token chỉ dùng để ghi file <code>content/*.json</code>.</p></div>'
+      + '<span class="admin-pill ' + (state.token ? (state.tokenValid ? 'ok' : 'warn') : 'bad') + '">' + (state.token ? (state.tokenValid ? 'Hợp lệ' : 'Đã lưu') : 'Chưa có') + '</span></div>'
+      + '<p>Tạo <b>fine-grained personal access token</b> cho repo <code>' + esc(REPO) + '</code> với quyền <b>Contents: Read and write</b>.</p>'
       + '<div class="admin-form-grid compact">'
       + '<label class="admin-field wide"><span>Dán token mới (để trống nếu giữ token hiện tại)</span>'
       + '<input type="password" id="gh-token" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></label>'
@@ -762,9 +1021,10 @@
       + '<button type="button" class="btn ghost small" data-act="test-token">Kiểm tra token</button>'
       + '<button type="button" class="btn ghost small" data-act="clear-token">Xóa token khỏi máy</button>'
       + '</div>'
-      + '<div class="admin-note" style="margin-top:1rem">Token được lưu cục bộ trong trình duyệt của bạn (localStorage/sessionStorage). Không chia sẻ token và không đưa token vào mã nguồn.</div>'
+      + '<div class="admin-note" style="margin-top:.8rem">Token được lưu cục bộ trong trình duyệt của bạn (localStorage/sessionStorage). Không chia sẻ token và không đưa token vào mã nguồn.</div>'
       + '</div>'
-      + '<div class="admin-card"><h2>Đồng bộ nội dung</h2>'
+      + '<div class="admin-card"><div class="admin-card-head"><div><h2>Đồng bộ nội dung</h2><p>Trạng thái repo và bản đang mở.</p></div>'
+      + '<span class="admin-pill ' + (state.contentSource === 'github' ? 'ok' : 'warn') + '">' + esc(state.contentSource || '—') + '</span></div>'
       + '<div class="admin-details-list">'
       + '<div><b>Repo:</b> <code>' + esc(REPO) + '</code></div>'
       + '<div><b>Nhánh:</b> <code>' + esc(BRANCH) + '</code></div>'
@@ -773,24 +1033,492 @@
       + '<div><b>Bản nháp trên máy:</b> ' + (state.draftRestored ? 'Có' : 'Không') + '</div>'
       + '</div>'
       + '<div class="btn-row">'
-      + '<button type="button" class="btn small ghost" data-act="reload-content">Tải lại từ GitHub</button>'
+      + '<button type="button" class="btn small ghost" data-act="reload-content">' + icon('refresh', 'sm') + ' Tải lại từ GitHub</button>'
       + (state.draftRestored ? '<button type="button" class="btn small ghost" data-act="discard-draft">Bỏ bản nháp trên máy</button>' : '')
       + '</div>'
-      + '<div class="admin-note" style="margin-top:1rem">Sau khi đăng, GitHub Pages có thể cần 1–2 phút để phục vụ bản mới. Trang người dùng đọc file JSON trực tiếp và có bộ nhớ đệm dự phòng khi mất mạng.</div>'
+      + '<div class="admin-note" style="margin-top:.8rem">Sau khi đăng, GitHub Pages có thể cần 1–2 phút để phục vụ bản mới. Trang người dùng đọc file JSON trực tiếp và có bộ nhớ đệm dự phòng khi mất mạng.</div>'
       + '</div>'
-      + '<div class="admin-card"><h2>Tài khoản</h2>'
-      + '<p>Chỉ tài khoản Google <b>' + esc(ADMIN_EMAIL) + '</b> mới mở được trang này.</p>'
-      + '<div class="btn-row"><button type="button" class="btn small ghost" data-act="admin-signout">Đăng xuất quản trị</button></div>'
+      + '<div class="admin-card admin-span-2"><div class="admin-card-head"><div><h2>Tài khoản &amp; bảo mật</h2><p>Trang quản trị chỉ mở cho tài khoản Google đã chỉ định.</p></div>'
+      + '<span class="admin-pill ok">' + esc(ADMIN_EMAIL) + '</span></div>'
+      + '<div class="admin-details-list">'
+      + '<div>Trang quản trị không được lập chỉ mục bởi công cụ tìm kiếm.</div>'
+      + '<div>Người dùng thường không thấy link quản trị và không ghi được nội dung.</div>'
+      + '<div>Token GitHub chỉ cần quyền <b>Contents: Read and write</b> trên đúng repo này; không cấp quyền admin.</div>'
+      + '<div>Nếu nghi ngờ token bị lộ, hãy thu hồi trên GitHub rồi tạo token mới.</div>'
       + '</div>'
-      + '<div class="admin-card"><h2>Bảo mật</h2>'
-      + '<ul style="margin:.3rem 0 0;padding-left:1.2rem;font-size:.92rem">'
-      + '<li>Trang quản trị không được lập chỉ mục bởi công cụ tìm kiếm.</li>'
-      + '<li>Người dùng thường không thấy link quản trị và không ghi được nội dung.</li>'
-      + '<li>Token GitHub chỉ cần quyền <b>Contents: Read and write</b> trên đúng repo này; không cấp quyền admin.</li>'
-      + '<li>Nếu nghi ngờ token bị lộ, hãy thu hồi trên GitHub rồi tạo token mới.</li>'
-      + '</ul>'
+      + '<div class="btn-row"><button type="button" class="btn small ghost" data-act="admin-signout">' + icon('logout', 'sm') + ' Đăng xuất quản trị</button></div>'
       + '</div>'
       + '</div>';
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Quản lí Users (dữ liệu công khai từ bảng xếp hạng)                  */
+  /* ------------------------------------------------------------------ */
+  function entryPercent(entry) {
+    var pct = Number(entry && entry.percent);
+    if (isFinite(pct)) return Math.max(0, Math.min(100, pct));
+    var score = Number(entry && entry.score) || 0;
+    var max = Number(entry && entry.max) || 0;
+    return max ? Math.max(0, Math.min(100, score / max * 100)) : 0;
+  }
+
+  function entryTime(entry) {
+    return Number(entry && (entry.lastAt || entry.updatedAt || entry.createdAt)) || 0;
+  }
+
+  function entryMeta(entry) {
+    var category = text(entry && entry.category);
+    var parts = category.split(':');
+    var subject = parts[0] === 'anh' ? 'Tiếng Anh' : parts[0] === 'hoa' ? 'Hóa học' : '';
+    var mode = text(entry && entry.modeLabel);
+    if (!mode) {
+      var rawMode = parts[2] || text(entry && entry.mode);
+      mode = rawMode === 'exam' || rawMode === 'thi' ? 'Thi thử'
+        : rawMode === 'practice' || rawMode === 'luyen' ? 'Luyện tập' : '';
+    }
+    var title = text(entry && (entry.title || entry.examId)) || parts[1] || 'Hạng mục';
+    return { title: title, subject: subject, mode: mode };
+  }
+
+  function entryLabel(entry) {
+    var meta = entryMeta(entry);
+    return [meta.subject, meta.mode].filter(Boolean).join(' · ') || 'Bảng xếp hạng';
+  }
+
+  function aggregateUsers(entries) {
+    var map = {};
+    arr(entries).forEach(function (entry) {
+      if (!entry) return;
+      var uid = text(entry.uid).trim();
+      if (!uid) return;
+      var user = map[uid];
+      if (!user) {
+        user = {
+          uid: uid,
+          nickname: text(entry.nickname).trim() || 'Người học',
+          entries: [],
+          attempts: 0,
+          bestPercent: 0,
+          bestTitle: '',
+          bestMeta: '',
+          lastAt: 0,
+          firstAt: 0
+        };
+        map[uid] = user;
+      } else if (user.nickname === 'Người học' && text(entry.nickname).trim()) {
+        user.nickname = text(entry.nickname).trim();
+      }
+      var pct = entryPercent(entry);
+      var when = entryTime(entry);
+      user.entries.push(entry);
+      user.attempts += Math.max(1, Number(entry.attempts) || 1);
+      if (pct > user.bestPercent) {
+        user.bestPercent = pct;
+        user.bestTitle = entryMeta(entry).title;
+        user.bestMeta = entryLabel(entry);
+      }
+      if (when > user.lastAt) user.lastAt = when;
+      if (when && (!user.firstAt || when < user.firstAt)) user.firstAt = when;
+    });
+
+    return Object.keys(map).map(function (key) {
+      var user = map[key];
+      user.entries.sort(function (a, b) { return entryTime(b) - entryTime(a); });
+      user.entryCount = user.entries.length;
+      return user;
+    });
+  }
+
+  function usersSummary() {
+    var users = aggregateUsers(state.users.entries);
+    var attempts = 0;
+    var percentTotal = 0;
+    var active7d = 0;
+    var cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    users.forEach(function (user) {
+      attempts += user.attempts;
+      percentTotal += user.bestPercent;
+      if (user.lastAt >= cutoff) active7d += 1;
+    });
+    return {
+      users: users,
+      total: users.length,
+      attempts: attempts,
+      avgPercent: users.length ? Math.round(percentTotal / users.length * 10) / 10 : 0,
+      active7d: active7d,
+      entries: state.users.entries.length
+    };
+  }
+
+  function filteredUsers() {
+    var list = usersSummary().users;
+    var q = text(state.users.query).toLowerCase().trim();
+    if (q) {
+      list = list.filter(function (user) {
+        if ((text(user.nickname) + ' ' + user.uid).toLowerCase().indexOf(q) !== -1) return true;
+        return user.entries.some(function (entry) {
+          var meta = entryMeta(entry);
+          return (meta.title + ' ' + meta.subject + ' ' + meta.mode).toLowerCase().indexOf(q) !== -1;
+        });
+      });
+    }
+    var sort = state.users.sort;
+    list.sort(function (a, b) {
+      if (sort === 'percent') return b.bestPercent - a.bestPercent || b.attempts - a.attempts;
+      if (sort === 'attempts') return b.attempts - a.attempts || b.bestPercent - a.bestPercent;
+      if (sort === 'name') return a.nickname.localeCompare(b.nickname, 'vi');
+      return (b.lastAt || 0) - (a.lastAt || 0);
+    });
+    return list;
+  }
+
+  function maybeLoadUsers(force) {
+    if (state.users.loading) return;
+    if (state.users.loaded && !force) return;
+    var cloud = g.OntapCloud;
+    if (!cloud || typeof cloud.getAllLeaderboardEntries !== 'function') {
+      state.users.loaded = true;
+      state.users.loading = false;
+      state.users.source = 'local';
+      state.users.error = 'Lớp dữ liệu người dùng chưa sẵn sàng. Hãy tải lại trang và thử lại.';
+      refreshUsersView();
+      return;
+    }
+    state.users.loading = true;
+    state.users.error = '';
+    if (force) state.users.selected = null;
+    refreshUsersView();
+    Promise.resolve(cloud.getAllLeaderboardEntries()).then(function (result) {
+      state.users.entries = arr(result && result.entries);
+      state.users.source = (result && result.source) || 'local';
+      state.users.loadedAt = Date.now();
+      state.users.error = result && result.error
+        ? ((result.error.message || String(result.error)) + ' Một số dữ liệu có thể đang dùng bản lưu trên máy.')
+        : '';
+    }).catch(function (error) {
+      state.users.error = error && error.message ? error.message : String(error);
+      if (!state.users.entries.length) state.users.source = 'local';
+    }).then(function () {
+      state.users.loading = false;
+      state.users.loaded = true;
+      refreshUsersView();
+    });
+  }
+
+  function refreshUsersView() {
+    renderTabs();
+    if (state.tab === 'users' || state.tab === 'overview') renderView();
+    renderNotifications();
+  }
+
+  function reloadUsersAction() {
+    state.users.loaded = false;
+    state.users.loadedAt = 0;
+    maybeLoadUsers(true);
+  }
+
+  function usersTabHTML() {
+    var summary = usersSummary();
+    var users = filteredUsers();
+    var sourceText = state.users.source === 'cloud' ? 'Firebase · bảng xếp hạng công khai' : 'Bản lưu trên thiết bị';
+    var body;
+
+    if (state.users.loading) {
+      body = '<div class="admin-users-loading"><span class="admin-spinner"></span> Đang tải người học từ bảng xếp hạng…</div>';
+    } else if (state.users.error && !state.users.entries.length) {
+      body = '<div class="admin-users-error"><b>Chưa tải được dữ liệu người học.</b><br>' + esc(state.users.error) + '</div>'
+        + '<div class="admin-empty" style="margin:1rem">Bạn vẫn có thể thử lại sau. Dữ liệu chỉ đọc và không ảnh hưởng đến tài khoản của người học.</div>';
+    } else if (!summary.total) {
+      body = '<div class="admin-empty" style="margin:1rem">Chưa có người học nào ghi điểm vào bảng xếp hạng. Khi người dùng nộp bài, họ sẽ xuất hiện ở đây.</div>';
+    } else if (!users.length) {
+      body = '<div class="admin-empty" style="margin:1rem">Không tìm thấy người học phù hợp với “' + esc(state.users.query) + '”.</div>';
+    } else {
+      body = '<div class="admin-table-wrap"><table class="admin-table" aria-label="Danh sách người học">'
+        + '<thead><tr><th>Người học</th><th>Hoạt động</th><th>Kết quả tốt nhất</th><th>Lần cuối</th><th></th></tr></thead><tbody>'
+        + users.map(function (user) {
+          var pct = Math.round(user.bestPercent * 10) / 10;
+          var best = user.bestTitle || 'Chưa có dữ liệu';
+          return '<tr>'
+            + '<td><div class="admin-user-cell"><span class="admin-user-avatar">' + esc(initials(user.nickname)) + '</span>'
+            + '<span><b title="' + esc(user.nickname) + '">' + esc(user.nickname) + '</b><small title="' + esc(user.uid) + '">' + esc(user.uid) + '</small></span></div></td>'
+            + '<td><span class="admin-pill blue">' + user.entryCount + ' hạng mục</span><div class="muted">' + user.attempts + ' lượt làm bài</div></td>'
+            + '<td><div class="admin-progress"><span class="admin-progress-track"><span class="admin-progress-fill" style="width:' + pct + '%"></span></span><b>' + esc(String(pct)) + '%</b></div>'
+            + '<div class="muted" title="' + esc(best) + '">' + esc(best) + '</div></td>'
+            + '<td><span class="nowrap">' + esc(relativeTime(user.lastAt)) + '</span></td>'
+            + '<td><button type="button" class="btn ghost small" data-act="user-detail" data-uid="' + esc(user.uid) + '">' + icon('eye', 'sm') + ' Chi tiết</button></td>'
+            + '</tr>';
+        }).join('')
+        + '</tbody></table></div>';
+    }
+
+    var selected = state.users.selected ? summary.users.filter(function (u) { return u.uid === state.users.selected; })[0] : null;
+
+    return '<div class="admin-pagehead">'
+      + '<div><span class="admin-eyebrow">Cộng đồng</span><h1>Quản lí Users</h1>'
+      + '<p>Xem hoạt động học tập qua dữ liệu công khai từ bảng xếp hạng. Màn hình này chỉ đọc, không có thao tác xóa hay khóa tài khoản.</p></div>'
+      + '<div class="admin-pagehead-actions"><button type="button" class="btn ghost" data-act="reload-users">' + icon('refresh', 'sm') + ' Tải lại người học</button></div>'
+      + '</div>'
+      + '<div class="admin-stat-grid">'
+      + statCard('users', 'purple', state.users.loading ? '—' : summary.total, 'Người học', 'Có điểm trong bảng xếp hạng')
+      + statCard('activity', '', state.users.loading ? '—' : summary.attempts, 'Tổng lượt làm bài', summary.entries + ' hạng mục đã ghi')
+      + statCard('trophy', 'amber', state.users.loading ? '—' : summary.avgPercent + '%', 'Điểm tốt nhất TB', 'Trung bình theo từng người')
+      + statCard('clock', 'green', state.users.loading ? '—' : summary.active7d, 'Hoạt động 7 ngày', 'Có cập nhật điểm gần đây')
+      + '</div>'
+      + '<div class="admin-card admin-card--flush">'
+      + '<div class="admin-users-toolbar"><div><h2>Danh sách người học</h2>'
+      + '<p>Dữ liệu công khai từ BXH · email và tiến trình riêng không hiển thị vì quyền riêng tư.</p></div>'
+      + '<div class="admin-users-tools">'
+      + '<label class="admin-inline-search">' + icon('search')
+      + '<input type="search" id="users-search" value="' + esc(state.users.query) + '" placeholder="Tìm tên, uid hoặc hạng mục…" aria-label="Tìm người học"></label>'
+      + '<select class="admin-select" id="users-sort" aria-label="Sắp xếp người học">'
+      + '<option value="recent"' + (state.users.sort === 'recent' ? ' selected' : '') + '>Mới hoạt động</option>'
+      + '<option value="percent"' + (state.users.sort === 'percent' ? ' selected' : '') + '>Điểm cao nhất</option>'
+      + '<option value="attempts"' + (state.users.sort === 'attempts' ? ' selected' : '') + '>Nhiều lượt nhất</option>'
+      + '<option value="name"' + (state.users.sort === 'name' ? ' selected' : '') + '>Tên A → Z</option>'
+      + '</select>'
+      + '</div></div>'
+      + (state.users.error && state.users.entries.length
+        ? '<div class="admin-users-error" style="margin:.85rem 1rem">Không tải được dữ liệu mới, đang hiển thị bản gần nhất.<br>' + esc(state.users.error) + '</div>'
+        : '')
+      + body
+      + '<div class="admin-table-foot"><span>' + esc(sourceText) + (state.users.loadedAt ? ' · cập nhật ' + esc(relativeTime(state.users.loadedAt)) : '') + '</span>'
+      + '<span>' + (users.length !== summary.total ? users.length + ' / ' + summary.total + ' người học' : summary.total + ' người học') + '</span></div>'
+      + '</div>'
+      + (selected ? userDrawerHTML(selected) : '');
+  }
+
+  function userDrawerHTML(user) {
+    return '<div class="admin-drawer-layer">'
+      + '<button type="button" class="admin-drawer-scrim" data-act="close-user-drawer" aria-label="Đóng chi tiết"></button>'
+      + '<aside class="admin-drawer" role="dialog" aria-modal="true" aria-label="Chi tiết người học">'
+      + '<div class="admin-drawer-head"><div><b>Chi tiết người học</b><small>Dữ liệu công khai từ bảng xếp hạng</small></div>'
+      + '<button type="button" class="admin-icon-btn" data-act="close-user-drawer" aria-label="Đóng">' + icon('close') + '</button></div>'
+      + '<div class="admin-drawer-body">'
+      + '<div class="admin-drawer-profile"><span class="admin-drawer-avatar">' + esc(initials(user.nickname)) + '</span>'
+      + '<span><b>' + esc(user.nickname) + '</b><code>' + esc(user.uid) + '</code></span></div>'
+      + '<div class="admin-drawer-stats">'
+      + '<div class="admin-drawer-stat"><b>' + (Math.round(user.bestPercent * 10) / 10) + '%</b><span>Điểm tốt nhất</span></div>'
+      + '<div class="admin-drawer-stat"><b>' + user.attempts + '</b><span>Lượt làm</span></div>'
+      + '<div class="admin-drawer-stat"><b>' + user.entryCount + '</b><span>Hạng mục</span></div>'
+      + '</div>'
+      + '<h3 class="admin-drawer-section-title">Hoạt động theo hạng mục</h3>'
+      + (user.entries.length ? '<div class="admin-entry-list">' + user.entries.map(function (entry) {
+        var meta = entryMeta(entry);
+        var pct = Math.round(entryPercent(entry) * 10) / 10;
+        var extra = [entryLabel(entry)];
+        if (entry.score !== undefined && entry.max !== undefined) extra.push((Number(entry.score) || 0) + '/' + (Number(entry.max) || 0) + ' điểm');
+        if (entry.timeSec) extra.push(g.OntapCloud && g.OntapCloud.formatTime ? g.OntapCloud.formatTime(entry.timeSec) : (Math.floor(entry.timeSec / 60) + ' phút'));
+        if (entry.attempts) extra.push(entry.attempts + ' lượt');
+        extra.push(relativeTime(entryTime(entry)));
+        return '<div class="admin-entry-card"><div class="admin-entry-card-head"><b>' + esc(meta.title) + '</b><span>' + pct + '%</span></div>'
+          + '<small>' + esc(extra.filter(Boolean).join(' · ')) + '</small></div>';
+      }).join('') + '</div>' : '<div class="admin-drawer-empty">Chưa có dữ liệu hoạt động.</div>')
+      + '<div class="admin-note" style="margin-top:1rem">Email, mật khẩu và tiến trình làm bài riêng tư không được hiển thị tại đây.</div>'
+      + '</div></aside></div>';
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Tìm kiếm & thông báo                                                */
+  /* ------------------------------------------------------------------ */
+  function buildSearchResults(query) {
+    var q = text(query).toLowerCase().trim();
+    if (!q) return [];
+    var groups = [];
+
+    var english = [];
+    state.content.english.forEach(function (test, index) {
+      var haystack = text(test.title) + ' ' + text(test.id) + ' ' + arr(test.blocks).map(function (block) {
+        return text(block.short) + ' ' + text(block.title);
+      }).join(' ');
+      if (haystack.toLowerCase().indexOf(q) === -1) return;
+      english.push({ kind: 'english', index: index, title: test.title || test.id, meta: test.id + ' · ' + arr(test.blocks).length + ' phần' });
+    });
+    if (english.length) groups.push({ kind: 'english', title: 'Đề Tiếng Anh', icon: 'file', tone: '', items: english.slice(0, 4) });
+
+    var hoa = [];
+    state.content.hoa.exams.forEach(function (exam, index) {
+      var meta = exam.meta || {};
+      var haystack = text(meta.title) + ' ' + text(meta.id) + ' ' + text(meta.code) + ' ' + text(hoaSectionTitle(meta.section));
+      if (haystack.toLowerCase().indexOf(q) === -1) return;
+      hoa.push({ kind: 'hoa', index: index, title: (meta.code ? meta.code + ' · ' : '') + (meta.title || meta.id), meta: hoaSectionTitle(meta.section) + ' · ' + (meta.id || '') });
+    });
+    if (hoa.length) groups.push({ kind: 'hoa', title: 'Đề Hóa', icon: 'flask', tone: 'hoa', items: hoa.slice(0, 4) });
+
+    var vocab = [];
+    state.content.vocab.forEach(function (item, index) {
+      var haystack = text(item.word) + ' ' + text(item.meaning) + ' ' + text(item.ipa) + ' ' + text(item.pos) + ' ' + text(item.topicLabel);
+      if (haystack.toLowerCase().indexOf(q) === -1) return;
+      vocab.push({ kind: 'vocab', index: index, title: item.word || ('Mục #' + item.id), meta: '#' + item.id + ' · ' + (item.meaning || vocabTopicLabel(item)) });
+    });
+    if (vocab.length) groups.push({ kind: 'vocab', title: 'Từ vựng & Idiom', icon: 'vocab', tone: 'vocab', items: vocab.slice(0, 4) });
+
+    var users = usersSummary().users.filter(function (user) {
+      if ((text(user.nickname) + ' ' + user.uid).toLowerCase().indexOf(q) !== -1) return true;
+      return user.entries.some(function (entry) { return entryMeta(entry).title.toLowerCase().indexOf(q) !== -1; });
+    }).slice(0, 4).map(function (user) {
+      return { kind: 'users', uid: user.uid, title: user.nickname, meta: Math.round(user.bestPercent * 10) / 10 + '% · ' + user.attempts + ' lượt · ' + user.uid };
+    });
+    if (users.length) groups.push({ kind: 'users', title: 'Người học', icon: 'users', tone: 'user', items: users });
+
+    return groups;
+  }
+
+  function renderSearchResults() {
+    var pop = $('#admin-search-pop');
+    if (!pop) return;
+    var input = $('#admin-search-input');
+    if (input) input.setAttribute('aria-expanded', state.searchOpen ? 'true' : 'false');
+    pop.hidden = !state.searchOpen;
+    if (!state.searchOpen) return;
+    var q = text(state.searchQuery).trim();
+    if (!q) {
+      pop.innerHTML = '<div class="admin-search-empty">Nhập tên đề, từ vựng hoặc người học để tìm nhanh trong quản trị.</div>';
+      return;
+    }
+    var groups = buildSearchResults(q);
+    var total = groups.reduce(function (sum, group) { return sum + group.items.length; }, 0);
+    if (!total) {
+      pop.innerHTML = '<div class="admin-search-empty">Không tìm thấy kết quả cho <b>“' + esc(q) + '”</b>.<br>Thử tìm theo mã đề, tên đề hoặc nickname.</div>';
+      return;
+    }
+    pop.innerHTML = '<div class="admin-search-head"><span>Kết quả cho <b>“' + esc(q) + '”</b></span><span>' + total + '</span></div>'
+      + groups.map(function (group) {
+        return '<div class="admin-search-group-title">' + esc(group.title) + '</div>'
+          + group.items.map(function (item) {
+            var attrs = ' data-search-kind="' + group.kind + '"';
+            if (item.uid) attrs += ' data-search-uid="' + esc(item.uid) + '"';
+            if (item.index !== undefined) attrs += ' data-search-index="' + item.index + '"';
+            return '<button type="button" class="admin-search-result"' + attrs + '>'
+              + '<span class="admin-result-icon ' + (group.tone || '') + '">' + icon(group.icon) + '</span>'
+              + '<span class="admin-result-text"><b>' + esc(item.title) + '</b><small>' + esc(item.meta) + '</small></span>'
+              + '</button>';
+          }).join('');
+      }).join('');
+  }
+
+  function openSearchResult(target) {
+    var kind = target.getAttribute('data-search-kind');
+    var index = Number(target.getAttribute('data-search-index'));
+    var uid = target.getAttribute('data-search-uid');
+    state.searchOpen = false;
+    state.searchQuery = '';
+    var input = $('#admin-search-input');
+    if (input) input.value = '';
+    if (kind === 'english') {
+      switchTab('english');
+      openEnglishEditor(index);
+      return;
+    }
+    if (kind === 'hoa') {
+      switchTab('hoa');
+      openHoaEditor(index);
+      return;
+    }
+    if (kind === 'vocab') {
+      switchTab('vocab');
+      state.editor = newVocabEditor(index);
+      state.editorDirty = false;
+      renderView();
+      renderSavebar();
+      scrollTop();
+      return;
+    }
+    if (kind === 'users' && uid) {
+      switchTab('users');
+      state.users.selected = uid;
+      renderView();
+    }
+  }
+
+  function notificationItems() {
+    var items = [];
+    if (!state.token) {
+      items.push({ tone: 'warn', icon: 'key', title: 'Chưa cấu hình token GitHub', desc: 'Cần token để đăng nội dung lên website.', tab: 'settings' });
+    }
+    if (state.contentWarnings.length) {
+      items.push({ tone: 'warn', icon: 'warning', title: 'Có cảnh báo khi tải nội dung', desc: state.contentWarnings[0], tab: 'overview' });
+    }
+    if (state.users.error) {
+      items.push({ tone: 'bad', icon: 'users', title: 'Chưa tải được danh sách người học', desc: state.users.error, tab: 'users' });
+    }
+    if (state.draftRestored || contentDirty()) {
+      items.push({ tone: 'warn', icon: 'cloud', title: 'Có thay đổi chưa đăng', desc: 'Bản đang soạn khác với nội dung người dùng đang thấy.', tab: 'overview' });
+    }
+    if (!items.length) {
+      items.push({ tone: 'ok', icon: 'checkCircle', title: 'Không có thông báo mới', desc: 'Nội dung và kết nối đang ổn định.', tab: '' });
+    }
+    return items;
+  }
+
+  function notificationSignature() {
+    return notificationItems().map(function (item) { return item.tone + ':' + item.title; }).join('|');
+  }
+
+  function renderNotifications() {
+    var panel = $('#admin-notif-panel');
+    var dot = $('#admin-notif-dot');
+    var items = notificationItems();
+    var important = items.filter(function (item) { return item.tone !== 'ok'; });
+    var unread = notificationSignature() === state.notifSeenSig ? 0 : important.length;
+    if (dot) {
+      dot.textContent = unread > 9 ? '9+' : String(unread);
+      dot.classList.toggle('is-empty', !unread);
+    }
+    var toggle = $('[data-act="toggle-notifications"]');
+    if (toggle) toggle.setAttribute('aria-expanded', state.notifOpen ? 'true' : 'false');
+    if (!panel) return;
+    panel.hidden = !state.notifOpen;
+    panel.innerHTML = '<div class="admin-notif-head"><b>Thông báo</b>'
+      + (important.length ? '<button type="button" class="btn ghost small" data-act="notif-read">Đã đọc</button>' : '<span>Đã cập nhật</span>')
+      + '</div><div class="admin-notif-list">'
+      + items.map(function (item) {
+        return '<button type="button" class="admin-notif-item" data-act="notif-open"' + (item.tab ? ' data-tab="' + esc(item.tab) + '"' : '') + '>'
+          + '<span class="admin-notif-item-icon' + (item.tone ? ' ' + item.tone : '') + '">' + icon(item.icon) + '</span>'
+          + '<span class="admin-notif-item-text"><b>' + esc(item.title) + '</b><small>' + esc(item.desc) + '</small></span>'
+          + '</button>';
+      }).join('')
+      + '</div>';
+  }
+
+  function toggleNotifications() {
+    state.notifOpen = !state.notifOpen;
+    if (state.notifOpen) {
+      state.notifSeenSig = notificationSignature();
+      writeStorage(g.localStorage, NOTIF_KEY, state.notifSeenSig);
+    }
+    renderNotifications();
+  }
+
+  function markNotificationsRead() {
+    state.notifSeenSig = notificationSignature();
+    writeStorage(g.localStorage, NOTIF_KEY, state.notifSeenSig);
+    renderNotifications();
+  }
+
+  function closeFloatingPanels() {
+    var changed = false;
+    if (state.searchOpen) { state.searchOpen = false; changed = true; }
+    if (state.notifOpen) { state.notifOpen = false; changed = true; }
+    if (changed) {
+      renderSearchResults();
+      renderNotifications();
+    }
+  }
+
+  function toggleSidebar() {
+    state.sidebarOpen = !state.sidebarOpen;
+    var shell = $('#admin-shell');
+    if (shell) shell.classList.toggle('is-sidebar-open', state.sidebarOpen);
+    var menu = $('[data-act="toggle-sidebar"]');
+    if (menu) menu.setAttribute('aria-expanded', state.sidebarOpen ? 'true' : 'false');
+  }
+
+  function closeSidebar() {
+    state.sidebarOpen = false;
+    var shell = $('#admin-shell');
+    if (shell) shell.classList.remove('is-sidebar-open');
+    var menu = $('[data-act="toggle-sidebar"]');
+    if (menu) menu.setAttribute('aria-expanded', 'false');
   }
 
   function jsonBoxHTML(kind, value, label) {
@@ -817,6 +1545,54 @@
       + esc(label === undefined ? value : label) + '</option>';
   }
 
+  function contentPageHTML() {
+    var tab = state.tab;
+    var meta = {
+      english: {
+        title: 'Đề Tiếng Anh',
+        desc: 'Tạo và chỉnh sửa đề trắc nghiệm động. Đề tĩnh trong data-anh.js được giữ nguyên và người dùng vẫn thấy đầy đủ.',
+        action: 'new-english',
+        actionLabel: 'Tạo đề Anh',
+        icon: 'file'
+      },
+      hoa: {
+        title: 'Đề Hóa',
+        desc: 'Quản lý chuyên mục, đề trắc nghiệm, đúng/sai và trả lời ngắn. Đề tĩnh trong exams-hoa/ không bị thay đổi.',
+        action: 'new-hoa',
+        actionLabel: 'Tạo đề Hóa',
+        icon: 'flask'
+      },
+      vocab: {
+        title: 'Từ vựng & Idiom',
+        desc: 'Thêm từ vựng hoặc idiom mới vào flashcard, danh sách và quiz. Mã động bắt đầu từ #1000.',
+        action: 'new-vocab',
+        actionLabel: 'Thêm từ mới',
+        icon: 'vocab'
+      }
+    }[tab] || null;
+    if (!meta) meta = { title: 'Nội dung', desc: '', action: '', actionLabel: '', icon: 'file' };
+
+    return '<div class="admin-pagehead">'
+      + '<div><span class="admin-eyebrow">Điều khiển nội dung</span>'
+      + '<h1>' + meta.title + '</h1><p>' + meta.desc + '</p></div>'
+      + '<div class="admin-pagehead-actions">'
+      + '<button type="button" class="btn ghost" data-act="reload-content">' + icon('refresh', 'sm') + ' Tải lại</button>'
+      + '<button type="button" class="btn" data-act="' + meta.action + '">' + icon('plus', 'sm') + ' ' + meta.actionLabel + '</button>'
+      + '</div></div>'
+      + '<div class="admin-segmented" role="tablist" aria-label="Loại nội dung">'
+      + contentSegment('english', 'Đề Tiếng Anh', state.content.english.length)
+      + contentSegment('hoa', 'Đề Hóa', state.content.hoa.exams.length)
+      + contentSegment('vocab', 'Từ vựng & Idiom', state.content.vocab.length)
+      + '</div>'
+      + (tab === 'english' ? englishTabHTML() : tab === 'hoa' ? hoaTabHTML() : vocabTabHTML());
+  }
+
+  function contentSegment(tab, label, count) {
+    var active = state.tab === tab;
+    return '<button type="button" class="admin-segment' + (active ? ' is-active' : '') + '" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" data-act="tab" data-tab="' + tab + '">'
+      + '<span>' + esc(label) + '</span><span class="admin-segment-count">' + count + '</span></button>';
+  }
+
   function englishTabHTML() {
     var list = state.content.english;
     var items = list.map(function (test, index) {
@@ -834,12 +1610,12 @@
         + '</div></div>';
     }).join('');
 
-    return '<div class="admin-toolbar"><h2>Đề Tiếng Anh</h2>'
-      + '<div class="admin-actions"><button type="button" class="btn small" data-act="new-english">+ Tạo đề Anh</button>'
-      + '<button type="button" class="btn ghost small" data-act="reload-content">Tải lại từ GitHub</button></div></div>'
-      + '<div class="admin-note" style="margin-bottom:1rem">Đề tĩnh trong <code>js/data-anh.js</code> (' + staticEnglishCount() + ' đề) được giữ nguyên và chỉ để tham khảo. Đề tạo ở đây sẽ xuất hiện thêm trong tab chọn đề của trang Tiếng Anh.</div>'
+    return '<div class="admin-card admin-card--flush">'
+      + '<div class="admin-list-head"><div><h2>' + list.length + ' đề động</h2>'
+      + '<p>' + staticEnglishCount() + ' đề tĩnh trong <code>data-anh.js</code> được giữ nguyên và chỉ để tham khảo.</p></div></div>'
       + (list.length ? '<div class="admin-list">' + items + '</div>'
-        : '<div class="admin-empty">Chưa có đề Tiếng Anh động. Bấm <b>+ Tạo đề Anh</b> hoặc nhập JSON bên dưới.</div>')
+        : '<div class="admin-empty">Chưa có đề Tiếng Anh động. Bấm <b>Tạo đề Anh</b> ở phía trên hoặc nhập JSON bên dưới.</div>')
+      + '</div>'
       + jsonBoxHTML('english', list, 'Nhập / xuất JSON đề Tiếng Anh');
   }
 
@@ -974,7 +1750,7 @@
   }
 
   function scrollTop() {
-    var host = $('#admin-view');
+    var host = $('#admin-content');
     if (host) host.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -1039,16 +1815,19 @@
         + '</div>';
     }).join('');
 
-    return '<div class="admin-toolbar"><h2>Đề Hóa</h2>'
-      + '<div class="admin-actions"><button type="button" class="btn small" data-act="new-hoa">+ Tạo đề Hóa</button>'
-      + '<button type="button" class="btn ghost small" data-act="reload-content">Tải lại từ GitHub</button></div></div>'
-      + '<div class="admin-note" style="margin-bottom:1rem">Đề tĩnh trong <code>js/exams-hoa/</code> (' + staticHoaCount() + ' đề) được giữ nguyên. Đề tạo ở đây xuất hiện thêm trong trang Đề thi Hóa.</div>'
-      + '<div class="admin-card" style="margin-bottom:1.25rem"><div class="admin-toolbar" style="margin-bottom:.75rem"><h2 style="font-size:1.1rem">Chuyên mục đề Hóa</h2>'
-      + '<button type="button" class="btn ghost small" data-act="new-hoa-section">+ Thêm chuyên mục</button></div>'
+    return '<div class="admin-card admin-card--flush" style="margin-bottom:1rem">'
+      + '<div class="admin-list-head"><div><h2>Chuyên mục đề Hóa</h2>'
+      + '<p>' + staticSections.length + ' chuyên mục tĩnh · ' + state.content.hoa.sections.length + ' chuyên mục động</p></div>'
+      + '<button type="button" class="btn ghost small" data-act="new-hoa-section">' + icon('plus', 'sm') + ' Thêm chuyên mục</button></div>'
       + '<div class="admin-list">' + sectionItems + '</div>'
-      + '<div class="admin-note" style="margin-top:.8rem">' + staticSections.length + ' chuyên mục tĩnh không sửa được. Chuyên mục động có thể thêm, sửa hoặc xóa nếu không còn đề nào dùng.</div></div>'
+      + '<div class="admin-table-foot">Chuyên mục tĩnh không sửa được. Chuyên mục động chỉ xóa được khi không còn đề nào sử dụng.</div>'
+      + '</div>'
+      + '<div class="admin-card admin-card--flush">'
+      + '<div class="admin-list-head"><div><h2>' + c.exams.length + ' đề Hóa động</h2>'
+      + '<p>' + staticHoaCount() + ' đề tĩnh trong <code>exams-hoa/</code> được giữ nguyên.</p></div></div>'
       + (c.exams.length ? '<div class="admin-list">' + items + '</div>'
-        : '<div class="admin-empty">Chưa có đề Hóa động. Bấm <b>+ Tạo đề Hóa</b> hoặc nhập JSON bên dưới.</div>')
+        : '<div class="admin-empty">Chưa có đề Hóa động. Bấm <b>Tạo đề Hóa</b> ở phía trên hoặc nhập JSON bên dưới.</div>')
+      + '</div>'
       + jsonBoxHTML('hoa', c, 'Nhập / xuất JSON đề Hóa');
   }
 
@@ -1317,15 +2096,15 @@
         + '</div></div>';
     }).join('');
 
-    return '<div class="admin-toolbar"><h2>Từ vựng &amp; Idiom</h2>'
-      + '<div class="admin-actions"><button type="button" class="btn small" data-act="new-vocab">+ Thêm từ mới</button>'
-      + '<button type="button" class="btn ghost small" data-act="reload-content">Tải lại từ GitHub</button></div></div>'
-      + '<div class="admin-note" style="margin-bottom:1rem">Từ vựng động dùng mã từ <b>1000</b> trở lên để không trùng 322 mục có sẵn. Người dùng sẽ thấy các mục mới trong trang Từ vựng.</div>'
-      + '<div class="admin-toolbar"><label class="admin-field" style="width:min(420px,100%)"><span>Tìm từ vựng</span>'
-      + '<input type="search" id="vocab-search" value="' + esc(state.vocabSearch) + '" placeholder="Nhập từ, nghĩa hoặc chủ đề…"></label>'
-      + '<span class="admin-note">' + list.length + ' / ' + state.content.vocab.length + ' mục</span></div>'
+    return '<div class="admin-card admin-card--flush">'
+      + '<div class="admin-list-head"><div><h2>Từ vựng &amp; Idiom</h2>'
+      + '<p>Mã từ <b>1000</b> trở lên để không trùng 322 mục có sẵn · ' + list.length + ' / ' + state.content.vocab.length + ' mục</p></div>'
+      + '<label class="admin-inline-search">' + icon('search')
+      + '<input type="search" id="vocab-search" value="' + esc(state.vocabSearch) + '" placeholder="Tìm từ, nghĩa, chủ đề…" aria-label="Tìm từ vựng"></label>'
+      + '</div>'
       + (list.length ? '<div class="admin-list">' + items + '</div>'
-        : '<div class="admin-empty">' + (state.content.vocab.length ? 'Không tìm thấy mục phù hợp.' : 'Chưa có từ vựng động. Bấm <b>+ Thêm từ mới</b> hoặc nhập JSON bên dưới.') + '</div>')
+        : '<div class="admin-empty">' + (state.content.vocab.length ? 'Không tìm thấy mục phù hợp.' : 'Chưa có từ vựng động. Bấm <b>Thêm từ mới</b> ở phía trên hoặc nhập JSON bên dưới.') + '</div>')
+      + '</div>'
       + jsonBoxHTML('vocab', state.content.vocab, 'Nhập / xuất JSON từ vựng');
   }
 
@@ -1863,6 +2642,7 @@
       var value = target.type === 'checkbox' ? !!target.checked : target.value;
       setByPath(state.editor.draft, path, value);
       state.editorDirty = true;
+      renderSavebar();
       return;
     }
     var paras = target.getAttribute('data-paras');
@@ -1871,6 +2651,7 @@
       if (state.editor.draft.blocks && state.editor.draft.blocks[bi]) {
         state.editor.draft.blocks[bi].paras = target.value.split('\n');
         state.editorDirty = true;
+        renderSavebar();
       }
     }
   }
@@ -1949,6 +2730,19 @@
   }
 
   function handleClick(e) {
+    var searchResult = e.target.closest('[data-search-kind]');
+    if (searchResult) {
+      openSearchResult(searchResult);
+      return;
+    }
+    if (!e.target.closest('.admin-search') && state.searchOpen) {
+      state.searchOpen = false;
+      renderSearchResults();
+    }
+    if (!e.target.closest('#admin-notif') && state.notifOpen) {
+      state.notifOpen = false;
+      renderNotifications();
+    }
     var target = e.target.closest('[data-act]');
     if (!target) return;
     var act = target.getAttribute('data-act');
@@ -1960,6 +2754,33 @@
 
     if (act === 'admin-google') { signInGoogle(); return; }
     if (act === 'admin-signout') { signOutAdmin(); return; }
+    if (act === 'toggle-sidebar') { toggleSidebar(); return; }
+    if (act === 'close-sidebar') { closeSidebar(); return; }
+    if (act === 'toggle-content-nav') {
+      state.contentNavOpen = !state.contentNavOpen;
+      renderTabs();
+      return;
+    }
+    if (act === 'toggle-notifications') { toggleNotifications(); return; }
+    if (act === 'notif-read') { markNotificationsRead(); return; }
+    if (act === 'notif-open') {
+      state.notifOpen = false;
+      var notifTab = target.getAttribute('data-tab');
+      if (notifTab) switchTab(notifTab);
+      else renderNotifications();
+      return;
+    }
+    if (act === 'reload-users') { reloadUsersAction(); return; }
+    if (act === 'user-detail') {
+      state.users.selected = target.getAttribute('data-uid');
+      renderView();
+      return;
+    }
+    if (act === 'close-user-drawer') {
+      state.users.selected = null;
+      renderView();
+      return;
+    }
 
     if (act === 'tab') {
       switchTab(target.getAttribute('data-tab'));
@@ -2180,6 +3001,26 @@
   function handleInput(e) {
     var target = e.target;
     if (!target) return;
+    if (target.id === 'admin-search-input') {
+      state.searchQuery = target.value;
+      state.searchOpen = true;
+      maybeLoadUsers();
+      renderSearchResults();
+      return;
+    }
+    if (target.id === 'users-search') {
+      state.users.query = target.value;
+      clearTimeout(state._usersTimer);
+      state._usersTimer = setTimeout(function () {
+        renderView();
+        var input = $('#users-search');
+        if (input) {
+          input.focus();
+          try { input.setSelectionRange(input.value.length, input.value.length); } catch (err) { /* bỏ qua */ }
+        }
+      }, 200);
+      return;
+    }
     if (target.id === 'vocab-search') {
       state.vocabSearch = target.value;
       clearTimeout(state._searchTimer);
@@ -2201,6 +3042,11 @@
   function handleChange(e) {
     var target = e.target;
     if (!target) return;
+    if (target.id === 'users-sort') {
+      state.users.sort = target.value;
+      renderView();
+      return;
+    }
     if (target.getAttribute('data-path') !== null) handleFieldInput(target);
     var fileKind = target.getAttribute('data-file-kind');
     if (fileKind && target.files && target.files[0]) {
@@ -2226,6 +3072,44 @@
     document.addEventListener('click', handleClick);
     document.addEventListener('input', handleInput);
     document.addEventListener('change', handleChange);
+    document.addEventListener('focusin', function (e) {
+      if (e.target && e.target.id === 'admin-search-input') {
+        state.searchOpen = true;
+        maybeLoadUsers();
+        renderSearchResults();
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && String(e.key).toLowerCase() === 'k') {
+        if (!state.authed) return;
+        e.preventDefault();
+        var input = $('#admin-search-input');
+        if (input) { input.focus(); input.select(); }
+        return;
+      }
+      if (e.key !== 'Escape') return;
+      var changed = false;
+      if (state.users.selected) {
+        state.users.selected = null;
+        renderView();
+        changed = true;
+      }
+      if (state.searchOpen) {
+        state.searchOpen = false;
+        renderSearchResults();
+        changed = true;
+      }
+      if (state.notifOpen) {
+        state.notifOpen = false;
+        renderNotifications();
+        changed = true;
+      }
+      if (state.sidebarOpen) {
+        closeSidebar();
+        changed = true;
+      }
+      if (changed) e.preventDefault();
+    });
     g.addEventListener('beforeunload', function (e) {
       if (contentDirty() || state.editorDirty) {
         e.preventDefault();
