@@ -1492,7 +1492,7 @@
       } else if (delta > 8) {
         header.classList.add('header-hidden');
         document.documentElement.style.setProperty('--header-h', '0px');
-        if (mobile.matches) setRunbarHidden(true);
+        if (mobile.matches) setRunbarHidden(curY > header.offsetHeight + 8);
       } else if (delta < -8) {
         header.classList.remove('header-hidden');
         document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
