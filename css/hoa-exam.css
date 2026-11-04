@@ -275,6 +275,13 @@ body.exam-active .page-head { display: none; }
   border-bottom: 4px solid var(--line);
   padding: .65rem clamp(.9rem, 3vw, 2rem);
 }
+@media (max-width: 959px) {
+  .exam-toolbar { transition: transform .22s ease, visibility 0s linear 0s; will-change: transform; }
+  .exam-toolbar.exam-toolbar-hidden { transform: translateY(-100%); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; }
+}
+@media (max-width: 959px) and (prefers-reduced-motion: reduce) {
+  .exam-toolbar, .exam-toolbar.exam-toolbar-hidden { transition: none; }
+}
 .exam-toolbar-in {
   max-width: 1280px;
   margin: 0 auto;

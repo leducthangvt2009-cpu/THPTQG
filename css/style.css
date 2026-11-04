@@ -283,11 +283,11 @@ a.scard:hover { transform: translate(2px,2px); box-shadow: 4px 4px 0 var(--shado
 /* ---------- Làm bài ---------- */
 .runbar { position: sticky; top: var(--header-h, 64px); z-index: 30; background: var(--mono-board); border-bottom: 3px solid var(--line); }
 @media (max-width: 959px) {
-  .runbar { transition: transform .22s ease; will-change: transform; }
-  .runbar.runbar-hidden { transform: translateY(-100%); }
+  .runbar { transition: transform .22s ease, visibility 0s linear 0s; will-change: transform; }
+  .runbar.runbar-hidden { transform: translateY(-100%); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; }
 }
 @media (max-width: 959px) and (prefers-reduced-motion: reduce) {
-  .runbar { transition: none; }
+  .runbar, .runbar.runbar-hidden { transition: none; }
 }
 .runbar-in {
   max-width: 1280px; margin: 0 auto; padding: .6rem clamp(1.25rem, 4vw, 3rem);

@@ -39,6 +39,8 @@
   var state = null;
   var timer = null;
   var scrollTick = false;
+  var lastToolbarY = 0;
+  var toolbarHidden = false;
   var lbDe = H.meta.length ? H.meta[0].id : 'de8';
   var lbMode = 'thi';
 
@@ -710,6 +712,8 @@
     qs('#examResult').innerHTML = '';
     var room = qs('#examRoom');
     room.hidden = false;
+    lastToolbarY = g.scrollY || g.pageYOffset || 0;
+    toolbarHidden = false;
     room.innerHTML = roomToolbar()
       + '<div class="exam-shell">' + bannerHTML(resumed)
       + '<div class="exam-layout"><div class="exam-main">'
@@ -1262,8 +1266,32 @@
     }
   }
 
+  function syncToolbarVisibility() {
+    var bar = qs('#examRoom .exam-toolbar');
+    if (!bar) return;
+    var y = g.scrollY || g.pageYOffset || 0;
+    if (!g.matchMedia('(max-width: 959px)').matches) {
+      if (toolbarHidden) {
+        toolbarHidden = false;
+        bar.classList.remove('exam-toolbar-hidden');
+      }
+      lastToolbarY = y;
+      return;
+    }
+    var next = toolbarHidden;
+    if (y <= 40) next = false;
+    else if (y - lastToolbarY > 8) next = true;
+    if (next !== toolbarHidden) {
+      toolbarHidden = next;
+      bar.classList.toggle('exam-toolbar-hidden', next);
+    }
+    lastToolbarY = y;
+  }
+
   function onScroll() {
-    if (scrollTick || !state || state.phase !== 'room') return;
+    if (!state || state.phase !== 'room') return;
+    syncToolbarVisibility();
+    if (scrollTick) return;
     scrollTick = true;
     g.requestAnimationFrame(function () {
       scrollTick = false;
@@ -1314,6 +1342,7 @@
       if (d && d.open && e.target === d) d.close();
     });
     g.addEventListener('scroll', onScroll, { passive: true });
+    g.addEventListener('resize', syncToolbarVisibility);
 
     var c = cloudApi();
     if (c && typeof c.onAuthChange === 'function') {
