@@ -841,6 +841,7 @@
 
     var selectedTestId = TESTS[0].id;
     var lbMode = 'exam';
+    var lbTest = TESTS[0].id;
     var S = {
       test: null, qmap: null, mode: 'practice', label: '', qids: [], answers: {}, flags: {}, blockIdx: 0,
       startMs: 0, secs: 0, submitted: false, review: false, onlyWrong: false, result: null, timer: null, paletteOpen: false,
@@ -908,14 +909,14 @@
     function mountEnglishLeaderboard(test) {
       var host = $('#englishLeaderboard');
       var c = cloudApi();
-      if (!host || !c || typeof c.mountLeaderboard !== 'function' || !test) return;
-      c.mountLeaderboard(host, scoreCategory(test.id, lbMode), {
-        title: 'Bảng xếp hạng · ' + test.title,
+      var target = test || getTest(lbTest) || TESTS.filter(function (item) { return item.subject === 'anh'; })[0];
+      if (!host || !c || typeof c.mountLeaderboard !== 'function' || !target) return;
+      c.mountLeaderboard(host, scoreCategory(target.id, lbMode), {
+        title: 'Bảng xếp hạng · ' + target.title,
         subtitle: (lbMode === 'exam' ? 'Thi thử' : 'Luyện tập') + ' · điểm cao nhất của mỗi tài khoản',
         limit: 10
       });
     }
-
     function go(hash) { if (location.hash === hash) route(); else location.hash = hash; }
 
     function startAttempt(test, mode, qids, label) {
@@ -974,89 +975,103 @@
     }
     function answeredCount() { return S.qids.filter(function (n) { return !!S.answers[n]; }).length; }
 
+    var EN_DESC = {
+      'anh-midterm-hk1-2627': 'Đề minh họa của THPT Chuyên Lê Quý Đôn, mã đề 121. Gồm 40 câu, bám sát ma trận Giữa HKI.',
+      'anh-test-01': 'Lexico-Grammar, điền từ vào thông báo/quảng cáo, sắp xếp đoạn văn và đọc hiểu.',
+      'anh-test-02': 'Từ vựng – ngữ pháp, sắp xếp đoạn văn, điền từ vào bài đọc và đọc hiểu.',
+      'anh-test-03': 'Đọc hiểu chuyên sâu, sắp xếp đoạn văn và điền câu vào bài đọc.',
+      'anh-test-04': 'Sắp xếp đoạn văn, điền từ, đọc hiểu và tình huống giao tiếp.',
+      'anh-test-05': 'Từ vựng – ngữ pháp, đọc hiểu khoa học, sắp xếp đoạn văn và điền từ.'
+    };
+
+    function englishDuration(test) {
+      return test.id === 'anh-midterm-hk1-2627' ? 45 : 60;
+    }
+
     function renderEnglish() {
       var tests = TESTS.filter(function (t) { return t.subject === 'anh'; });
       var t = getTest(selectedTestId) || tests[0];
       if (!t) return;
       selectedTestId = t.id;
+      if (!getTest(lbTest)) lbTest = tests[0].id;
 
-      var tabs = tests.map(function (item) {
+      var totalAllQuestions = tests.reduce(function (sum, item) { return sum + total(item); }, 0);
+      var durations = tests.map(englishDuration);
+      var minDuration = Math.min.apply(null, durations);
+      var maxDuration = Math.max.apply(null, durations);
+      var durationText = minDuration === maxDuration ? String(minDuration) : (minDuration + '–' + maxDuration);
+
+      var hero = '<div class="exam-hero"><div>' +
+        '<span class="tag">TIẾNG ANH 12 · GIỮA HKI</span>' +
+        '<h2>Luyện đề Tiếng Anh 12</h2>' +
+        '<p>6 đề Giữa HKI bám sát cấu trúc THPT: từ vựng – ngữ pháp, điền từ, sắp xếp đoạn văn, đọc hiểu và viết lại câu. '
+        + 'Thi thử có bấm giờ hoặc luyện tập chấm ngay; tiến trình được lưu tự động và có bảng xếp hạng riêng từng đề.</p>' +
+        '<div class="kpis"><span><b>' + tests.length + '</b> đề</span><span><b>' + totalAllQuestions + '</b> câu</span>'
+        + '<span>Chấm điểm tự động</span><span>Lời giải chi tiết</span></div></div>' +
+        '<div class="exam-hero-stats">' +
+          '<div class="exam-hero-stat"><b>' + tests.length + '</b><span>Đề</span></div>' +
+          '<div class="exam-hero-stat"><b>' + totalAllQuestions + '</b><span>Câu hỏi</span></div>' +
+          '<div class="exam-hero-stat"><b>10</b><span>Thang điểm</span></div>' +
+          '<div class="exam-hero-stat"><b>' + durationText + '</b><span>Phút/đề</span></div>' +
+        '</div></div>';
+
+      var cards = tests.map(function (item, idx) {
         var n = total(item);
         var hist = histAll().filter(function (h) { return h.testId === item.id; });
         var full = hist.filter(function (h) { return h.total === n; });
         var best = full.reduce(function (m, h) { return Math.max(m, h.correct); }, -1);
         var prog = store.get(progKey(item.id), null);
-        var isAct = item.id === selectedTestId;
-        var badge = prog && prog.qids && prog.qids.length ? 'Đang làm' : (best >= 0 ? best + '/' + n : n + ' câu');
+        var inProgress = !!(prog && prog.qids && prog.qids.length);
+        var label = idx === 0 ? 'GIỮA HKI · ĐỀ MINH HỌA' : 'GIỮA HKI · ĐỀ 0' + idx;
+        var name = idx === 0 ? item.title : ('Đề luyện số ' + idx + ' · ' + item.title);
+        var desc = EN_DESC[item.id] || (n + ' câu · ' + item.blocks.length + ' phần');
+        var color = idx === 0 ? '#d9232a' : '#1b4aa5';
+        var bestHTML = best >= 0 ? 'Cao nhất: <b>' + best + '/' + n + '</b>' : 'Chưa làm lần nào';
+        var buttons = '';
+        if (inProgress) {
+          buttons += '<button type="button" class="btn small" data-act="resume" data-test="' + item.id + '">Tiếp tục</button>';
+        }
+        buttons += '<button type="button" class="btn small' + (inProgress ? ' ghost' : '') + '" data-act="start" data-mode="exam" data-test="' + item.id + '">Thi thử</button>';
+        buttons += '<button type="button" class="btn small ghost" data-act="start" data-mode="practice" data-test="' + item.id + '">Luyện tập</button>';
 
-        return '<button type="button" class="test-tab' + (isAct ? ' active' : '') + '" data-act="select-test" data-test="' + item.id + '">' +
-          '<div class="test-tab-top"><b>' + esc(item.title) + '</b><span class="test-tab-badge">' + esc(badge) + '</span></div>' +
-          '<div class="test-tab-sub">' + item.blocks.length + ' phần · Đã làm ' + hist.length + ' lần</div>' +
-        '</button>';
+        return '<article class="exam-card" style="--card:' + color + '">' +
+          '<div class="exam-card-top"><span class="exam-code">' + label + '</span>'
+          + '<span class="exam-tag">' + englishDuration(item) + ' phút</span></div>' +
+          '<h3>' + esc(name) + '</h3><p>' + esc(desc) + '</p>' +
+          '<div class="exam-meta"><span>' + n + ' câu</span><span>' + item.blocks.length + ' phần</span>'
+          + '<span>10 điểm</span><span>Đã làm ' + hist.length + ' lần</span></div>' +
+          '<div class="exam-card-foot"><div><span class="best-score">' + bestHTML + '</span>'
+          + (inProgress ? '<span class="saved-badge">Đang làm dở</span>' : '') + '</div>'
+          + '<div class="btn-row" style="gap:.45rem">' + buttons + '</div></div></article>';
       }).join('');
 
-      var n = total(t);
-      var hist = histAll().filter(function (h) { return h.testId === t.id; });
-      var full = hist.filter(function (h) { return h.total === n; });
-      var best = full.reduce(function (m, h) { return Math.max(m, h.correct); }, -1);
-      var prog = store.get(progKey(t.id), null);
-      var last = hist[0];
-
-      var kpis = '<div class="kpis"><span><b>' + n + '</b> câu</span><span><b>' + t.blocks.length + '</b> phần</span>' +
-        '<span>Đã làm: <b>' + hist.length + '</b> lần</span>' +
-        (best >= 0 ? '<span>Kỷ lục (cả đề): <b>' + best + '/' + n + '</b></span>' : '') + '</div>';
-
-      var resume = '';
-      if (prog && prog.qids && prog.qids.length) {
-        var done = prog.qids.filter(function (x) { return prog.answers && prog.answers[x]; }).length;
-        resume = '<div class="resume"><p><b>Bài đang làm dở (' + esc(t.title) + ')</b> · ' + modeName(prog.mode) + (prog.label ? ' · ' + esc(prog.label) : '') + ' · ' + done + '/' + prog.qids.length + ' câu · ' + mmss(prog.secs || 0) + '</p>' +
-          '<button class="btn small" type="button" data-act="resume" data-test="' + t.id + '">Tiếp tục</button></div>';
-      }
-      var retry = (last && last.wrong && last.wrong.length)
-        ? '<button class="btn ghost" type="button" data-act="retry-last" data-test="' + t.id + '">Làm lại ' + last.wrong.length + ' câu sai gần nhất</button>' : '';
-
-      var parts = t.blocks.map(function (b) {
-        var ns = b.questions.map(function (q) { return q.n; });
-        return '<li class="part-item"><div><div class="t">' + esc(b.short) + '</div><div class="r">Câu ' + ns[0] + (ns.length > 1 ? '–' + ns[ns.length - 1] : '') + ' · ' + ns.length + ' câu</div></div>' +
-          '<button class="btn small ghost" type="button" data-act="part" data-test="' + t.id + '" data-block="' + b.id + '">Luyện phần này</button></li>';
+      var lbOptions = tests.map(function (item) {
+        return '<option value="' + item.id + '"' + (item.id === lbTest ? ' selected' : '') + '>'
+          + esc(item.title) + '</option>';
       }).join('');
-
-      var totalAllQuestions = tests.reduce(function (sum, item) { return sum + total(item); }, 0);
-
-      var card = '<article class="panel test-card">' +
-        '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:.5rem">' +
-          '<div><h3>' + esc(t.title) + '</h3><p class="sub">Lexico-Grammar, Arrangement &amp; Reading · Đề luyện thi THPT</p></div>' +
-          kpis +
-        '</div>' +
-        resume +
-        '<div class="modes">' +
-          '<div class="mode"><h4>Luyện tập</h4><p>Chọn đáp án xong là thấy đúng/sai và lời giải ngay. Mỗi câu chỉ chọn một lần.</p><button class="btn" type="button" data-act="start" data-mode="practice" data-test="' + t.id + '">Bắt đầu luyện tập</button></div>' +
-          '<div class="mode"><h4>Thi thử</h4><p>Làm cả đề có bấm giờ, được đổi đáp án và đánh dấu câu cần xem lại. Chấm điểm và xem lời giải sau khi nộp bài.</p><button class="btn" type="button" data-act="start" data-mode="exam" data-test="' + t.id + '">Bắt đầu thi thử</button></div>' +
-        '</div>' +
-        (retry ? '<div class="btn-row">' + retry + '</div>' : '') +
-        '<div><h2 class="sec" style="margin-top:.5rem">Luyện theo từng phần (' + esc(t.title) + ')</h2><ul class="part-list">' + parts + '</ul></div>' +
-      '</article>';
-
-      var leaderboard = '<section class="exam-lb-section"><h2 class="h2-rule">Bảng xếp hạng đề này</h2>'
+      var leaderboard = '<section class="exam-lb-section"><h2 class="h2-rule">Bảng xếp hạng</h2>'
         + '<p class="exam-lb-lead">Mỗi đề và mỗi chế độ có bảng riêng; điểm cao nhất của tài khoản được giữ lại.</p>'
-        + '<div class="lb-mode-tabs" role="tablist" aria-label="Chọn chế độ xếp hạng">'
-        + '<button type="button" class="lb-mode-tab' + (lbMode === 'exam' ? ' on' : '') + '" data-act="lb-mode" data-mode="exam">Thi thử</button>'
-        + '<button type="button" class="lb-mode-tab' + (lbMode === 'practice' ? ' on' : '') + '" data-act="lb-mode" data-mode="practice">Luyện tập</button>'
-        + '</div><div id="englishLeaderboard"></div></section>';
+        + '<div class="lb-picker"><label>Chọn đề<select id="enLbTest">' + lbOptions + '</select></label>'
+        + '<label>Chế độ<select id="enLbMode">'
+        + '<option value="exam"' + (lbMode === 'exam' ? ' selected' : '') + '>Thi thử</option>'
+        + '<option value="practice"' + (lbMode === 'practice' ? ' selected' : '') + '>Luyện tập</option>'
+        + '</select></label></div><div id="englishLeaderboard"></div></section>';
 
       app.innerHTML =
         '<section class="page-head"><div class="page-head-in">' +
-          '<a class="crumb" href="index.html">← Quay lại bàn cờ môn học</a>' +
-          '<h1>Tiếng Anh (' + tests.length + ' Đề · ' + totalAllQuestions + ' Câu)</h1>' +
-          '<p>Chọn một đề bên dưới để bắt đầu luyện tập, thi thử bấm giờ hoặc ôn theo từng phần.</p>' +
+          '<a class="crumb" href="anh.html">← Quay lại Tiếng Anh 12</a>' +
+          '<h1>Đề thi Tiếng Anh 12</h1>' +
+          '<p>6 đề Giữa HKI · ' + totalAllQuestions + ' câu · Thi thử hoặc luyện tập, chấm điểm và xem lời giải chi tiết.</p>' +
         '</div></section>' +
-        '<div class="page-body">' +
-          '<div class="test-selector" role="tablist" aria-label="Chọn đề thi">' + tabs + '</div>' +
-          card + leaderboard +
+        '<div class="page-body">' + hero +
+          '<h2 class="h2-rule">Giữa HKI</h2>' +
+          '<p class="section-lead">Tổng hợp toàn bộ đề Tiếng Anh hiện có. Chọn một đề để thi thử hoặc luyện tập; không cần luyện riêng từng phần.</p>' +
+          '<div class="exam-grid">' + cards + '</div>' +
+          '<div class="btn-row" style="margin-top:1.5rem"><a class="btn ghost" href="anh-bai-tap.html">Tải PDF &amp; DOCX của 6 đề</a></div>' +
+          leaderboard +
         '</div>';
-      mountEnglishLeaderboard(t);
+      mountEnglishLeaderboard();
     }
-
     function passageHTML(b) {
       if (!b.paras) return '';
       var h = '<article class="passage" tabindex="0" aria-label="Bài đọc">';
@@ -1275,7 +1290,7 @@
 
       app.innerHTML =
         '<section class="page-head"><div class="page-head-in">' +
-          '<a class="crumb" href="anh.html">← Danh sách đề Tiếng Anh</a>' +
+          '<a class="crumb" href="anh-de-thi.html">← Danh sách đề Tiếng Anh</a>' +
           '<h1>Kết quả</h1>' +
           '<p>' + esc(S.test.title) + ' · ' + modeName(S.mode) + (S.label ? ' · ' + esc(S.label) : '') + '</p>' +
         '</div></section>' +
@@ -1362,6 +1377,12 @@
         S.blockIdx = 0;
         renderRunner();
         window.scrollTo(0, 0);
+      } else if (t.id === 'enLbTest') {
+        lbTest = t.value;
+        mountEnglishLeaderboard();
+      } else if (t.id === 'enLbMode') {
+        lbMode = t.value === 'practice' ? 'practice' : 'exam';
+        mountEnglishLeaderboard();
       }
     });
 
@@ -1449,7 +1470,15 @@
       syncCloudProgress();
     });
     if (cloud && cloud.ready && typeof cloud.ready.then === 'function') cloud.ready.then(syncCloudProgress);
-    route();
+
+    var launchParams = new URLSearchParams(location.search);
+    var launchTest = getTest(launchParams.get('test'));
+    if (launchTest) {
+      var launchMode = launchParams.get('mode') === 'practice' ? 'practice' : 'exam';
+      startAttempt(launchTest, launchMode, allQids(launchTest), '');
+    } else {
+      route();
+    }
   };
 
   /* Tự động khởi chạy trang Tiếng Anh nếu đang ở trang anh.html */

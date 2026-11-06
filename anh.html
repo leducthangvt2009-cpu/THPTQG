@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Tiếng Anh · Ôn tập THPT</title>
+  <title>Tiếng Anh 12 – Ôn tập THPT</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20261104d">
+  <link rel="stylesheet" href="css/style.css?v=20261106a">
   <link rel="stylesheet" href="css/background.css?v=20261102c">
   <script>
     (function () {
@@ -52,26 +52,66 @@
   </div>
 </header>
 
-<main id="app"></main>
-
-<dialog id="dlg">
-  <form method="dialog">
-    <p id="dlg-msg"></p>
-    <div class="dlg-actions">
-      <button class="btn small ghost" value="cancel" id="dlg-cancel"></button>
-      <button class="btn small" value="ok" id="dlg-ok"></button>
+<main>
+  <section class="page-head">
+    <div class="page-head-in">
+      <a class="crumb" href="index.html">← Quay lại bàn cờ môn học</a>
+      <h1>Tiếng Anh 12</h1>
+      <p>Hệ thống luyện đề Giữa HKI: 6 đề, 290 câu, bám sát cấu trúc THPT. Làm bài tương tác có chấm điểm, lời giải chi tiết, lưu tiến trình và bảng xếp hạng; tải bản PDF/DOCX để ôn ngoại tuyến.</p>
     </div>
-  </form>
-</dialog>
+  </section>
 
-<script src="js/data-anh.js"></script>
+  <div class="page-body">
+    <h2 class="h2-rule">Chọn phần học</h2>
+    <div class="subject-grid">
+
+      <article class="scard">
+        <div class="scard-band" style="--band:#1b4aa5;--band-ink:#ffffff">
+          <small>GIỮA HKI · TIẾNG ANH 12</small>
+          <h3>Đề thi tương tác</h3>
+        </div>
+        <div class="scard-body">
+          <p>6 đề Giữa HKI gồm đề minh họa Lê Quý Đôn và 5 đề luyện tập. Thi thử có bấm giờ hoặc luyện tập chấm ngay; xem lời giải, lưu tiến trình và so điểm trên bảng xếp hạng.</p>
+          <div class="meta"><span>6 ĐỀ · 290 CÂU</span><span>Vào luyện đề →</span></div>
+          <div class="btn-row" style="margin-top:.75rem">
+            <a class="btn small" href="anh-de-thi.html">Luyện đề</a>
+            <a class="btn small ghost" href="anh-de-thi.html?test=anh-midterm-hk1-2627&amp;mode=exam">Thi thử đề minh họa</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="scard">
+        <div class="scard-band" style="--band:#d9232a;--band-ink:#ffffff">
+          <small>TÀI LIỆU · PDF + DOCX</small>
+          <h3>6 đề Giữa HKI</h3>
+        </div>
+        <div class="scard-body">
+          <p>Tải bản PDF gốc và bản DOCX có thể chỉnh sửa của cả 6 đề. Bản DOCX kèm đáp án tham khảo ở cuối tài liệu, thuận tiện in ấn và ôn ngoại tuyến.</p>
+          <div class="meta"><span>6 ĐỀ · PDF + DOCX</span><span>Tải tài liệu →</span></div>
+          <div class="btn-row" style="margin-top:.75rem">
+            <a class="btn small" href="anh-bai-tap.html">Xem tài liệu</a>
+            <a class="btn small ghost" href="bai-tap/anh/gk1-anh-12-de-01.pdf" target="_blank" rel="noopener">Mở PDF đề 1</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="panel" style="margin-top:3rem;">
+      <h2 class="sec" style="margin-top:0">Ôn từ vựng trước khi làm bài</h2>
+      <p style="margin:0 0 1rem;color:var(--muted)">Bổ sung từ vựng, cụm động từ và thành ngữ trọng tâm bằng flashcard và trắc nghiệm nhanh.</p>
+      <div class="btn-row">
+        <a class="btn small" href="tu-vung.html">Từ vựng &amp; Idiom</a>
+        <a class="btn small ghost" href="hoa.html">Hóa học 12</a>
+        <a class="btn small ghost" href="index.html">Về bàn cờ môn học</a>
+      </div>
+    </div>
+  </div>
+</main>
+
 <script src="js/firebase-config.js?v=20261102a"></script>
 <script src="js/cloud.js?v=20261104c"></script>
-<script src="js/content.js?v=20261103a"></script>
-<script src="js/app.js?v=20261104e"></script>
-<script>
-  initEnglishApp();
-</script>
-  <script src="js/background.js?v=20261102c"></script>
+<script src="js/app.js?v=20261106b"></script>
+<script src="js/background.js?v=20261102c"></script>
 </body>
 </html>
