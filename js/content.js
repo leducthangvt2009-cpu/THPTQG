@@ -147,6 +147,7 @@
         word: word,
         ipa: text(item.ipa).trim(),
         pos: text(item.pos).trim() || 'Từ vựng',
+        pattern: text(item.pattern).trim(),
         topic: text(item.topic).trim() || 'admin',
         topicLabel: text(item.topicLabel).trim() || 'Từ vựng mới',
         type: item.type === 'idiom' || item.type === 'vocab' ? item.type : '',

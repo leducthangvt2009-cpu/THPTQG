@@ -2097,9 +2097,26 @@
     p4: { label: 'Idioms 166–216', type: 'idiom' },
     p5: { label: 'Idioms 217–259', type: 'idiom' },
     p6: { label: 'Idioms 260–302', type: 'idiom' },
-    test: { label: 'Từ vựng Đề thi', type: 'vocab' }
+    test: { label: 'Từ vựng Đề thi', type: 'vocab' },
+    'cities-urban-life': { label: 'Đô thị & Cuộc sống', type: 'vocab' },
+    'crime-justice': { label: 'Tội phạm & Công lý', type: 'vocab' },
+    'economy-consumerism': { label: 'Kinh tế & Tiêu dùng', type: 'vocab' },
+    'education-learning': { label: 'Giáo dục & Học tập', type: 'vocab' },
+    'environment-climate': { label: 'Môi trường & Khí hậu', type: 'vocab' },
+    'government-policy': { label: 'Chính phủ & Chính sách', type: 'vocab' },
+    'health-well-being': { label: 'Sức khỏe & An sinh', type: 'vocab' },
+    'media-advertising': { label: 'Truyền thông & Quảng cáo', type: 'vocab' },
+    'technology-digital-life': { label: 'Công nghệ & Đời sống số', type: 'vocab' },
+    'transport-mobility': { label: 'Giao thông & Di chuyển', type: 'vocab' },
+    'work-employment': { label: 'Việc làm & Lao động', type: 'vocab' }
   };
-  var VOCAB_BASE_ORDER = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'test'];
+  var VOCAB_BASE_ORDER = [
+    'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'test',
+    'cities-urban-life', 'crime-justice', 'economy-consumerism',
+    'education-learning', 'environment-climate', 'government-policy',
+    'health-well-being', 'media-advertising', 'technology-digital-life',
+    'transport-mobility', 'work-employment'
+  ];
 
   function vocabTypeOf(item) {
     if (item && (item.type === 'idiom' || item.type === 'vocab')) return item.type;
@@ -2143,7 +2160,7 @@
     var q = text(state.vocabSearch).toLowerCase().trim();
     var list = state.content.vocab.filter(function (item) {
       if (!q) return true;
-      return (text(item.word) + ' ' + text(item.meaning) + ' ' + text(item.topic) + ' ' + text(item.topicLabel)).toLowerCase().indexOf(q) !== -1;
+      return (text(item.word) + ' ' + text(item.meaning) + ' ' + text(item.pattern) + ' ' + text(item.topic) + ' ' + text(item.topicLabel)).toLowerCase().indexOf(q) !== -1;
     });
 
     var items = list.map(function (item) {
@@ -2162,7 +2179,7 @@
 
     return '<div class="admin-card admin-card--flush">'
       + '<div class="admin-list-head"><div><h2>Từ vựng &amp; Idiom</h2>'
-      + '<p>Mã từ <b>1000</b> trở lên để không trùng 302 Idioms và 20 từ vựng đề thi · ' + list.length + ' / ' + state.content.vocab.length + ' mục</p></div>'
+      + '<p>Mã từ <b>1000</b> trở lên để không trùng 302 Idioms, 20 từ vựng đề thi và 2.200 mục theo 11 chủ đề · ' + list.length + ' / ' + state.content.vocab.length + ' mục</p></div>'
       + '<label class="admin-inline-search">' + icon('search')
       + '<input type="search" id="vocab-search" value="' + esc(state.vocabSearch) + '" placeholder="Tìm từ, nghĩa, chủ đề…" aria-label="Tìm từ vựng"></label>'
       + '</div>'
@@ -2180,6 +2197,7 @@
         word: '',
         ipa: '',
         pos: 'Từ vựng',
+        pattern: '',
         topic: '',
         topicLabel: '',
         type: 'vocab',
@@ -2249,8 +2267,9 @@
         : '<input type="text" value="' + esc(topics[selected] ? topics[selected].label : vocabTopicLabel(d)) + '" readonly>')
       + '<small style="color:var(--muted);font-weight:600">' + (isNewTopic ? 'Slug chủ đề được tạo tự động từ tên này.' : 'Đang thêm vào chủ đề có sẵn; tên hiển thị dùng chung cho cả chủ đề.') + '</small>'
       + '</label>'
+      + '<label class="admin-field wide"><span>Cấu trúc / Pattern (không bắt buộc)</span><textarea data-path="pattern" rows="2" placeholder="danh từ không đếm được; rapid/unplanned + urbanisation">' + esc(d.pattern) + '</textarea></label>'
       + '<label class="admin-field wide"><span>Nghĩa tiếng Việt</span><textarea data-path="meaning" rows="2" placeholder="Nghĩa của từ/cụm từ">' + esc(d.meaning) + '</textarea></label>'
-      + '<label class="admin-field wide"><span>Ví dụ</span><textarea data-path="ex" rows="2">' + esc(d.ex) + '</textarea></label>'
+      + '<label class="admin-field wide"><span>Ví dụ</span><textarea data-path="ex" rows="2" placeholder="Mỗi câu cách nhau bằng dấu • hoặc xuống dòng">' + esc(d.ex) + '</textarea></label>'
       + '</div>'
       + '<div class="admin-note" style="margin-top:.9rem">Chọn một phụ lục có sẵn để thêm mục vào đúng nhóm, hoặc chọn <b>Tạo chủ đề mới</b> rồi đặt tên hiển thị. Slug tự sinh; mục mới sẽ xuất hiện ở trang Từ vựng hoặc Idioms tương ứng.</div>'
       + '</div>';
@@ -2425,6 +2444,7 @@
     copy.word = text(copy.word).trim();
     copy.ipa = text(copy.ipa).trim();
     copy.pos = text(copy.pos).trim() || 'Từ vựng';
+    copy.pattern = text(copy.pattern).trim();
     copy.type = vocabTypeOf(copy);
     copy.topicLabel = text(copy.topicLabel).trim() || (copy.type === 'idiom' ? 'Idioms mới' : 'Từ vựng mới');
     var topic = text(copy.topic).trim();

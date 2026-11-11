@@ -16,9 +16,26 @@
     p4: { label: 'Idioms 166–216', type: 'idiom' },
     p5: { label: 'Idioms 217–259', type: 'idiom' },
     p6: { label: 'Idioms 260–302', type: 'idiom' },
-    test: { label: 'Từ vựng Đề thi', type: 'vocab' }
+    test: { label: 'Từ vựng Đề thi', type: 'vocab' },
+    'cities-urban-life': { label: 'Đô thị & Cuộc sống', type: 'vocab' },
+    'crime-justice': { label: 'Tội phạm & Công lý', type: 'vocab' },
+    'economy-consumerism': { label: 'Kinh tế & Tiêu dùng', type: 'vocab' },
+    'education-learning': { label: 'Giáo dục & Học tập', type: 'vocab' },
+    'environment-climate': { label: 'Môi trường & Khí hậu', type: 'vocab' },
+    'government-policy': { label: 'Chính phủ & Chính sách', type: 'vocab' },
+    'health-well-being': { label: 'Sức khỏe & An sinh', type: 'vocab' },
+    'media-advertising': { label: 'Truyền thông & Quảng cáo', type: 'vocab' },
+    'technology-digital-life': { label: 'Công nghệ & Đời sống số', type: 'vocab' },
+    'transport-mobility': { label: 'Giao thông & Di chuyển', type: 'vocab' },
+    'work-employment': { label: 'Việc làm & Lao động', type: 'vocab' }
   };
-  var BASE_ORDER = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'test'];
+  var BASE_ORDER = [
+    'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'test',
+    'cities-urban-life', 'crime-justice', 'economy-consumerism',
+    'education-learning', 'environment-climate', 'government-policy',
+    'health-well-being', 'media-advertising', 'technology-digital-life',
+    'transport-mobility', 'work-employment'
+  ];
   var STORE_KEY = 'ontap:vocab:mastered';
   var REPEAT_KEY = 'ontap:vocab:repeat';
 
@@ -40,6 +57,10 @@
     return text(value).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
+  }
+
+  function fmt(value) {
+    return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
 
   function typeOf(item) {
@@ -81,11 +102,37 @@
         word: text(item.word),
         ipa: text(item.ipa),
         pos: text(item.pos) || 'Từ vựng',
+        pattern: '',
         topic: 'test',
         topicLabel: BASE_TOPICS.test.label,
         type: 'vocab',
         meaning: text(item.meaning),
         ex: text(item.ex)
+      });
+    });
+
+    var forumId = 10000;
+    var forum = Array.isArray(g.VOCAB_FORUM) ? g.VOCAB_FORUM : [];
+    forum.forEach(function (group) {
+      if (!group || !Array.isArray(group.items)) return;
+      var topic = text(group.id);
+      if (!topic) return;
+      var label = text(group.label) || (BASE_TOPICS[topic] ? BASE_TOPICS[topic].label : 'Chủ đề mới');
+      group.items.forEach(function (row) {
+        if (!Array.isArray(row)) return;
+        forumId += 1;
+        VOCAB.push({
+          id: forumId,
+          word: text(row[0]),
+          ipa: '',
+          pos: text(row[2]) || 'Từ vựng',
+          pattern: text(row[3]),
+          topic: topic,
+          topicLabel: label,
+          type: 'vocab',
+          meaning: text(row[1]),
+          ex: text(row[4])
+        });
       });
     });
   }
@@ -109,6 +156,7 @@
         word: text(raw.word),
         ipa: text(raw.ipa),
         pos: text(raw.pos) || 'Từ vựng',
+        pattern: text(raw.pattern),
         topic: text(raw.topic) || 'admin',
         topicLabel: text(raw.topicLabel),
         type: raw.type === 'idiom' || raw.type === 'vocab' ? raw.type : '',
@@ -187,7 +235,7 @@
 
     var html = '<h2>Phụ lục</h2><div class="appendix-list">' +
       '<button type="button" class="appendix-btn' + (currentTopic === 'all' ? ' active' : '') + '" data-topic="all">' +
-      '<span>Tất cả</span> <span class="appendix-count">' + list.length + '</span></button>';
+      '<span>Tất cả</span> <span class="appendix-count">' + fmt(list.length) + '</span></button>';
 
     topics.forEach(function (topic) {
       html += '<button type="button" class="appendix-btn' + (currentTopic === topic.id ? ' active' : '') + '" data-topic="' + esc(topic.id) + '">' +
@@ -195,7 +243,7 @@
     });
 
     html += '<button type="button" class="appendix-btn appendix-btn--unmastered' + (currentTopic === 'unmastered' ? ' active' : '') + '" data-topic="unmastered">' +
-      '<span>Chưa thuộc</span> <span class="appendix-count">' + unmastered + '</span></button>' +
+      '<span>Chưa thuộc</span> <span class="appendix-count">' + fmt(unmastered) + '</span></button>' +
       '</div>';
 
     host.innerHTML = html;
@@ -207,7 +255,7 @@
     var a = document.getElementById('mastered-count');
     var b = document.getElementById('total-count');
     if (a) a.textContent = done;
-    if (b) b.textContent = list.length;
+    if (b) b.textContent = fmt(list.length);
   }
 
   function renderFlashcard() {
@@ -251,14 +299,15 @@
       statusBadge +
       '<span class="fc-pos">' + esc(item.pos) + '</span>' +
       '<h2 class="fc-word">' + esc(item.word) + '</h2>' +
-      (item.ipa !== item.pos ? '<div class="fc-ipa">' + esc(item.ipa) + '</div>' : '') +
+      (item.ipa && item.ipa !== item.pos ? '<div class="fc-ipa">' + esc(item.ipa) + '</div>' : '') +
       '<div class="fc-hint">Bấm vào thẻ hoặc nhấn phím Space để lật xem nghĩa</div>';
 
     backBody.innerHTML =
       statusBadge +
       '<span class="fc-pos">' + esc(item.word) + '</span>' +
+      (item.pattern ? '<p class="fc-pattern"><b>Cấu trúc:</b> ' + esc(item.pattern) + '</p>' : '') +
       '<p class="fc-meaning">' + esc(item.meaning) + '</p>' +
-      '<p class="fc-example">' + esc(item.ex) + '</p>' +
+      '<p class="fc-example">' + esc(item.ex).replace(/ • /g, '<br>• ') + '</p>' +
       '<div class="fc-hint">Bấm lại vào thẻ để quay về mặt trước</div>';
 
     if (btnMaster) {
@@ -285,10 +334,11 @@
       return text(item.word).toLowerCase().indexOf(q) !== -1 ||
         text(item.meaning).toLowerCase().indexOf(q) !== -1 ||
         text(item.pos).toLowerCase().indexOf(q) !== -1 ||
+        text(item.pattern).toLowerCase().indexOf(q) !== -1 ||
         String(item.id) === q;
     });
 
-    if (countEl) countEl.textContent = list.length;
+    if (countEl) countEl.textContent = fmt(list.length);
 
     if (!list.length) {
       grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><p>Không tìm thấy mục phù hợp.</p></div>';
@@ -302,6 +352,7 @@
         '<div class="vcard-top"><b>' + esc(item.word) + '</b><span class="fc-pos">' + esc(item.pos) + '</span></div>' +
         (done ? '<div class="vcard-status is-done">✓ Đã thuộc</div>' : (rep ? '<div class="vcard-status is-repeat">↻ Cần ôn lại (' + rep + ')</div>' : '')) +
         '<div class="vcard-meaning">' + esc(item.meaning) + '</div>' +
+        (item.pattern ? '<div class="vcard-pattern">' + esc(item.pattern) + '</div>' : '') +
         '</article>';
     }).join('');
   }
@@ -348,8 +399,8 @@
     var lead = document.getElementById('vocab-lead');
     if (lead) {
       lead.textContent = pageType === 'idiom'
-        ? 'Trọn bộ ' + list.length + ' thành ngữ/idiom trọng tâm, chia theo 6 phụ lục. Lật thẻ, nghe phát âm, đánh dấu đã thuộc và ôn lại các mục chưa nhớ.'
-        : list.length + ' mục từ vựng, cụm động từ và thành ngữ từ đề thi, kèm các chủ đề bổ sung. Lật thẻ, nghe phát âm và đánh dấu tiến trình.';
+        ? 'Trọn bộ ' + fmt(list.length) + ' thành ngữ/idiom trọng tâm, chia theo 6 phụ lục. Lật thẻ, nghe phát âm, đánh dấu đã thuộc và ôn lại các mục chưa nhớ.'
+        : fmt(list.length) + ' mục từ vựng, cụm động từ và thành ngữ, chia theo ' + topicsFor('vocab').length + ' phụ lục. Lật thẻ, nghe phát âm và đánh dấu tiến trình.';
     }
     var kind = document.getElementById('fc-kind-front');
     if (kind) kind.textContent = 'MẶT TRƯỚC · ' + (pageType === 'idiom' ? 'THÀNH NGỮ' : 'TỪ VỰNG');
@@ -466,15 +517,23 @@
     var counts = { vocab: 0, idiom: 0 };
     VOCAB.forEach(function (item) { counts[typeOf(item)] += 1; });
 
+    if (!Array.isArray(g.VOCAB_FORUM) && Array.isArray(g.VOCAB_FORUM_META)) {
+      g.VOCAB_FORUM_META.forEach(function (topic) {
+        var n = parseInt(topic && topic.count, 10);
+        if (isFinite(n) && n > 0) counts.vocab += n;
+      });
+    }
+
     var nodes = document.querySelectorAll('[data-vocab-count]');
     Array.prototype.forEach.call(nodes, function (node) {
       var type = node.getAttribute('data-vocab-count');
-      if (counts[type] !== undefined) node.textContent = counts[type] + ' mục';
+      if (counts[type] !== undefined) node.textContent = fmt(counts[type]) + ' mục';
     });
 
-    var total = document.querySelectorAll('[data-vocab-total]');
-    Array.prototype.forEach.call(total, function (node) {
-      node.textContent = VOCAB.length + ' mục';
+    var total = counts.vocab + counts.idiom;
+    var totalNodes = document.querySelectorAll('[data-vocab-total]');
+    Array.prototype.forEach.call(totalNodes, function (node) {
+      node.textContent = fmt(total) + ' mục';
     });
   }
 

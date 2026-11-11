@@ -16,7 +16,7 @@
 - **Từ vựng & Idioms**:
   - `tu-vung.html` là cổng chọn 2 bộ; `tu-vung-hoc.html?type=vocab|idiom` là trang học tương ứng.
   - Mỗi bộ có cột **phụ lục** bên trái, flashcard lật thẻ, phát âm, xáo trộn, đánh dấu **đã thuộc/chưa thuộc** kèm lặp lại ngắt quãng và danh sách tra cứu + tìm kiếm.
-  - Bộ **Từ vựng** gồm 20 mục từ đề thi và các chủ đề do quản trị viên tạo; bộ **Idioms** gồm 302 thành ngữ chia 6 phụ lục (1–54, 55–109, …, 260–302).
+  - Bộ **Từ vựng** gồm 2.220 mục: 20 mục từ đề thi, các chủ đề do quản trị viên tạo và **11 chủ đề ForumFlash** (2.200 mục) nhập từ `sources/forumflash-*.csv`; bộ **Idioms** gồm 302 thành ngữ chia 6 phụ lục (1–54, 55–109, …, 260–302).
   - Đã bỏ hoàn toàn khung **Thử thách phản xạ nhanh**.
 - **Môn Hóa học**: Lý thuyết Ester – Lipid, Carbohydrate, mô phỏng phản ứng, **10 bộ bài tập/đề kiểm tra** (280 câu) dạng PDF + DOCX và **11 đề thi tương tác** (308 câu) có chấm điểm, đếm giờ, lời giải chi tiết, lưu tiến trình/lịch sử và **bảng xếp hạng riêng từng đề**.
 
@@ -29,7 +29,7 @@
 - Thanh lưu cuối trang hiển thị trạng thái bản đang soạn: có thay đổi chưa lưu trong trình soạn thảo, có thay đổi chưa đăng, đang tải hoặc đang đăng. Nút **Đăng lên website** bị chặn nếu trình soạn thảo còn thay đổi chưa lưu.
 - Để đăng nội dung, vào **Cài đặt & GitHub** trên trang quản trị và dán **fine-grained personal access token** của repo `leducthangvt2009-cpu/THPTQG` với quyền **Contents: Read and write**. Token chỉ lưu trong trình duyệt của quản trị viên, không nằm trong mã nguồn.
 - Sau khi bấm **Đăng lên website**, hệ thống tạo một commit mới trên nhánh `main`; GitHub Pages có thể cần 1–2 phút để cập nhật. Bản nháp trên máy giúp tránh mất bài khi lỡ đóng tab.
-- Từ vựng động dùng mã từ **1000** trở lên để không trùng 302 Idioms và 20 mục từ vựng đề thi có sẵn; trường `type` quyết định mục hiển thị ở bộ Từ vựng hay Idioms.
+- Từ vựng động dùng mã từ **1000** trở lên để không trùng 302 Idioms, 20 mục từ vựng đề thi và 2.200 mục ForumFlash (mã **10001–12200**) có sẵn; trường `type` quyết định mục hiển thị ở bộ Từ vựng hay Idioms.
 
 ## Lưu ý về tài khoản
 - Khi chưa cấu hình Firebase, tài khoản, tiến trình, lịch sử và bảng xếp hạng được lưu trong `localStorage` của từng trình duyệt.
