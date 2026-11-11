@@ -16,7 +16,7 @@
 - **Từ vựng & Idioms**:
   - `tu-vung.html` là cổng chọn 2 bộ; `tu-vung-hoc.html?type=vocab|idiom` là trang học tương ứng.
   - Mỗi bộ có cột **phụ lục** bên trái, flashcard lật thẻ, phát âm, xáo trộn, đánh dấu **đã thuộc/chưa thuộc** kèm lặp lại ngắt quãng và danh sách tra cứu + tìm kiếm.
-  - Bộ **Từ vựng** gồm 2.220 mục: 20 mục từ đề thi, các chủ đề do quản trị viên tạo và **11 chủ đề ForumFlash** (2.200 mục) nhập từ `sources/forumflash-*.csv`; bộ **Idioms** gồm 302 thành ngữ chia 6 phụ lục (1–54, 55–109, …, 260–302).
+  - Bộ **Từ vựng** gồm 2.220 mục: 20 mục từ đề thi, các chủ đề do quản trị viên tạo và **11 chủ đề ForumFlash** (2.200 mục) nhập từ `sources/forumflash-*.csv`, giữ nguyên tên tiếng Anh theo cột `Topic` của file; bộ **Idioms** gồm 302 thành ngữ chia 6 phụ lục (1–54, 55–109, …, 260–302).
   - Đã bỏ hoàn toàn khung **Thử thách phản xạ nhanh**.
 - **Môn Hóa học**: Lý thuyết Ester – Lipid, Carbohydrate, mô phỏng phản ứng, **10 bộ bài tập/đề kiểm tra** (280 câu) dạng PDF + DOCX và **11 đề thi tương tác** (308 câu) có chấm điểm, đếm giờ, lời giải chi tiết, lưu tiến trình/lịch sử và **bảng xếp hạng riêng từng đề**.
 

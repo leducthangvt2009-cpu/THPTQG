@@ -17,17 +17,17 @@
     p5: { label: 'Idioms 217–259', type: 'idiom' },
     p6: { label: 'Idioms 260–302', type: 'idiom' },
     test: { label: 'Từ vựng Đề thi', type: 'vocab' },
-    'cities-urban-life': { label: 'Đô thị & Cuộc sống', type: 'vocab' },
-    'crime-justice': { label: 'Tội phạm & Công lý', type: 'vocab' },
-    'economy-consumerism': { label: 'Kinh tế & Tiêu dùng', type: 'vocab' },
-    'education-learning': { label: 'Giáo dục & Học tập', type: 'vocab' },
-    'environment-climate': { label: 'Môi trường & Khí hậu', type: 'vocab' },
-    'government-policy': { label: 'Chính phủ & Chính sách', type: 'vocab' },
-    'health-well-being': { label: 'Sức khỏe & An sinh', type: 'vocab' },
-    'media-advertising': { label: 'Truyền thông & Quảng cáo', type: 'vocab' },
-    'technology-digital-life': { label: 'Công nghệ & Đời sống số', type: 'vocab' },
-    'transport-mobility': { label: 'Giao thông & Di chuyển', type: 'vocab' },
-    'work-employment': { label: 'Việc làm & Lao động', type: 'vocab' }
+    'cities-urban-life': { label: 'Cities & Urban Life', type: 'vocab' },
+    'crime-justice': { label: 'Crime & Justice', type: 'vocab' },
+    'economy-consumerism': { label: 'Economy & Consumerism', type: 'vocab' },
+    'education-learning': { label: 'Education & Learning', type: 'vocab' },
+    'environment-climate': { label: 'Environment & Climate', type: 'vocab' },
+    'government-policy': { label: 'Government & Policy', type: 'vocab' },
+    'health-well-being': { label: 'Health & Well-being', type: 'vocab' },
+    'media-advertising': { label: 'Media & Advertising', type: 'vocab' },
+    'technology-digital-life': { label: 'Technology & Digital Life', type: 'vocab' },
+    'transport-mobility': { label: 'Transport & Mobility', type: 'vocab' },
+    'work-employment': { label: 'Work & Employment', type: 'vocab' }
   };
   var BASE_ORDER = [
     'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'test',
@@ -229,6 +229,9 @@
     var host = document.getElementById('appendix-col');
     if (!host) return;
 
+    var prevList = host.querySelector('.appendix-list');
+    var prevScroll = prevList ? prevList.scrollTop : 0;
+
     var list = allOfType(pageType);
     var unmastered = list.filter(function (item) { return !mastered[item.id]; }).length;
     var topics = topicsFor(pageType);
@@ -247,6 +250,9 @@
       '</div>';
 
     host.innerHTML = html;
+
+    var nextList = host.querySelector('.appendix-list');
+    if (nextList && prevScroll > 0) nextList.scrollTop = prevScroll;
   }
 
   function updateKPI() {

@@ -12,17 +12,17 @@
   /* 11 chủ đề sinh từ sources/forumflash-*.csv (mỗi chủ đề 200 mục).
      Dùng để tính số lượng ở trang chọn bộ và gợi ý trong admin. */
   window.VOCAB_FORUM_META = [
-    { id: 'cities-urban-life', label: 'Đô thị & Cuộc sống', count: 200 },
-    { id: 'crime-justice', label: 'Tội phạm & Công lý', count: 200 },
-    { id: 'economy-consumerism', label: 'Kinh tế & Tiêu dùng', count: 200 },
-    { id: 'education-learning', label: 'Giáo dục & Học tập', count: 200 },
-    { id: 'environment-climate', label: 'Môi trường & Khí hậu', count: 200 },
-    { id: 'government-policy', label: 'Chính phủ & Chính sách', count: 200 },
-    { id: 'health-well-being', label: 'Sức khỏe & An sinh', count: 200 },
-    { id: 'media-advertising', label: 'Truyền thông & Quảng cáo', count: 200 },
-    { id: 'technology-digital-life', label: 'Công nghệ & Đời sống số', count: 200 },
-    { id: 'transport-mobility', label: 'Giao thông & Di chuyển', count: 200 },
-    { id: 'work-employment', label: 'Việc làm & Lao động', count: 200 }
+    { id: 'cities-urban-life', label: 'Cities & Urban Life', count: 200 },
+    { id: 'crime-justice', label: 'Crime & Justice', count: 200 },
+    { id: 'economy-consumerism', label: 'Economy & Consumerism', count: 200 },
+    { id: 'education-learning', label: 'Education & Learning', count: 200 },
+    { id: 'environment-climate', label: 'Environment & Climate', count: 200 },
+    { id: 'government-policy', label: 'Government & Policy', count: 200 },
+    { id: 'health-well-being', label: 'Health & Well-being', count: 200 },
+    { id: 'media-advertising', label: 'Media & Advertising', count: 200 },
+    { id: 'technology-digital-life', label: 'Technology & Digital Life', count: 200 },
+    { id: 'transport-mobility', label: 'Transport & Mobility', count: 200 },
+    { id: 'work-employment', label: 'Work & Employment', count: 200 }
   ];
 
   window.VOCAB_IDIOMS = [

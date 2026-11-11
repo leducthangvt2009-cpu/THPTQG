@@ -111,7 +111,7 @@ Tổng: **290 câu**. Không còn giao diện luyện riêng từng phần; mỗ
 ### 2.4. Từ vựng & Idioms
 
 - `tu-vung.html` là cổng chọn 2 bộ; `tu-vung-hoc.html?type=vocab|idiom` là trang học. CSS dùng chung `css/vocab.css`.
-- Dữ liệu tĩnh: `js/vocab-data.js` gồm 302 Idioms (`window.VOCAB_IDIOMS`, chia p1–p6) + 20 mục từ vựng đề thi (`window.VOCAB_EXTRAS`, topic `test`) + metadata 11 chủ đề (`window.VOCAB_FORUM_META`). `js/vocab-forum-data.js` chứa 2.200 mục của 11 chủ đề nhập từ `sources/forumflash-*.csv` (mã 10001–12200), chỉ nạp ở trang học. Logic ở `js/vocab.js`.
+- Dữ liệu tĩnh: `js/vocab-data.js` gồm 302 Idioms (`window.VOCAB_IDIOMS`, chia p1–p6) + 20 mục từ vựng đề thi (`window.VOCAB_EXTRAS`, topic `test`) + metadata 11 chủ đề (`window.VOCAB_FORUM_META`). `js/vocab-forum-data.js` chứa 2.200 mục của 11 chủ đề nhập từ `sources/forumflash-*.csv` (mã 10001–12200, nhãn giữ nguyên tiếng Anh theo cột `Topic`), chỉ nạp ở trang học. Logic ở `js/vocab.js`.
 - Mỗi mục có trường `type` (`vocab` hoặc `idiom`); mục admin tạo có mã từ **1000** trở lên và lưu trong `content/vocab.json`. Mục ForumFlash có thêm trường `pattern` (cấu trúc ngữ pháp), hiển thị ở mặt sau flashcard và danh sách tra cứu.
 - Trang học có cột phụ lục bên trái (mỗi bộ chỉ hiện phụ lục của bộ đó; bộ Từ vựng có 12 phụ lục), flashcard, phát âm, xáo trộn, đã thuộc/chưa thuộc kèm lặp lại ngắt quãng, danh sách tra cứu + tìm kiếm. Không còn quiz.
 

@@ -17,13 +17,18 @@
 
 .appendix-col {
   position: sticky;
-  top: 1.25rem;
+  top: calc(var(--header-h, 64px) + 1.25rem);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - var(--header-h, 64px) - 2.5rem);
+  max-height: calc(100svh - var(--header-h, 64px) - 2.5rem);
   background: var(--white);
   border: 3px solid var(--line);
   box-shadow: 7px 7px 0 var(--line);
   padding: 1rem;
 }
 .appendix-col h2 {
+  flex: 0 0 auto;
   margin: 0 0 0.75rem;
   font-size: 0.95rem;
   font-weight: 800;
@@ -36,6 +41,23 @@
   display: grid;
   gap: 0.4rem;
   max-width: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.35rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mono-gold) var(--bg);
+}
+.appendix-list::-webkit-scrollbar {
+  width: 12px;
+}
+.appendix-list::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-left: 2px solid var(--line);
+}
+.appendix-list::-webkit-scrollbar-thumb {
+  background: var(--mono-gold);
+  border: 2px solid var(--line);
 }
 .appendix-btn {
   display: flex;
@@ -83,21 +105,23 @@
   }
   .appendix-col {
     position: static;
+    max-height: none;
   }
   .appendix-list {
-    display: flex;
-    overflow-x: auto;
-    gap: 0.4rem;
-    padding-bottom: 0.35rem;
+    display: grid;
+    overflow-x: visible;
+    overflow-y: auto;
+    max-height: 45svh;
+    padding-bottom: 0;
     -webkit-overflow-scrolling: touch;
   }
   .appendix-btn {
-    width: auto;
+    width: 100%;
     flex: 0 0 auto;
-    white-space: nowrap;
+    white-space: normal;
   }
   .appendix-btn--unmastered {
-    margin-top: 0;
+    margin-top: 0.55rem;
   }
 }
 
