@@ -148,7 +148,8 @@
         ipa: text(item.ipa).trim(),
         pos: text(item.pos).trim() || 'Từ vựng',
         topic: text(item.topic).trim() || 'admin',
-        topicLabel: text(item.topicLabel).trim() || 'Từ vựng/Idiom mới',
+        topicLabel: text(item.topicLabel).trim() || 'Từ vựng mới',
+        type: item.type === 'idiom' || item.type === 'vocab' ? item.type : '',
         meaning: meaning,
         ex: text(item.ex).trim()
       });

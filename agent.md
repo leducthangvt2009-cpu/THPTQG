@@ -33,7 +33,7 @@ Tài liệu bàn giao cho model AI/người tiếp nhận dự án **Ôn tập T
 - Nền tương tác "Bàn cờ sống": aurora, hạt sáng, token pixel; có nút bật/tắt, lưu lựa chọn trong `localStorage`, tự giảm tải trên mobile và tôn trọng `prefers-reduced-motion`.
 - Tiếng Anh: 6 đề **Giữa HKI** (290 câu) gộp trong một mục duy nhất, thi thử/luyện tập, bảng xếp hạng riêng từng đề/chế độ, kèm PDF + DOCX.
 - Hóa học: lý thuyết Ester–Lipid, Carbohydrate; 11 đề tương tác (308 câu); 10 bộ tài liệu PDF/DOCX (280 câu); mô phỏng phản ứng.
-- Từ vựng: flashcard, phát âm, quiz và bộ từ vựng/idiom tĩnh.
+- Từ vựng: tách 2 bộ **Từ vựng** và **Idioms**; mỗi bộ có flashcard, phát âm, cột phụ lục riêng và đánh dấu tiến trình; đã bỏ khung quiz "Thử thách phản xạ nhanh".
 - Quản trị: dashboard riêng, soạn nội dung động, đăng lên GitHub, Quản lí Users chỉ đọc từ dữ liệu công khai của bảng xếp hạng.
 
 ---
@@ -108,11 +108,12 @@ Tổng: **290 câu**. Không còn giao diện luyện riêng từng phần; mỗ
 - Dữ liệu đề Hóa nằm trong `js/exams-hoa/de8.js` … `de19.js` (trừ de13) và `setup.js`; logic trong `js/hoa-exam.js`; giao diện trong `css/hoa-exam.css`.
 - Không thay đổi cấu trúc đề Hóa khi làm việc với Tiếng Anh, trừ khi có yêu cầu riêng.
 
-### 2.4. Từ vựng
+### 2.4. Từ vựng & Idioms
 
-- Trang `tu-vung.html`, CSS `css/vocab.css`.
-- Dữ liệu tĩnh khoảng 322 mục từ vựng/idiom; dữ liệu động do admin thêm có mã từ **1000** trở lên để tránh trùng.
-- Có flashcard, phát âm, quiz; nội dung động lưu trong `content/vocab.json`.
+- `tu-vung.html` là cổng chọn 2 bộ; `tu-vung-hoc.html?type=vocab|idiom` là trang học. CSS dùng chung `css/vocab.css`.
+- Dữ liệu tĩnh: `js/vocab-data.js` gồm 302 Idioms (`window.VOCAB_IDIOMS`, chia p1–p6) + 20 mục từ vựng đề thi (`window.VOCAB_EXTRAS`, topic `test`). Logic ở `js/vocab.js`.
+- Mỗi mục có trường `type` (`vocab` hoặc `idiom`); mục admin tạo có mã từ **1000** trở lên và lưu trong `content/vocab.json`.
+- Trang học có cột phụ lục bên trái (mỗi bộ chỉ hiện phụ lục của bộ đó), flashcard, phát âm, xáo trộn, đã thuộc/chưa thuộc kèm lặp lại ngắt quãng, danh sách tra cứu + tìm kiếm. Không còn quiz.
 
 ### 2.5. Xác thực, tiến trình và bảng xếp hạng
 
@@ -217,7 +218,8 @@ THPTQG-main/
 ├─ anh.html                    # Cổng Tiếng Anh 12 (tĩnh, kiểu Hóa)
 ├─ anh-de-thi.html             # Luyện 6 đề Giữa HKI (tương tác)
 ├─ anh-bai-tap.html            # Tải PDF + DOCX 6 đề Tiếng Anh
-├─ tu-vung.html                # Từ vựng, flashcard, quiz
+├─ tu-vung.html                # Cổng chọn 2 bộ Từ vựng / Idioms
+├─ tu-vung-hoc.html            # Học flashcard + phụ lục (?type=vocab|idiom)
 ├─ hoa.html                    # Cổng Hóa học 12
 ├─ hoa-de-thi.html             # 11 đề Hóa tương tác
 ├─ hoa-bai-tap.html            # 10 bộ tài liệu Hóa PDF/DOCX
@@ -248,7 +250,7 @@ THPTQG-main/
 │  ├─ style.css                # Giao diện chung, header, card, runner, responsive
 │  ├─ background.css           # Nền "Bàn cờ sống", token, aurora
 │  ├─ hoa-exam.css             # Hero/card/leaderboard kiểu Hóa; dùng lại cho Tiếng Anh
-│  ├─ vocab.css                # Trang từ vựng
+│  ├─ vocab.css                # Cổng + trang học Từ vựng/Idioms (phụ lục, flashcard)
 │  ├─ ly-thuyet.css            # Trang lý thuyết Hóa
 │  └─ admin.css                # Dashboard quản trị
 │
@@ -263,6 +265,8 @@ THPTQG-main/
 │  ├─ cloud.js                 # Firebase Auth, tiến trình, leaderboard, fallback local
 │  ├─ firebase-config.js       # Cấu hình Firebase Web App công khai
 │  ├─ content.js               # Tải/hợp nhất content/*.json từ GitHub Raw + cache
+│  ├─ vocab-data.js            # 302 Idioms + 20 từ vựng đề thi tĩnh
+│  ├─ vocab.js                 # Cổng + logic flashcard/phụ lục Từ vựng & Idioms
 │  ├─ admin.js                 # Toàn bộ dashboard quản trị + GitHub publish
 │  └─ background.js            # Nền tương tác, token, reduced motion, toggle
 │

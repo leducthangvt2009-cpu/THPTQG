@@ -1594,7 +1594,7 @@
       },
       vocab: {
         title: 'Từ vựng & Idiom',
-        desc: 'Thêm từ vựng hoặc idiom mới vào flashcard, danh sách và quiz. Mã động bắt đầu từ #1000.',
+        desc: 'Thêm từ vựng hoặc idiom mới vào flashcard và danh sách tra cứu; chọn phụ lục có sẵn hoặc tạo chủ đề mới. Mã động bắt đầu từ #1000.',
         action: 'new-vocab',
         actionLabel: 'Thêm từ mới',
         icon: 'vocab'
@@ -2090,10 +2090,44 @@
   /* ------------------------------------------------------------------ */
   /* Từ vựng & Idiom                                                     */
   /* ------------------------------------------------------------------ */
+  var VOCAB_BASE_TOPICS = {
+    p1: { label: 'Idioms 1–54', type: 'idiom' },
+    p2: { label: 'Idioms 55–109', type: 'idiom' },
+    p3: { label: 'Idioms 110–165', type: 'idiom' },
+    p4: { label: 'Idioms 166–216', type: 'idiom' },
+    p5: { label: 'Idioms 217–259', type: 'idiom' },
+    p6: { label: 'Idioms 260–302', type: 'idiom' },
+    test: { label: 'Từ vựng Đề thi', type: 'vocab' }
+  };
+  var VOCAB_BASE_ORDER = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'test'];
+
+  function vocabTypeOf(item) {
+    if (item && (item.type === 'idiom' || item.type === 'vocab')) return item.type;
+    if (item && VOCAB_BASE_TOPICS[item.topic]) return VOCAB_BASE_TOPICS[item.topic].type;
+    return 'vocab';
+  }
+
+  function vocabTypeLabel(type) {
+    return type === 'idiom' ? 'Idioms' : 'Từ vựng';
+  }
+
   function vocabTopicLabel(item) {
     if (item && item.topicLabel) return item.topicLabel;
-    var map = { admin: 'Từ vựng/Idiom mới', test: 'Từ vựng Đề thi', p1: 'Idioms 1–54', p2: 'Idioms 55–109', p3: 'Idioms 110–165', p4: 'Idioms 166–216', p5: 'Idioms 217–259', p6: 'Idioms 260–302' };
-    return map[item && item.topic] || 'Từ vựng/Idiom mới';
+    if (item && VOCAB_BASE_TOPICS[item.topic]) return VOCAB_BASE_TOPICS[item.topic].label;
+    return 'Từ vựng mới';
+  }
+
+  function vocabTopicMap() {
+    var map = {};
+    Object.keys(VOCAB_BASE_TOPICS).forEach(function (id) {
+      map[id] = { id: id, label: VOCAB_BASE_TOPICS[id].label, type: VOCAB_BASE_TOPICS[id].type, base: true };
+    });
+    state.content.vocab.forEach(function (item) {
+      var id = text(item.topic).trim();
+      if (!id || map[id]) return;
+      map[id] = { id: id, label: vocabTopicLabel(item), type: vocabTypeOf(item), base: false };
+    });
+    return map;
   }
 
   function nextVocabId() {
@@ -2117,7 +2151,7 @@
       return '<div class="admin-item"><div class="admin-item-main">'
         + '<span class="admin-badge">#' + esc(item.id) + '</span>'
         + '<h3>' + esc(item.word) + (item.ipa ? ' <small style="font-weight:500;color:var(--muted)">' + esc(item.ipa) + '</small>' : '') + '</h3>'
-        + '<p>' + esc(item.pos || 'Từ vựng') + ' · ' + esc(vocabTopicLabel(item)) + '</p>'
+        + '<p>' + esc(item.pos || 'Từ vựng') + ' · ' + esc(vocabTypeLabel(vocabTypeOf(item))) + ' · ' + esc(vocabTopicLabel(item)) + '</p>'
         + '<p>' + esc(item.meaning) + '</p></div>'
         + '<div class="admin-item-actions">'
         + '<button type="button" class="btn small" data-act="edit-vocab" data-i="' + index + '">Sửa</button>'
@@ -2128,7 +2162,7 @@
 
     return '<div class="admin-card admin-card--flush">'
       + '<div class="admin-list-head"><div><h2>Từ vựng &amp; Idiom</h2>'
-      + '<p>Mã từ <b>1000</b> trở lên để không trùng 322 mục có sẵn · ' + list.length + ' / ' + state.content.vocab.length + ' mục</p></div>'
+      + '<p>Mã từ <b>1000</b> trở lên để không trùng 302 Idioms và 20 từ vựng đề thi · ' + list.length + ' / ' + state.content.vocab.length + ' mục</p></div>'
       + '<label class="admin-inline-search">' + icon('search')
       + '<input type="search" id="vocab-search" value="' + esc(state.vocabSearch) + '" placeholder="Tìm từ, nghĩa, chủ đề…" aria-label="Tìm từ vựng"></label>'
       + '</div>'
@@ -2146,29 +2180,52 @@
         word: '',
         ipa: '',
         pos: 'Từ vựng',
-        topic: 'admin',
-        topicLabel: 'Từ vựng/Idiom mới',
+        topic: '',
+        topicLabel: '',
+        type: 'vocab',
         meaning: '',
         ex: ''
       };
     } else {
       draft = clone(state.content.vocab[index]);
+      if (VOCAB_BASE_TOPICS[draft.topic]) draft.type = VOCAB_BASE_TOPICS[draft.topic].type;
+      else draft.type = vocabTypeOf(draft);
     }
     return { kind: 'vocab', mode: index === null || index === undefined ? 'new' : 'edit', index: index, draft: draft };
   }
 
   function vocabEditorHTML() {
     var d = state.editor.draft;
-    var topics = {};
-    state.content.vocab.forEach(function (item) {
-      if (item.topic) topics[item.topic] = item.topicLabel || vocabTopicLabel(item);
+    if (!d.type) d.type = vocabTypeOf(d);
+
+    var topics = vocabTopicMap();
+    var selected = topics[d.topic] ? d.topic : '__new__';
+    var isNewTopic = selected === '__new__';
+
+    var groups = { vocab: [], idiom: [] };
+    Object.keys(topics).forEach(function (id) {
+      var topic = topics[id];
+      (groups[topic.type] || groups.vocab).push(topic);
     });
-    var known = { admin: 'Từ vựng/Idiom mới', test: 'Từ vựng Đề thi', p1: 'Idioms 1–54', p2: 'Idioms 55–109', p3: 'Idioms 110–165', p4: 'Idioms 166–216', p5: 'Idioms 217–259', p6: 'Idioms 260–302' };
-    Object.keys(known).forEach(function (k) { if (!topics[k]) topics[k] = known[k]; });
+
+    function optionsFor(type) {
+      return groups[type].slice().sort(function (a, b) {
+        var ai = VOCAB_BASE_ORDER.indexOf(a.id);
+        var bi = VOCAB_BASE_ORDER.indexOf(b.id);
+        if (ai !== bi) {
+          if (ai === -1) return 1;
+          if (bi === -1) return -1;
+          return ai - bi;
+        }
+        return a.label.localeCompare(b.label, 'vi');
+      }).map(function (topic) {
+        return '<option value="' + esc(topic.id) + '"' + (topic.id === selected ? ' selected' : '') + '>' + esc(topic.label) + '</option>';
+      }).join('');
+    }
 
     return '<div class="admin-editor-head"><div><span class="admin-badge">Từ vựng #' + esc(d.id) + '</span>'
       + '<h2>' + (state.editor.mode === 'new' ? 'Thêm từ vựng / Idiom' : 'Sửa từ vựng / Idiom') + '</h2>'
-      + '<p>Nội dung sẽ xuất hiện trong flashcard, danh sách và quiz của trang Từ vựng.</p></div>'
+      + '<p>Nội dung sẽ xuất hiện trong flashcard và danh sách tra cứu của trang Từ vựng hoặc Idioms.</p></div>'
       + '<div class="admin-editor-actions"><button type="button" class="btn ghost small" data-act="editor-back">← Quay lại</button>'
       + '<button type="button" class="btn small" data-act="save-vocab">Lưu mục</button></div></div>'
       + '<div id="editor-alert"></div>'
@@ -2177,15 +2234,25 @@
       + '<label class="admin-field"><span>Từ / cụm từ / idiom</span><input type="text" data-path="word" value="' + esc(d.word) + '" placeholder="take the bull by the horns"></label>'
       + '<label class="admin-field"><span>Phiên âm</span><input type="text" data-path="ipa" value="' + esc(d.ipa) + '" placeholder="/teɪk ðə bʊl baɪ ðə hɔːnz/"></label>'
       + '<label class="admin-field"><span>Từ loại</span><input type="text" data-path="pos" value="' + esc(d.pos) + '" placeholder="Idiom / Phrasal Verb / Noun…"></label>'
-      + '<label class="admin-field"><span>Chủ đề (slug)</span><input type="text" data-path="topic" value="' + esc(d.topic) + '" list="vocab-topics" placeholder="admin"></label>'
-      + '<label class="admin-field"><span>Tên chủ đề hiển thị</span><input type="text" data-path="topicLabel" value="' + esc(d.topicLabel) + '" placeholder="Từ vựng/Idiom mới"></label>'
-      + '<datalist id="vocab-topics">' + Object.keys(topics).map(function (k) {
-        return '<option value="' + esc(k) + '">' + esc(topics[k]) + '</option>';
-      }).join('') + '</datalist>'
+      + '<label class="admin-field"><span>Loại mục</span><select data-path="type"' + (isNewTopic ? '' : ' disabled') + '>'
+      + '<option value="vocab"' + (d.type === 'vocab' ? ' selected' : '') + '>Từ vựng</option>'
+      + '<option value="idiom"' + (d.type === 'idiom' ? ' selected' : '') + '>Idioms</option>'
+      + '</select></label>'
+      + '<label class="admin-field"><span>Chủ đề</span><select data-vocab-topic="1">'
+      + '<option value="__new__"' + (isNewTopic ? ' selected' : '') + '>＋ Tạo chủ đề mới</option>'
+      + '<optgroup label="Từ vựng">' + optionsFor('vocab') + '</optgroup>'
+      + '<optgroup label="Idioms">' + optionsFor('idiom') + '</optgroup>'
+      + '</select></label>'
+      + '<label class="admin-field wide"><span>Tên chủ đề hiển thị</span>'
+      + (isNewTopic
+        ? '<input type="text" data-path="topicLabel" data-vocab-new-topic="1" value="' + esc(d.topicLabel) + '" placeholder="Ví dụ: Từ vựng Unit 1">'
+        : '<input type="text" value="' + esc(topics[selected] ? topics[selected].label : vocabTopicLabel(d)) + '" readonly>')
+      + '<small style="color:var(--muted);font-weight:600">' + (isNewTopic ? 'Slug chủ đề được tạo tự động từ tên này.' : 'Đang thêm vào chủ đề có sẵn; tên hiển thị dùng chung cho cả chủ đề.') + '</small>'
+      + '</label>'
       + '<label class="admin-field wide"><span>Nghĩa tiếng Việt</span><textarea data-path="meaning" rows="2" placeholder="Nghĩa của từ/cụm từ">' + esc(d.meaning) + '</textarea></label>'
       + '<label class="admin-field wide"><span>Ví dụ</span><textarea data-path="ex" rows="2">' + esc(d.ex) + '</textarea></label>'
       + '</div>'
-      + '<div class="admin-note" style="margin-top:.9rem">Mẹo: dùng chủ đề <code>admin</code> cho mục mới, hoặc <code>p1</code>…<code>p6</code> để gộp vào nhóm Idioms có sẵn. Tên chủ đề mới sẽ tự tạo nút lọc riêng.</div>'
+      + '<div class="admin-note" style="margin-top:.9rem">Chọn một phụ lục có sẵn để thêm mục vào đúng nhóm, hoặc chọn <b>Tạo chủ đề mới</b> rồi đặt tên hiển thị. Slug tự sinh; mục mới sẽ xuất hiện ở trang Từ vựng hoặc Idioms tương ứng.</div>'
       + '</div>';
   }
 
@@ -2358,8 +2425,14 @@
     copy.word = text(copy.word).trim();
     copy.ipa = text(copy.ipa).trim();
     copy.pos = text(copy.pos).trim() || 'Từ vựng';
-    copy.topic = text(copy.topic).trim() || 'admin';
-    copy.topicLabel = text(copy.topicLabel).trim() || 'Từ vựng/Idiom mới';
+    copy.type = vocabTypeOf(copy);
+    copy.topicLabel = text(copy.topicLabel).trim() || (copy.type === 'idiom' ? 'Idioms mới' : 'Từ vựng mới');
+    var topic = text(copy.topic).trim();
+    copy.topic = /^[a-z0-9][a-z0-9_-]*$/.test(topic) ? topic : slug(topic || copy.topicLabel, 'chu-de');
+    if (VOCAB_BASE_TOPICS[copy.topic]) {
+      copy.type = VOCAB_BASE_TOPICS[copy.topic].type;
+      copy.topicLabel = VOCAB_BASE_TOPICS[copy.topic].label;
+    }
     copy.meaning = text(copy.meaning).trim();
     copy.ex = text(copy.ex).trim();
     return copy;
@@ -2372,6 +2445,7 @@
     if (!item.word) errors.push('Từ vựng: thiếu từ/cụm từ.');
     if (!item.meaning) errors.push('Từ vựng: thiếu nghĩa tiếng Việt.');
     if (!item.topic || !/^[a-z0-9][a-z0-9_-]*$/.test(item.topic)) errors.push('Từ vựng: chủ đề chỉ dùng chữ thường, số, gạch ngang/gạch dưới.');
+    if (item.type !== 'vocab' && item.type !== 'idiom') errors.push('Từ vựng: loại mục phải là Từ vựng hoặc Idioms.');
     return errors;
   }
 
@@ -3066,6 +3140,9 @@
     }
     if (target.getAttribute('data-path') !== null || target.getAttribute('data-paras') !== null) {
       handleFieldInput(target);
+      if (target.getAttribute('data-vocab-new-topic') !== null && state.editor && state.editor.kind === 'vocab') {
+        state.editor.draft.topic = slug(state.editor.draft.topicLabel, 'chu-de');
+      }
     }
   }
 
@@ -3075,6 +3152,26 @@
     if (target.id === 'users-sort') {
       state.users.sort = target.value;
       renderView();
+      return;
+    }
+    if (target.getAttribute('data-vocab-topic') !== null) {
+      var ed = state.editor;
+      if (ed && ed.kind === 'vocab') {
+        var pick = target.value;
+        if (pick === '__new__') {
+          ed.draft.topic = '';
+          ed.draft.topicLabel = '';
+          ed.draft.type = 'vocab';
+        } else {
+          var meta = vocabTopicMap()[pick];
+          ed.draft.topic = pick;
+          ed.draft.topicLabel = meta ? meta.label : '';
+          ed.draft.type = meta ? meta.type : 'vocab';
+        }
+        state.editorDirty = true;
+        renderSavebar();
+        renderView();
+      }
       return;
     }
     if (target.getAttribute('data-path') !== null) handleFieldInput(target);

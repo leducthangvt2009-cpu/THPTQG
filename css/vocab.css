@@ -1,4 +1,107 @@
-/* ---------- Thanh công cụ & Bộ lọc chủ đề ---------- */
+/* ---------- Bố cục 2 cột: phụ lục + nội dung ---------- */
+.vocab-layout {
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+.vocab-layout > * {
+  min-width: 0;
+}
+.vocab-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.appendix-col {
+  position: sticky;
+  top: 1.25rem;
+  background: var(--white);
+  border: 3px solid var(--line);
+  box-shadow: 7px 7px 0 var(--line);
+  padding: 1rem;
+}
+.appendix-col h2 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 3px solid var(--line);
+  padding-bottom: 0.5rem;
+}
+.appendix-list {
+  display: grid;
+  gap: 0.4rem;
+  max-width: 100%;
+}
+.appendix-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.65rem;
+  background: var(--bg);
+  border: 2px solid var(--line);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.1s ease;
+}
+.appendix-btn:hover {
+  transform: translate(1px, 1px);
+  background: var(--mono-board);
+}
+.appendix-btn.active {
+  background: var(--mono-gold);
+}
+.appendix-count {
+  flex-shrink: 0;
+  min-width: 2rem;
+  padding: 0.1rem 0.35rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  font-size: 0.72rem;
+  text-align: center;
+}
+.appendix-btn--unmastered {
+  margin-top: 0.55rem;
+  border-style: dashed;
+}
+
+@media (max-width: 959px) {
+  .vocab-layout {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .appendix-col {
+    position: static;
+  }
+  .appendix-list {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.4rem;
+    padding-bottom: 0.35rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .appendix-btn {
+    width: auto;
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .appendix-btn--unmastered {
+    margin-top: 0;
+  }
+}
+
+/* ---------- Thanh công cụ ---------- */
 .vocab-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -7,51 +110,25 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
 }
-.topic-pills {
+.vocab-topbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-}
-.pill {
-  cursor: pointer;
-  background: var(--white);
-  color: var(--text);
-  border: 2px solid var(--line);
-  padding: 0.45rem 0.9rem;
-  min-height: 44px;
-  display: inline-flex;
+  gap: 0.75rem;
   align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  box-shadow: 3px 3px 0 var(--line);
-  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+  justify-content: space-between;
 }
-.pill:hover {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 var(--line);
+.kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  font-weight: 700;
 }
-.pill.active {
-  background: var(--mono-gold);
-  color: var(--line);
+.kpis b {
+  color: var(--mono-red);
 }
 
-/* ---------- Khu vực Thẻ ghi nhớ 3D (Spatial Continuity) ---------- */
-.fc-layout {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 2rem;
-  align-items: start;
-  margin-bottom: 3rem;
-}
-@media (max-width: 900px) {
-  .fc-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* ---------- Thẻ ghi nhớ 3D ---------- */
 .fc-stage {
   display: flex;
   flex-direction: column;
@@ -101,6 +178,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.5rem;
   font-weight: 800;
   font-size: 0.78rem;
   letter-spacing: 0.1em;
@@ -244,60 +322,7 @@
   background: var(--mono-board-dark);
 }
 
-/* ---------- Khung Trắc nghiệm nhanh từ vựng ---------- */
-.quiz-box {
-  background: var(--white);
-  border: 3px solid var(--line);
-  box-shadow: 7px 7px 0 var(--line);
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-.quiz-box h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  border-bottom: 3px solid var(--line);
-  padding-bottom: 0.5rem;
-}
-.quiz-word {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--mono-blue);
-}
-.quiz-opts {
-  display: grid;
-  gap: 0.55rem;
-}
-.quiz-btn {
-  text-align: left;
-  cursor: pointer;
-  background: var(--bg);
-  border: 2px solid var(--line);
-  min-height: 44px;
-  padding: 0.65rem 0.85rem;
-  font-weight: 600;
-  font-size: 0.92rem;
-  transition: background 0.1s ease;
-}
-.quiz-btn:hover:not(:disabled) {
-  background: var(--mono-board);
-}
-.quiz-btn.correct {
-  background: var(--ok-bg);
-  border-color: var(--ok);
-  color: var(--ok);
-  font-weight: 800;
-}
-.quiz-btn.wrong {
-  background: var(--bad-bg);
-  border-color: var(--bad);
-  color: var(--bad);
-}
-
-/* ---------- Bảng danh sách & Tìm kiếm ---------- */
+/* ---------- Danh sách tra cứu & tìm kiếm ---------- */
 .vocab-search {
   width: 100%;
   max-width: 340px;
@@ -311,7 +336,7 @@
 }
 .vocab-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.1rem;
 }
 .vcard {
@@ -340,6 +365,16 @@
   font-weight: 700;
   color: var(--mono-red);
   font-size: 0.95rem;
+}
+.vcard-status {
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.vcard-status.is-done {
+  color: var(--ok);
+}
+.vcard-status.is-repeat {
+  color: var(--bad);
 }
 .vcard-ex {
   font-size: 0.86rem;
