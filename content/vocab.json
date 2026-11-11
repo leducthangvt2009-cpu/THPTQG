@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": 1000,
+    "word": "Distinctive",
+    "ipa": "",
+    "pos": "Từ vựng",
+    "topic": "admin",
+    "topicLabel": "Từ vựng/Idiom mới",
+    "meaning": "Đặc biệt, khác biệt, dễ nhận biết",
+    "ex": "These spectacular trees have distinctive horizontal root-like branches"
+  }
+]
